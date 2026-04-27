@@ -15,6 +15,25 @@ A CLI security tool that parses SSH `auth.log` and Windows Event Log CSV files, 
 - **Docker support** — `docker compose up` spins up Postgres + analyzer together
 - **GitHub Actions CI** — runs all 61 pytest tests and uploads a sample report on every push
 
+## Prerequisites
+
+| Requirement | Version | Notes |
+|---|---|---|
+| Python | 3.12+ | |
+| PostgreSQL | 14+ | Optional — use `--no-db` to skip |
+| Anthropic API key | — | Optional — only needed for `--ai-summary` |
+
+## Skills Demonstrated
+
+| Area | Details |
+|---|---|
+| Security Detection | Sliding-window brute-force, port scan, and 404-flood rule engine |
+| ML / Anomaly Detection | Isolation Forest on 8 behavioural features; catches low-and-slow attacks |
+| MITRE ATT&CK | Technique mapping (T1110.001, T1046), tactic labelling, clickable report links |
+| PostgreSQL | Schema design, psycopg2 batch inserts, JSONB incident details |
+| Docker | Multi-service Compose with health-checked Postgres and volume mounts |
+| CI/CD | GitHub Actions: pytest gate + HTML report artifact on every push |
+
 ## Demo
 
 ```
@@ -54,18 +73,26 @@ A CLI security tool that parses SSH `auth.log` and Windows Event Log CSV files, 
 
 ```bash
 pip install -r requirements.txt
+```
 
-# No database
+No database:
+```bash
 python log_analyzer.py auth.log --no-db --report report.html
+```
 
-# With PostgreSQL
+With PostgreSQL:
+```bash
 python log_analyzer.py auth.log --report report.html
+```
 
-# With Claude AI executive summary
+With Claude AI executive summary:
+```bash
 export ANTHROPIC_API_KEY=sk-...
 python log_analyzer.py auth.log --no-db --ai-summary --report report.html
+```
 
-# Via Docker (place log at ./logs/auth.log)
+Via Docker (place log at `./logs/auth.log`, report appears in `./reports/`):
+```bash
 docker compose up
 ```
 
@@ -84,6 +111,28 @@ docker compose up
 | `--port-scan-window MIN` | `5` | Sliding window in minutes |
 | `--format {ssh,windows,auto}` | `auto` | Log format override |
 | `--init-schema` | — | Create database schema and exit |
+
+## HTML Report
+
+![HTML Incident Report](docs/report_screenshot.png)
+
+## Project Structure
+
+```
+log-analyzer/
+├── log_analyzer.py        # Main CLI — parsing, detection, ML, report generation
+├── ai_summary.py          # Claude API executive summary integration
+├── generate_test_logs.py  # Synthetic SSH + Windows log generator
+├── schema.sql             # PostgreSQL schema (log_events, incidents)
+├── requirements.txt       # Python dependencies
+├── config.example.yaml    # All detection thresholds and allowlist options
+├── Dockerfile             # Container image
+├── docker-compose.yml     # Postgres + analyzer services
+├── tests/
+│   └── test_detection.py  # 61 pytest unit tests
+└── .github/workflows/
+    └── ci.yml             # GitHub Actions: test + report artifact
+```
 
 ## Running tests
 
