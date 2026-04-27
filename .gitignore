@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+*.html
+test_auth.log
+test_events.csv
