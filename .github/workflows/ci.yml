@@ -56,7 +56,7 @@ jobs:
       - name: Generate sample report
         run: |
           python generate_test_logs.py
-          python log_analyzer.py test_auth.log --no-db --no-geoip --report report.html
+          python log_analyzer.py test_auth.log --no-db --report report.html
 
       - name: Upload report artifact
         uses: actions/upload-artifact@v4
