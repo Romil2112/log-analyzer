@@ -1122,6 +1122,7 @@ def build_parser() -> argparse.ArgumentParser:
                    metavar="N")
     p.add_argument("--port-scan-window",      type=int, default=PORT_SCAN_WINDOW,
                    metavar="MIN")
+    p.add_argument("--ai-summary", action="store_true", help="Generate AI executive summary via Claude API")
     return p
 
 
