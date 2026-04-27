@@ -140,11 +140,14 @@ log-analyzer/
 ├── config.example.yaml    # All detection thresholds and allowlist options
 ├── Dockerfile             # Container image
 ├── docker-compose.yml     # Postgres + analyzer services
+├── test_auth_10k.log      # 10,000-event SSH fixture
+├── test_auth_50k.log      # 50,000-event scale fixture
+├── test_coordinated.log   # Coordinated multi-IP attack
+├── test_highvol.log       # High-volume mixed attack
+├── test_malformed.log     # Malformed-line edge cases
+├── test_events.csv        # Windows Event Log CSV fixture
 ├── tests/
-│   ├── test_detection.py  # 103 pytest unit + integration tests
-│   ├── test_auth_50k.log  # 50,000-event scale test
-│   ├── test_highvol.log   # High-volume coordinated attack
-│   └── test_malformed.log # Edge-case malformed lines
+│   └── test_detection.py  # 103 pytest unit + integration tests
 └── .github/workflows/
     └── ci.yml             # GitHub Actions: test + report artifact
 ```
