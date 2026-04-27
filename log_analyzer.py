@@ -41,6 +41,12 @@ try:
 except ImportError:
     ML_AVAILABLE = False
 
+try:
+    from ai_summary import ai_summary as _ai_summary
+    AI_SUMMARY_AVAILABLE = True
+except ImportError:
+    AI_SUMMARY_AVAILABLE = False
+
 console = Console()
 
 # ── Constants ─────────────────────────────────────────────────────────────────
@@ -1262,7 +1268,8 @@ def main() -> None:  # noqa: C901
     console.print("[cyan][*][/cyan] Running rule-based detections...")
     bf        = detect_brute_force(events)
     ps        = detect_port_scan(events)
-    incidents = enrich_incidents(bf + ps)
+    flood     = detect_404_flood(events)
+    incidents = enrich_incidents(bf + ps + flood)
 
     # ── rich incident + MITRE table ───────────────────────────────────────────
     console.print()
@@ -1337,6 +1344,22 @@ def main() -> None:  # noqa: C901
     console.print(f"[cyan][*][/cyan] Generating HTML report -> [bold]{args.report}[/bold]...")
     generate_report(events, incidents, log_path, args.report, anomaly_scores, feat_rows)
     console.print(f"[green][+][/green] Report written: [bold]{args.report}[/bold]")
+
+    if args.ai_summary:
+        if not AI_SUMMARY_AVAILABLE:
+            console.print("[yellow][!][/yellow] AI summary unavailable — run: pip install anthropic")
+        else:
+            console.print("[cyan][*][/cyan] Generating AI executive summary...")
+            summary = _ai_summary(incidents, anomaly_scores or {})
+            if summary:
+                console.print(Panel(
+                    summary,
+                    title="[bold cyan]AI Executive Summary[/bold cyan]",
+                    border_style="cyan",
+                    padding=(1, 2),
+                ))
+            else:
+                console.print("[yellow][!][/yellow] AI summary skipped — set ANTHROPIC_API_KEY to enable.")
 
 
 if __name__ == "__main__":
