@@ -88,6 +88,7 @@ python log_analyzer.py auth.log --report report.html
 ```
 
 ### With AI summary
+
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-your-key-here
 python log_analyzer.py auth.log --no-db --ai-summary --report report.html
@@ -119,13 +120,10 @@ docker compose up
 
 ## HTML Report
 
-*Summary cards and Chart.js attack overview*
 ![Summary cards and charts](docs/1.png)
 
-*Top attacker IPs, incident breakdown, and ML anomaly scores*
 ![Charts and ML anomaly scores](docs/2.png)
 
-*Isolation Forest feature table with Brute Force and Port Scan incident details*
 ![ML detection and incident tables](docs/3.png)
 
 ## Project Structure
