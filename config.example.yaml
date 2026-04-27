@@ -14,7 +14,7 @@ detection:
     window_minutes: 5
   flood_404:
     threshold: 30       # 404 responses to trigger alert
-    window_minutes: 5
+    window_minutes: 5   # sliding window size
 
 # IPs/CIDRs to exclude from all detection
 allowlist:
