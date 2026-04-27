@@ -5,3 +5,5 @@ __pycache__/
 *.html
 test_auth.log
 test_events.csv
+test_auth_10k.log
+.claude/
