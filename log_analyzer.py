@@ -126,16 +126,16 @@ def enrich_incidents(incidents: list[dict]) -> list[dict]:
 _SSH_FAILED  = re.compile(
     r'^(?P<month>\w+)\s+(?P<day>\d+)\s+(?P<time>\S+).*'
     r'Failed (?:password|publickey) for (?:invalid user )?(?P<user>\S+) '
-    r'from (?P<ip>[\d.]+) port (?P<port>\d+)'
+    r'from (?P<ip>[0-9a-fA-F:.]+) port (?P<port>\d+)'
 )
 _SSH_ACCEPT  = re.compile(
     r'^(?P<month>\w+)\s+(?P<day>\d+)\s+(?P<time>\S+).*'
     r'Accepted (?:password|publickey) for (?P<user>\S+) '
-    r'from (?P<ip>[\d.]+) port (?P<port>\d+)'
+    r'from (?P<ip>[0-9a-fA-F:.]+) port (?P<port>\d+)'
 )
 _SSH_CONNECT = re.compile(
     r'^(?P<month>\w+)\s+(?P<day>\d+)\s+(?P<time>\S+).*'
-    r'Connection from (?P<ip>[\d.]+) port (?P<port>\d+)'
+    r'Connection from (?P<ip>[0-9a-fA-F:.]+) port (?P<port>\d+)'
 )
 
 # ── Parsing ───────────────────────────────────────────────────────────────────
