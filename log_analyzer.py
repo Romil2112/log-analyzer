@@ -1082,6 +1082,83 @@ def generate_report(
         fh.write(html)
 
 
+# ── 404 flood detection ──────────────────────────────────────────────────────
+
+FLOOD_404_THRESHOLD = 30
+FLOOD_404_WINDOW    = 5
+
+
+def detect_404_flood(events: list[dict]) -> list[dict]:
+    by_ip: dict[str, list[datetime]] = defaultdict(list)
+    for e in events:
+        if e["event_type"] == "http_404" and e.get("source_ip"):
+            by_ip[e["source_ip"]].append(e["event_time"])
+
+    incidents = []
+    window = timedelta(minutes=FLOOD_404_WINDOW)
+    for ip, times in by_ip.items():
+        times.sort()
+        for i in range(len(times)):
+            window_times = [t for t in times[i:] if t - times[i] <= window]
+            if len(window_times) >= FLOOD_404_THRESHOLD:
+                incidents.append({
+                    "incident_type": "flood_404",
+                    "source_ip":     ip,
+                    "first_seen":    window_times[0],
+                    "last_seen":     window_times[-1],
+                    "event_count":   len(window_times),
+                    "details":       {
+                        "window_minutes": FLOOD_404_WINDOW,
+                        "threshold":      FLOOD_404_THRESHOLD,
+                    },
+                })
+                break
+    return incidents
+
+
+# ── Severity scoring (public) ─────────────────────────────────────────────────
+
+_SCORE_SEVERITY_THRESHOLDS: dict[str, list[tuple[int, str]]] = {
+    "brute_force": [(100, "CRITICAL"), (30, "HIGH"), (10, "MEDIUM")],
+    "port_scan":   [(500, "CRITICAL"), (100, "HIGH"), (50, "MEDIUM")],
+    "flood_404":   [(200, "CRITICAL"), (100, "HIGH"), (50, "MEDIUM")],
+}
+
+
+def score_severity(incident: dict) -> str:
+    for threshold, level in _SCORE_SEVERITY_THRESHOLDS.get(incident["incident_type"], []):
+        if incident["event_count"] >= threshold:
+            return level
+    return "LOW"
+
+
+# ── Allowlist helpers ─────────────────────────────────────────────────────────
+
+import ipaddress as _ipaddress
+
+
+def build_allowlist(entries: list[str]) -> list:
+    networks = []
+    for entry in entries:
+        try:
+            networks.append(_ipaddress.ip_network(entry, strict=False))
+        except ValueError:
+            pass
+    return networks
+
+
+def _is_allowed(ip: str, allowlist: list) -> bool:
+    try:
+        addr = _ipaddress.ip_address(ip)
+    except ValueError:
+        return False
+    return any(addr in network for network in allowlist)
+
+
+def filter_allowlist(events: list[dict], allowlist: list) -> list[dict]:
+    return [e for e in events if not (e.get("source_ip") and _is_allowed(e["source_ip"], allowlist))]
+
+
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
 def build_parser() -> argparse.ArgumentParser:
