@@ -81,6 +81,7 @@ MITRE_TECHNIQUES: dict[str, dict] = {
 _SEVERITY_THRESHOLDS: dict[str, list[tuple[int, str]]] = {
     "brute_force": [(50, "CRITICAL"), (20, "HIGH"), (10, "MEDIUM")],
     "port_scan":   [(100, "CRITICAL"), (50, "HIGH"), (30, "MEDIUM")],
+    "flood_404":   [(200, "CRITICAL"), (100, "HIGH"), (50, "MEDIUM")],
 }
 
 _SEV_RICH: dict[str, str] = {
@@ -547,10 +548,10 @@ def store_events(conn, events: list[dict], source_file: str):
 def store_incidents(conn, incidents: list[dict]):
     sql = """
         INSERT INTO incidents
-            (incident_type, source_ip, first_seen, last_seen, event_count, details)
+            (incident_type, source_ip, first_seen, last_seen, event_count, severity, details)
         VALUES
             (%(incident_type)s, %(source_ip)s, %(first_seen)s, %(last_seen)s,
-             %(event_count)s, %(details)s)
+             %(event_count)s, %(severity)s, %(details)s)
     """
     rows = [{**i, "details": json.dumps(i["details"])} for i in incidents]
     with conn.cursor() as cur:
