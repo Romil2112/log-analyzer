@@ -1,4 +1,4 @@
-![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Tests](https://img.shields.io/badge/pytest-61%20passing-brightgreen?logo=pytest&logoColor=white)
+![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Tests](https://img.shields.io/badge/pytest-103%20passing-brightgreen?logo=pytest&logoColor=white)
 
 # log-analyzer
 
@@ -9,11 +9,11 @@ A CLI security tool that parses SSH `auth.log` and Windows Event Log CSV files, 
 - **Rule-based detection** — sliding-window brute-force, port scan, and 404-flood alerts
 - **ML anomaly detection** — Isolation Forest on 8 behavioural features per source IP; catches low-and-slow attackers rules miss
 - **MITRE ATT&CK mapping** — every incident tagged with technique ID, tactic, and documentation link
-- **Rich CLI** — colour-coded tables, severity badges (CRITICAL/HIGH/MEDIUM/LOW), and live progress bars
+- **Rich CLI** — color-coded tables, severity badges (CRITICAL/HIGH/MEDIUM/LOW), and live progress bars
 - **Claude AI summaries** — 3-sentence SOC executive summary via the Anthropic API (`--ai-summary`)
 - **HTML reports** — Chart.js dashboards: timeline, top-attacker IPs, event breakdown, ML anomaly scores
 - **Docker support** — `docker compose up` spins up Postgres + analyzer together
-- **GitHub Actions CI** — runs all 61 pytest tests and uploads a sample report on every push
+- **GitHub Actions CI** — runs all 103 pytest tests and uploads a sample report on every push
 
 ## Prerequisites
 
@@ -29,10 +29,11 @@ A CLI security tool that parses SSH `auth.log` and Windows Event Log CSV files, 
 |---|---|
 | Security Detection | Sliding-window brute-force, port scan, and 404-flood rule engine |
 | ML / Anomaly Detection | Isolation Forest on 8 behavioural features; catches low-and-slow attacks |
-| MITRE ATT&CK | Technique mapping (T1110.001, T1046), tactic labelling, clickable report links |
+| MITRE ATT&CK | Technique mapping (T1110.001, T1046, T1595.002), tactic labelling, clickable report links |
 | PostgreSQL | Schema design, psycopg2 batch inserts, JSONB incident details |
 | Docker | Multi-service Compose with health-checked Postgres and volume mounts |
 | CI/CD | GitHub Actions: pytest gate + HTML report artifact on every push |
+| Claude AI / Anthropic | Async API integration, SOC executive summary generation, prompt engineering |
 
 ## Demo
 
@@ -110,6 +111,9 @@ docker compose up
 | `--brute-force-window MIN` | `10` | Sliding window in minutes |
 | `--port-scan-threshold N` | `20` | Unique ports to trigger alert |
 | `--port-scan-window MIN` | `5` | Sliding window in minutes |
+| `--flood-404-threshold N` | `30` | 404 requests to trigger alert |
+| `--flood-404-window MIN` | `5` | Sliding window in minutes |
+| `--allowlist CIDR,...` | — | Comma-separated IPs/CIDRs to exclude from detection |
 | `--format {ssh,windows,auto}` | `auto` | Log format override |
 | `--init-schema` | — | Create database schema and exit |
 
@@ -137,7 +141,10 @@ log-analyzer/
 ├── Dockerfile             # Container image
 ├── docker-compose.yml     # Postgres + analyzer services
 ├── tests/
-│   └── test_detection.py  # 61 pytest unit tests
+│   ├── test_detection.py  # 103 pytest unit + integration tests
+│   ├── test_auth_50k.log  # 50,000-event scale test
+│   ├── test_highvol.log   # High-volume coordinated attack
+│   └── test_malformed.log # Edge-case malformed lines
 └── .github/workflows/
     └── ci.yml             # GitHub Actions: test + report artifact
 ```
