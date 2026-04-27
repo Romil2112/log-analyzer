@@ -74,6 +74,13 @@ MITRE_TECHNIQUES: dict[str, dict] = {
         "tactic": "Discovery",
         "url":    "https://attack.mitre.org/techniques/T1046/",
     },
+    "flood_404": {
+        "id":     "T1595.002",
+        "parent": "T1595",
+        "name":   "Active Scanning: Vulnerability Scanning",
+        "tactic": "Reconnaissance",
+        "url":    "https://attack.mitre.org/techniques/T1595/002/",
+    },
 }
 
 # ── Severity scoring ──────────────────────────────────────────────────────────
