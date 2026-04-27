@@ -2,7 +2,7 @@
 
 ![Python](https://img.shields.io/badge/python-3.9%2B-blue?logo=python&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/postgresql-14%2B-336791?logo=postgresql&logoColor=white)
-![License](https://img.shields.io/badge/license-MIT-green)
+![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white)
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 ![psycopg2](https://img.shields.io/badge/psycopg2-2.9%2B-orange)
 
