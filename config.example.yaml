@@ -22,8 +22,5 @@ allowlist:
   - "::1"
   # - "192.168.1.0/24"
 
-# Set false to skip GeoIP enrichment (requires internet access)
-geoip: true
-
 report:
   output: "incident_report.html"

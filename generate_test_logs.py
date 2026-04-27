@@ -173,7 +173,7 @@ def ssh_log_scale(path: str = "test_auth_10k.log", total: int = 10_000) -> None:
             )))
 
     # ── Legitimate logins ─────────────────────────────────────────────────────
-    legit_src = "172.16.0.0"
+    legit_src = "172.16.0.10"
     for i, user in enumerate(legit_users):
         for session in range(random.randint(10, 25)):
             t  = BASE + timedelta(minutes=random.randint(0, 118))

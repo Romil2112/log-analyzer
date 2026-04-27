@@ -69,29 +69,30 @@ A CLI security tool that parses SSH `auth.log` and Windows Event Log CSV files, 
 [+] Report written: report.html
 ```
 
-## Quick start
+## Quick Start
 
+### Install
 ```bash
 pip install -r requirements.txt
 ```
 
-No database:
+### No database
 ```bash
 python log_analyzer.py auth.log --no-db --report report.html
 ```
 
-With PostgreSQL:
+### With PostgreSQL
 ```bash
 python log_analyzer.py auth.log --report report.html
 ```
 
-With Claude AI executive summary:
+### With AI summary
 ```bash
 export ANTHROPIC_API_KEY=sk-...
 python log_analyzer.py auth.log --no-db --ai-summary --report report.html
 ```
 
-Via Docker (place log at `./logs/auth.log`, report appears in `./reports/`):
+### Via Docker
 ```bash
 docker compose up
 ```

@@ -12,11 +12,13 @@ def ai_summary(incidents, anomaly_scores):
         for i in incidents
     )
     msg = client.messages.create(
-        model="claude-opus-4-5",
+        model="claude-haiku-4-5-20251001",
         max_tokens=200,
         messages=[{"role":"user","content":
             f"You are a SOC analyst. Write a 3-sentence executive "
             f"summary of these security incidents:\n{inc_text}\n"
             f"Include MITRE technique IDs and remediation advice."}]
     )
+    if not msg.content:
+        return None
     return msg.content[0].text
