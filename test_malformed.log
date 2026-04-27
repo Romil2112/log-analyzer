@@ -1,0 +1,2000 @@
+THIS IS NOT A LOG LINE AT ALL
+%%% MALFORMED {incomplete entry
+
+Jun 15 02:00:00 trailing garbage only
+   
+%%% MALFORMED {incomplete entry
+Jun 15 BAD_TIME server sshd[]: no event
+THIS IS NOT A LOG LINE AT ALL
+%%% MALFORMED {incomplete entry
+Jun 15 02:00:00 trailing garbage only
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Failed password but no timestamp or IP
+THIS IS NOT A LOG LINE AT ALL
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+random text 123 !@#$%
+Jun 15 BAD_TIME server sshd[]: no event
+<corrupted entry>
+   
+Jun 15 02:00:05 server sshd[2228]: Failed password for root from 172.20.10.1 port 43724 ssh2
+Jun 15 02:00:07 server sshd[3471]: Failed password for pi from 192.0.2.77 port 61329 ssh2
+Jun 15 02:00:09 server sshd[2186]: Failed password for root from 192.0.2.77 port 51982 ssh2
+Jun 15 02:00:15 server sshd[9209]: Failed password for ubuntu from 172.20.10.1 port 62730 ssh2
+Jun 15 02:00:19 server sshd[9012]: Failed password for root from 172.20.10.1 port 43624 ssh2
+Jun 15 02:00:20 server sshd[1950]: Failed password for admin from 192.0.2.77 port 41228 ssh2
+Jun 15 02:00:23 server sshd[8104]: Failed password for pi from 192.0.2.77 port 42289 ssh2
+Jun 15 02:00:25 server sshd[4672]: Failed password for root from 172.20.10.1 port 47950 ssh2
+Jun 15 02:00:26 server sshd[2924]: Failed password for pi from 172.20.10.1 port 53025 ssh2
+Jun 15 02:00:28 server sshd[2486]: Failed password for pi from 192.0.2.77 port 41936 ssh2
+Jun 15 02:00:43 server sshd[3028]: Failed password for admin from 192.0.2.77 port 60664 ssh2
+Jun 15 02:00:44 server sshd[4649]: Failed password for pi from 172.20.10.1 port 43308 ssh2
+Jun 15 02:00:49 server sshd[4912]: Failed password for ubuntu from 172.20.10.1 port 42598 ssh2
+Jun 15 02:00:55 server sshd[2013]: Failed password for pi from 192.0.2.77 port 41624 ssh2
+Jun 15 02:01:00 server sshd[1763]: Failed password for admin from 192.0.2.77 port 49489 ssh2
+
+   
+
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+random text 123 !@#$%
+Failed password but no timestamp or IP
+   
+THIS IS NOT A LOG LINE AT ALL
+%%% MALFORMED {incomplete entry
+THIS IS NOT A LOG LINE AT ALL
+%%% MALFORMED {incomplete entry
+THIS IS NOT A LOG LINE AT ALL
+random text 123 !@#$%
+Jun 15 02:01:01 server sshd[6609]: Failed password for admin from 172.20.10.1 port 55963 ssh2
+Jun 15 02:01:04 server sshd[9512]: Failed password for pi from 172.20.10.1 port 63647 ssh2
+Jun 15 02:01:06 server sshd[1879]: Failed password for pi from 172.20.10.1 port 62983 ssh2
+Jun 15 02:01:08 server sshd[3363]: Failed password for root from 192.0.2.77 port 58707 ssh2
+Jun 15 02:01:12 server sshd[4535]: Failed password for root from 172.20.10.1 port 60773 ssh2
+Jun 15 02:01:14 server sshd[3961]: Failed password for root from 192.0.2.77 port 59057 ssh2
+Jun 15 02:01:25 server sshd[4078]: Failed password for ubuntu from 192.0.2.77 port 43192 ssh2
+Jun 15 02:01:25 server sshd[8152]: Failed password for admin from 172.20.10.1 port 56399 ssh2
+Jun 15 02:01:27 server sshd[1078]: Failed password for root from 172.20.10.1 port 62405 ssh2
+Jun 15 02:01:35 server sshd[2028]: Failed password for root from 192.0.2.77 port 60283 ssh2
+Jun 15 02:01:35 server sshd[8794]: Failed password for root from 172.20.10.1 port 61474 ssh2
+Jun 15 02:01:40 server sshd[9133]: Failed password for pi from 192.0.2.77 port 50293 ssh2
+Jun 15 02:01:43 server sshd[7342]: Failed password for admin from 172.20.10.1 port 55579 ssh2
+Jun 15 02:01:49 server sshd[8424]: Failed password for ubuntu from 192.0.2.77 port 49822 ssh2
+Jun 15 02:01:54 server sshd[3945]: Failed password for admin from 192.0.2.77 port 42682 ssh2
+Jun 15 02:01:59 server sshd[3689]: Failed password for pi from 172.20.10.1 port 47235 ssh2
+%%% MALFORMED {incomplete entry
+<corrupted entry>
+Jun 15 02:00:00 trailing garbage only
+<corrupted entry>
+Jun 15 BAD_TIME server sshd[]: no event
+   
+
+random text 123 !@#$%
+Jun 15 02:00:00 trailing garbage only
+%%% MALFORMED {incomplete entry
+
+   
+Failed password but no timestamp or IP
+<corrupted entry>
+Jun 15 BAD_TIME server sshd[]: no event
+Failed password but no timestamp or IP
+THIS IS NOT A LOG LINE AT ALL
+%%% MALFORMED {incomplete entry
+Jun 15 02:02:05 server sshd[5919]: Failed password for pi from 192.0.2.77 port 51255 ssh2
+Jun 15 02:02:09 server sshd[4448]: Failed password for admin from 172.20.10.1 port 57350 ssh2
+Jun 15 02:02:15 server sshd[8526]: Failed password for root from 172.20.10.1 port 60672 ssh2
+Jun 15 02:02:17 server sshd[9985]: Failed password for root from 172.20.10.1 port 51198 ssh2
+Jun 15 02:02:18 server sshd[8353]: Failed password for ubuntu from 192.0.2.77 port 59954 ssh2
+Jun 15 02:02:21 server sshd[2934]: Failed password for pi from 192.0.2.77 port 45405 ssh2
+Jun 15 02:02:21 server sshd[4781]: Failed password for ubuntu from 172.20.10.1 port 50771 ssh2
+Jun 15 02:02:26 server sshd[8040]: Failed password for admin from 172.20.10.1 port 41428 ssh2
+Jun 15 02:02:35 server sshd[6604]: Failed password for admin from 192.0.2.77 port 56022 ssh2
+Jun 15 02:02:43 server sshd[1642]: Failed password for root from 192.0.2.77 port 58287 ssh2
+Jun 15 02:02:48 server sshd[3696]: Failed password for ubuntu from 172.20.10.1 port 47762 ssh2
+Jun 15 02:02:54 server sshd[6140]: Failed password for ubuntu from 192.0.2.77 port 62783 ssh2
+Jun 15 02:02:58 server sshd[2848]: Failed password for ubuntu from 172.20.10.1 port 41750 ssh2
+   
+Failed password but no timestamp or IP
+Jun 15 BAD_TIME server sshd[]: no event
+Jun 15 BAD_TIME server sshd[]: no event
+Jun 15 BAD_TIME server sshd[]: no event
+%%% MALFORMED {incomplete entry
+
+random text 123 !@#$%
+THIS IS NOT A LOG LINE AT ALL
+Failed password but no timestamp or IP
+THIS IS NOT A LOG LINE AT ALL
+Failed password but no timestamp or IP
+<corrupted entry>
+   
+%%% MALFORMED {incomplete entry
+   
+Jun 15 02:03:01 server sshd[9137]: Failed password for pi from 192.0.2.77 port 42253 ssh2
+Jun 15 02:03:03 server sshd[1570]: Failed password for ubuntu from 172.20.10.1 port 63120 ssh2
+Jun 15 02:03:05 server sshd[2340]: Failed password for root from 172.20.10.1 port 47058 ssh2
+Jun 15 02:03:12 server sshd[3870]: Failed password for pi from 172.20.10.1 port 58128 ssh2
+Jun 15 02:03:16 server sshd[2533]: Failed password for ubuntu from 192.0.2.77 port 55535 ssh2
+Jun 15 02:03:16 server sshd[9402]: Failed password for pi from 172.20.10.1 port 62784 ssh2
+Jun 15 02:03:17 server sshd[5858]: Failed password for ubuntu from 172.20.10.1 port 45498 ssh2
+Jun 15 02:03:22 server sshd[4974]: Failed password for pi from 172.20.10.1 port 56349 ssh2
+Jun 15 02:03:29 server sshd[2064]: Failed password for root from 192.0.2.77 port 63958 ssh2
+Jun 15 02:03:42 server sshd[6072]: Failed password for pi from 192.0.2.77 port 49325 ssh2
+Jun 15 02:03:42 server sshd[8578]: Failed password for admin from 172.20.10.1 port 53124 ssh2
+Jun 15 02:03:55 server sshd[7320]: Failed password for ubuntu from 192.0.2.77 port 40739 ssh2
+Failed password but no timestamp or IP
+%%% MALFORMED {incomplete entry
+
+Jun 15 02:00:00 trailing garbage only
+Jun 15 02:00:00 trailing garbage only
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+random text 123 !@#$%
+   
+Failed password but no timestamp or IP
+Failed password but no timestamp or IP
+THIS IS NOT A LOG LINE AT ALL
+THIS IS NOT A LOG LINE AT ALL
+
+random text 123 !@#$%
+random text 123 !@#$%
+Jun 15 BAD_TIME server sshd[]: no event
+   
+Jun 15 BAD_TIME server sshd[]: no event
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Jun 15 02:04:00 server sshd[1992]: Failed password for root from 172.20.10.1 port 61322 ssh2
+Jun 15 02:04:04 server sshd[6823]: Failed password for admin from 192.0.2.77 port 60018 ssh2
+Jun 15 02:04:07 server sshd[9088]: Failed password for root from 192.0.2.77 port 47150 ssh2
+Jun 15 02:04:21 server sshd[5709]: Failed password for admin from 192.0.2.77 port 64194 ssh2
+Jun 15 02:04:25 server sshd[7825]: Failed password for pi from 172.20.10.1 port 42264 ssh2
+Jun 15 02:04:26 server sshd[7519]: Failed password for pi from 192.0.2.77 port 56269 ssh2
+Jun 15 02:04:29 server sshd[3725]: Failed password for pi from 192.0.2.77 port 53161 ssh2
+Jun 15 02:04:31 server sshd[9610]: Failed password for ubuntu from 172.20.10.1 port 42262 ssh2
+Jun 15 02:04:32 server sshd[3228]: Failed password for pi from 172.20.10.1 port 60184 ssh2
+Jun 15 02:04:39 server sshd[5552]: Failed password for admin from 192.0.2.77 port 54107 ssh2
+Jun 15 02:04:53 server sshd[9376]: Failed password for pi from 172.20.10.1 port 44691 ssh2
+Jun 15 02:04:54 server sshd[5561]: Failed password for pi from 192.0.2.77 port 51756 ssh2
+Jun 15 02:04:55 server sshd[5354]: Failed password for ubuntu from 172.20.10.1 port 60586 ssh2
+Jun 15 02:04:58 server sshd[2560]: Failed password for admin from 172.20.10.1 port 53967 ssh2
+
+
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Jun 15 02:00:00 trailing garbage only
+
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+THIS IS NOT A LOG LINE AT ALL
+<corrupted entry>
+Jun 15 02:00:00 trailing garbage only
+Jun 15 BAD_TIME server sshd[]: no event
+
+<corrupted entry>
+
+Jun 15 BAD_TIME server sshd[]: no event
+THIS IS NOT A LOG LINE AT ALL
+<corrupted entry>
+Jun 15 BAD_TIME server sshd[]: no event
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+   
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 02:00:00 trailing garbage only
+<corrupted entry>
+Jun 15 02:05:06 server sshd[7233]: Failed password for admin from 192.0.2.77 port 44945 ssh2
+Jun 15 02:05:09 server sshd[3887]: Failed password for admin from 192.0.2.77 port 47600 ssh2
+Jun 15 02:05:09 server sshd[8666]: Failed password for root from 172.20.10.1 port 55690 ssh2
+Jun 15 02:05:09 server sshd[8013]: Failed password for root from 172.20.10.1 port 58786 ssh2
+Jun 15 02:05:10 server sshd[3843]: Failed password for ubuntu from 172.20.10.1 port 40201 ssh2
+Jun 15 02:05:18 server sshd[2852]: Failed password for ubuntu from 172.20.10.1 port 51388 ssh2
+Jun 15 02:05:21 server sshd[4822]: Failed password for root from 192.0.2.77 port 55891 ssh2
+Jun 15 02:05:32 server sshd[2592]: Failed password for pi from 172.20.10.1 port 61194 ssh2
+Jun 15 02:05:35 server sshd[6094]: Failed password for admin from 172.20.10.1 port 58499 ssh2
+Jun 15 02:05:36 server sshd[3987]: Failed password for ubuntu from 192.0.2.77 port 49238 ssh2
+Jun 15 02:05:38 server sshd[3386]: Failed password for pi from 192.0.2.77 port 57517 ssh2
+Jun 15 02:05:38 server sshd[3654]: Failed password for pi from 172.20.10.1 port 46490 ssh2
+Jun 15 02:05:43 server sshd[6414]: Failed password for root from 172.20.10.1 port 56732 ssh2
+Jun 15 02:05:45 server sshd[6220]: Failed password for admin from 192.0.2.77 port 62626 ssh2
+Jun 15 02:05:45 server sshd[3148]: Failed password for ubuntu from 172.20.10.1 port 53766 ssh2
+Jun 15 02:05:47 server sshd[3373]: Failed password for ubuntu from 172.20.10.1 port 41753 ssh2
+Jun 15 02:05:55 server sshd[6793]: Failed password for root from 172.20.10.1 port 50028 ssh2
+Jun 15 02:05:59 server sshd[5816]: Failed password for ubuntu from 172.20.10.1 port 52697 ssh2
+Jun 15 02:06:00 server sshd[9445]: Failed password for root from 192.0.2.77 port 54963 ssh2
+random text 123 !@#$%
+random text 123 !@#$%
+%%% MALFORMED {incomplete entry
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Jun 15 02:00:00 trailing garbage only
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+random text 123 !@#$%
+random text 123 !@#$%
+<corrupted entry>
+
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Failed password but no timestamp or IP
+Jun 15 02:06:05 server sshd[2203]: Failed password for ubuntu from 172.20.10.1 port 63560 ssh2
+Jun 15 02:06:06 server sshd[7183]: Failed password for ubuntu from 172.20.10.1 port 47694 ssh2
+Jun 15 02:06:06 server sshd[8466]: Failed password for root from 172.20.10.1 port 60866 ssh2
+Jun 15 02:06:12 server sshd[8570]: Failed password for pi from 172.20.10.1 port 50195 ssh2
+Jun 15 02:06:15 server sshd[7428]: Failed password for pi from 192.0.2.77 port 53073 ssh2
+Jun 15 02:06:20 server sshd[9476]: Failed password for admin from 172.20.10.1 port 62287 ssh2
+Jun 15 02:06:23 server sshd[2696]: Failed password for pi from 192.0.2.77 port 60784 ssh2
+Jun 15 02:06:23 server sshd[1683]: Failed password for root from 172.20.10.1 port 63000 ssh2
+Jun 15 02:06:25 server sshd[6314]: Failed password for pi from 172.20.10.1 port 57987 ssh2
+Jun 15 02:06:26 server sshd[4666]: Failed password for ubuntu from 172.20.10.1 port 63141 ssh2
+Jun 15 02:06:31 server sshd[2019]: Failed password for admin from 192.0.2.77 port 42206 ssh2
+Jun 15 02:06:36 server sshd[8219]: Failed password for admin from 192.0.2.77 port 43602 ssh2
+Jun 15 02:06:39 server sshd[4904]: Failed password for admin from 172.20.10.1 port 47303 ssh2
+Jun 15 02:06:42 server sshd[9936]: Failed password for ubuntu from 172.20.10.1 port 54977 ssh2
+Jun 15 02:06:43 server sshd[1861]: Failed password for root from 192.0.2.77 port 40007 ssh2
+Jun 15 02:06:54 server sshd[3478]: Failed password for root from 192.0.2.77 port 51914 ssh2
+Jun 15 02:06:54 server sshd[6990]: Failed password for pi from 172.20.10.1 port 43027 ssh2
+Jun 15 02:06:56 server sshd[4437]: Failed password for ubuntu from 172.20.10.1 port 41513 ssh2
+random text 123 !@#$%
+   
+Failed password but no timestamp or IP
+Jun 15 BAD_TIME server sshd[]: no event
+random text 123 !@#$%
+<corrupted entry>
+   
+THIS IS NOT A LOG LINE AT ALL
+%%% MALFORMED {incomplete entry
+Jun 15 02:07:02 server sshd[2756]: Failed password for pi from 172.20.10.1 port 41656 ssh2
+Jun 15 02:07:04 server sshd[9344]: Failed password for admin from 172.20.10.1 port 55858 ssh2
+Jun 15 02:07:05 server sshd[1417]: Failed password for root from 192.0.2.77 port 46814 ssh2
+Jun 15 02:07:10 server sshd[6862]: Failed password for ubuntu from 172.20.10.1 port 53488 ssh2
+Jun 15 02:07:14 server sshd[8584]: Failed password for ubuntu from 172.20.10.1 port 63071 ssh2
+Jun 15 02:07:16 server sshd[7164]: Failed password for admin from 192.0.2.77 port 60788 ssh2
+Jun 15 02:07:20 server sshd[7022]: Failed password for pi from 172.20.10.1 port 55394 ssh2
+Jun 15 02:07:22 server sshd[6691]: Failed password for ubuntu from 192.0.2.77 port 55536 ssh2
+Jun 15 02:07:25 server sshd[2889]: Failed password for pi from 192.0.2.77 port 55269 ssh2
+Jun 15 02:07:34 server sshd[8927]: Failed password for ubuntu from 192.0.2.77 port 42814 ssh2
+Jun 15 02:07:38 server sshd[2674]: Failed password for ubuntu from 192.0.2.77 port 64259 ssh2
+Jun 15 02:07:40 server sshd[4459]: Failed password for pi from 172.20.10.1 port 49379 ssh2
+Jun 15 02:07:40 server sshd[2746]: Failed password for ubuntu from 172.20.10.1 port 58673 ssh2
+Jun 15 02:07:43 server sshd[7479]: Failed password for pi from 172.20.10.1 port 63210 ssh2
+Jun 15 02:07:44 server sshd[8841]: Failed password for admin from 192.0.2.77 port 56919 ssh2
+Jun 15 02:07:46 server sshd[4362]: Failed password for ubuntu from 192.0.2.77 port 44803 ssh2
+Jun 15 02:07:47 server sshd[7283]: Failed password for admin from 172.20.10.1 port 61383 ssh2
+Jun 15 02:07:59 server sshd[9899]: Failed password for root from 192.0.2.77 port 64842 ssh2
+Jun 15 02:07:59 server sshd[2375]: Failed password for ubuntu from 172.20.10.1 port 45323 ssh2
+<corrupted entry>
+random text 123 !@#$%
+<corrupted entry>
+THIS IS NOT A LOG LINE AT ALL
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Jun 15 BAD_TIME server sshd[]: no event
+<corrupted entry>
+THIS IS NOT A LOG LINE AT ALL
+
+Jun 15 02:00:00 trailing garbage only
+random text 123 !@#$%
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 02:00:00 trailing garbage only
+THIS IS NOT A LOG LINE AT ALL
+%%% MALFORMED {incomplete entry
+<corrupted entry>
+   
+Jun 15 02:08:02 server sshd[4218]: Failed password for root from 172.20.10.1 port 53373 ssh2
+Jun 15 02:08:09 server sshd[5883]: Failed password for root from 192.0.2.77 port 62812 ssh2
+Jun 15 02:08:24 server sshd[5278]: Failed password for ubuntu from 192.0.2.77 port 45473 ssh2
+Jun 15 02:08:28 server sshd[1144]: Failed password for admin from 172.20.10.1 port 63748 ssh2
+Jun 15 02:08:30 server sshd[7122]: Failed password for pi from 172.20.10.1 port 62039 ssh2
+Jun 15 02:08:30 server sshd[8165]: Failed password for admin from 172.20.10.1 port 61626 ssh2
+Jun 15 02:08:31 server sshd[4650]: Failed password for ubuntu from 192.0.2.77 port 60854 ssh2
+Jun 15 02:08:36 server sshd[4197]: Failed password for admin from 192.0.2.77 port 53129 ssh2
+Jun 15 02:08:44 server sshd[7408]: Failed password for ubuntu from 172.20.10.1 port 42553 ssh2
+Jun 15 02:08:45 server sshd[6099]: Failed password for root from 172.20.10.1 port 47419 ssh2
+Jun 15 02:08:46 server sshd[2096]: Failed password for root from 172.20.10.1 port 42406 ssh2
+Jun 15 02:08:49 server sshd[4714]: Failed password for admin from 192.0.2.77 port 56961 ssh2
+Jun 15 02:08:49 server sshd[9340]: Failed password for ubuntu from 172.20.10.1 port 59912 ssh2
+Jun 15 02:08:51 server sshd[1077]: Failed password for admin from 172.20.10.1 port 42810 ssh2
+Jun 15 02:08:53 server sshd[6825]: Connection from 10.10.10.10 port 20000 on 0.0.0.0 port 22
+Jun 15 02:08:54 server sshd[1457]: Connection from 10.10.10.10 port 20050 on 0.0.0.0 port 22
+Jun 15 02:08:56 server sshd[2807]: Failed password for root from 172.20.10.1 port 55969 ssh2
+Jun 15 02:08:57 server sshd[8737]: Connection from 10.10.10.10 port 20100 on 0.0.0.0 port 22
+Jun 15 02:08:59 server sshd[8758]: Failed password for admin from 172.20.10.1 port 44630 ssh2
+Jun 15 02:09:00 server sshd[4172]: Connection from 10.10.10.10 port 20150 on 0.0.0.0 port 22
+<corrupted entry>
+
+random text 123 !@#$%
+
+   
+<corrupted entry>
+random text 123 !@#$%
+random text 123 !@#$%
+
+<corrupted entry>
+random text 123 !@#$%
+Failed password but no timestamp or IP
+
+   
+random text 123 !@#$%
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 02:00:00 trailing garbage only
+Jun 15 02:09:05 server sshd[6640]: Connection from 10.10.10.10 port 20200 on 0.0.0.0 port 22
+Jun 15 02:09:09 server sshd[6726]: Connection from 10.10.10.10 port 20250 on 0.0.0.0 port 22
+Jun 15 02:09:12 server sshd[2319]: Connection from 10.10.10.10 port 20300 on 0.0.0.0 port 22
+Jun 15 02:09:12 server sshd[4435]: Failed password for root from 172.20.10.1 port 64140 ssh2
+Jun 15 02:09:14 server sshd[2673]: Connection from 10.10.10.10 port 20350 on 0.0.0.0 port 22
+Jun 15 02:09:16 server sshd[8701]: Connection from 10.10.10.10 port 20400 on 0.0.0.0 port 22
+Jun 15 02:09:18 server sshd[6533]: Connection from 10.10.10.10 port 20450 on 0.0.0.0 port 22
+Jun 15 02:09:18 server sshd[3870]: Failed password for admin from 172.20.10.1 port 53765 ssh2
+Jun 15 02:09:19 server sshd[6595]: Failed password for ubuntu from 172.20.10.1 port 56675 ssh2
+Jun 15 02:09:20 server sshd[8907]: Connection from 10.10.10.10 port 20500 on 0.0.0.0 port 22
+Jun 15 02:09:22 server sshd[7282]: Failed password for root from 172.20.10.1 port 53218 ssh2
+Jun 15 02:09:25 server sshd[1031]: Connection from 10.10.10.10 port 20550 on 0.0.0.0 port 22
+Jun 15 02:09:28 server sshd[6566]: Failed password for ubuntu from 172.20.10.1 port 47663 ssh2
+Jun 15 02:09:29 server sshd[6636]: Connection from 10.10.10.10 port 20600 on 0.0.0.0 port 22
+Jun 15 02:09:30 server sshd[2964]: Connection from 10.10.10.10 port 20650 on 0.0.0.0 port 22
+Jun 15 02:09:33 server sshd[7174]: Failed password for ubuntu from 172.20.10.1 port 61729 ssh2
+Jun 15 02:09:34 server sshd[4265]: Connection from 10.10.10.10 port 20700 on 0.0.0.0 port 22
+Jun 15 02:09:38 server sshd[3924]: Connection from 10.10.10.10 port 20750 on 0.0.0.0 port 22
+Jun 15 02:09:38 server sshd[6526]: Failed password for root from 172.20.10.1 port 41350 ssh2
+Jun 15 02:09:39 server sshd[2108]: Failed password for pi from 172.20.10.1 port 64284 ssh2
+Jun 15 02:09:41 server sshd[5800]: Failed password for ubuntu from 172.20.10.1 port 59929 ssh2
+Jun 15 02:09:42 server sshd[6447]: Connection from 10.10.10.10 port 20800 on 0.0.0.0 port 22
+Jun 15 02:09:43 server sshd[7485]: Connection from 10.10.10.10 port 20850 on 0.0.0.0 port 22
+Jun 15 02:09:47 server sshd[7576]: Connection from 10.10.10.10 port 20900 on 0.0.0.0 port 22
+Jun 15 02:09:48 server sshd[3602]: Connection from 10.10.10.10 port 20950 on 0.0.0.0 port 22
+Jun 15 02:09:50 server sshd[3081]: Connection from 10.10.10.10 port 21000 on 0.0.0.0 port 22
+Jun 15 02:09:51 server sshd[3476]: Connection from 10.10.10.10 port 21050 on 0.0.0.0 port 22
+Jun 15 02:09:56 server sshd[8624]: Connection from 10.10.10.10 port 21100 on 0.0.0.0 port 22
+Jun 15 02:09:58 server sshd[8771]: Connection from 10.10.10.10 port 21150 on 0.0.0.0 port 22
+Jun 15 02:09:59 server sshd[7112]: Failed password for admin from 172.20.10.1 port 54655 ssh2
+Failed password but no timestamp or IP
+random text 123 !@#$%
+
+THIS IS NOT A LOG LINE AT ALL
+%%% MALFORMED {incomplete entry
+random text 123 !@#$%
+Jun 15 BAD_TIME server sshd[]: no event
+<corrupted entry>
+%%% MALFORMED {incomplete entry
+random text 123 !@#$%
+   
+
+
+Jun 15 BAD_TIME server sshd[]: no event
+random text 123 !@#$%
+Jun 15 02:00:00 trailing garbage only
+Jun 15 02:10:01 server sshd[3554]: Connection from 10.10.10.10 port 21200 on 0.0.0.0 port 22
+Jun 15 02:10:06 server sshd[9983]: Connection from 10.10.10.10 port 21250 on 0.0.0.0 port 22
+Jun 15 02:10:08 server sshd[1350]: Connection from 10.10.10.10 port 21300 on 0.0.0.0 port 22
+Jun 15 02:10:09 server sshd[2683]: Connection from 10.10.10.10 port 21350 on 0.0.0.0 port 22
+Jun 15 02:10:09 server sshd[7453]: Failed password for root from 172.20.10.1 port 63457 ssh2
+Jun 15 02:10:14 server sshd[3281]: Connection from 10.10.10.10 port 21400 on 0.0.0.0 port 22
+Jun 15 02:10:18 server sshd[4191]: Connection from 10.10.10.10 port 21450 on 0.0.0.0 port 22
+Jun 15 02:10:34 server sshd[8942]: Failed password for pi from 172.20.10.1 port 46567 ssh2
+Jun 15 02:10:34 server sshd[6303]: Failed password for pi from 172.20.10.1 port 54036 ssh2
+Jun 15 02:10:51 server sshd[8565]: Failed password for admin from 172.20.10.1 port 40352 ssh2
+Jun 15 BAD_TIME server sshd[]: no event
+Jun 15 BAD_TIME server sshd[]: no event
+THIS IS NOT A LOG LINE AT ALL
+   
+Failed password but no timestamp or IP
+random text 123 !@#$%
+<corrupted entry>
+THIS IS NOT A LOG LINE AT ALL
+Failed password but no timestamp or IP
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+random text 123 !@#$%
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+<corrupted entry>
+Failed password but no timestamp or IP
+Jun 15 02:11:11 server sshd[3784]: Failed password for ubuntu from 172.20.10.1 port 52419 ssh2
+Jun 15 02:11:12 server sshd[6088]: Failed password for admin from 172.20.10.1 port 44474 ssh2
+Jun 15 02:11:14 server sshd[3988]: Failed password for admin from 172.20.10.1 port 43364 ssh2
+Jun 15 02:11:14 server sshd[6563]: Failed password for pi from 172.20.10.1 port 49986 ssh2
+Jun 15 02:11:17 server sshd[4068]: Failed password for pi from 172.20.10.1 port 53351 ssh2
+Jun 15 02:11:22 server sshd[7946]: Failed password for pi from 172.20.10.1 port 51150 ssh2
+Jun 15 02:11:42 server sshd[4620]: Failed password for root from 172.20.10.1 port 45013 ssh2
+Jun 15 02:11:44 server sshd[4427]: Failed password for ubuntu from 172.20.10.1 port 60259 ssh2
+Jun 15 02:11:49 server sshd[1092]: Failed password for ubuntu from 172.20.10.1 port 63491 ssh2
+Jun 15 02:11:50 server sshd[5011]: Failed password for admin from 172.20.10.1 port 64043 ssh2
+Jun 15 02:11:54 server sshd[4532]: Failed password for pi from 172.20.10.1 port 41802 ssh2
+
+
+   
+
+Jun 15 BAD_TIME server sshd[]: no event
+
+THIS IS NOT A LOG LINE AT ALL
+random text 123 !@#$%
+Jun 15 02:00:00 trailing garbage only
+THIS IS NOT A LOG LINE AT ALL
+   
+   
+random text 123 !@#$%
+Jun 15 02:00:00 trailing garbage only
+   
+%%% MALFORMED {incomplete entry
+Jun 15 BAD_TIME server sshd[]: no event
+<corrupted entry>
+random text 123 !@#$%
+<corrupted entry>
+
+Jun 15 02:12:04 server sshd[3794]: Failed password for pi from 172.20.10.1 port 55319 ssh2
+Jun 15 02:12:05 server sshd[4914]: Failed password for root from 172.20.10.1 port 42942 ssh2
+Jun 15 02:12:05 server sshd[8820]: Failed password for ubuntu from 172.20.10.1 port 55351 ssh2
+Jun 15 02:12:09 server sshd[6204]: Failed password for root from 172.20.10.1 port 46519 ssh2
+Jun 15 02:12:12 server sshd[9696]: Failed password for ubuntu from 172.20.10.1 port 63235 ssh2
+Jun 15 02:12:22 server sshd[7965]: Failed password for ubuntu from 172.20.10.1 port 51534 ssh2
+Jun 15 02:12:29 server sshd[2560]: Failed password for admin from 172.20.10.1 port 42999 ssh2
+Jun 15 02:12:37 server sshd[3338]: Failed password for admin from 172.20.10.1 port 46083 ssh2
+Jun 15 02:12:53 server sshd[1937]: Failed password for pi from 172.20.10.1 port 48321 ssh2
+Jun 15 02:12:58 server sshd[4278]: Failed password for root from 172.20.10.1 port 41247 ssh2
+Jun 15 02:12:59 server sshd[7309]: Failed password for root from 172.20.10.1 port 60590 ssh2
+
+
+   
+random text 123 !@#$%
+%%% MALFORMED {incomplete entry
+THIS IS NOT A LOG LINE AT ALL
+THIS IS NOT A LOG LINE AT ALL
+THIS IS NOT A LOG LINE AT ALL
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+   
+Failed password but no timestamp or IP
+%%% MALFORMED {incomplete entry
+Jun 15 02:13:10 server sshd[2665]: Failed password for admin from 172.20.10.1 port 52590 ssh2
+Jun 15 02:13:15 server sshd[8447]: Failed password for ubuntu from 172.20.10.1 port 64136 ssh2
+Jun 15 02:13:23 server sshd[4228]: Failed password for ubuntu from 172.20.10.1 port 55964 ssh2
+Jun 15 02:13:42 server sshd[2147]: Failed password for pi from 172.20.10.1 port 54329 ssh2
+Jun 15 02:13:46 server sshd[1326]: Failed password for root from 172.20.10.1 port 50370 ssh2
+Jun 15 02:13:54 server sshd[4422]: Failed password for ubuntu from 172.20.10.1 port 61978 ssh2
+Jun 15 02:13:55 server sshd[9405]: Failed password for ubuntu from 172.20.10.1 port 48123 ssh2
+   
+Jun 15 02:00:00 trailing garbage only
+Jun 15 02:00:00 trailing garbage only
+Jun 15 BAD_TIME server sshd[]: no event
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+random text 123 !@#$%
+Jun 15 02:00:00 trailing garbage only
+Jun 15 02:00:00 trailing garbage only
+
+%%% MALFORMED {incomplete entry
+%%% MALFORMED {incomplete entry
+Jun 15 BAD_TIME server sshd[]: no event
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+random text 123 !@#$%
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 02:14:02 server sshd[6219]: Failed password for admin from 172.20.10.1 port 51326 ssh2
+Jun 15 02:14:05 server sshd[2449]: Failed password for admin from 172.20.10.1 port 44869 ssh2
+Jun 15 02:14:07 server sshd[8535]: Failed password for pi from 172.20.10.1 port 43071 ssh2
+Jun 15 02:14:08 server sshd[1438]: Failed password for ubuntu from 172.20.10.1 port 55716 ssh2
+Jun 15 02:14:14 server sshd[3957]: Failed password for admin from 172.20.10.1 port 57960 ssh2
+Jun 15 02:14:17 server sshd[4591]: Failed password for root from 172.20.10.1 port 53259 ssh2
+Jun 15 02:14:25 server sshd[7394]: Failed password for pi from 172.20.10.1 port 47414 ssh2
+Jun 15 02:14:37 server sshd[3044]: Failed password for admin from 172.20.10.1 port 50134 ssh2
+Jun 15 02:14:43 server sshd[5697]: Failed password for root from 172.20.10.1 port 46329 ssh2
+Jun 15 02:14:59 server sshd[6029]: Failed password for admin from 172.20.10.1 port 61127 ssh2
+Jun 15 02:00:00 trailing garbage only
+THIS IS NOT A LOG LINE AT ALL
+<corrupted entry>
+Failed password but no timestamp or IP
+
+%%% MALFORMED {incomplete entry
+<corrupted entry>
+THIS IS NOT A LOG LINE AT ALL
+random text 123 !@#$%
+random text 123 !@#$%
+Jun 15 BAD_TIME server sshd[]: no event
+Failed password but no timestamp or IP
+random text 123 !@#$%
+Jun 15 BAD_TIME server sshd[]: no event
+Jun 15 BAD_TIME server sshd[]: no event
+random text 123 !@#$%
+Jun 15 02:15:07 server sshd[7646]: Failed password for admin from 172.20.10.1 port 57747 ssh2
+Jun 15 02:15:12 server sshd[2112]: Failed password for ubuntu from 172.20.10.1 port 51833 ssh2
+Jun 15 02:15:15 server sshd[7111]: Failed password for ubuntu from 172.20.10.1 port 63651 ssh2
+Jun 15 02:15:16 server sshd[4303]: Failed password for ubuntu from 172.20.10.1 port 54157 ssh2
+Jun 15 02:15:16 server sshd[8367]: Failed password for root from 172.20.10.1 port 41354 ssh2
+Jun 15 02:15:29 server sshd[8086]: Failed password for ubuntu from 172.20.10.1 port 48513 ssh2
+Jun 15 02:15:33 server sshd[1223]: Failed password for pi from 172.20.10.1 port 47754 ssh2
+Jun 15 02:15:35 server sshd[7179]: Failed password for pi from 172.20.10.1 port 50195 ssh2
+Jun 15 02:15:42 server sshd[4448]: Failed password for root from 172.20.10.1 port 49527 ssh2
+Jun 15 02:15:45 server sshd[4393]: Failed password for pi from 172.20.10.1 port 43617 ssh2
+THIS IS NOT A LOG LINE AT ALL
+%%% MALFORMED {incomplete entry
+
+   
+   
+Failed password but no timestamp or IP
+Failed password but no timestamp or IP
+   
+Failed password but no timestamp or IP
+THIS IS NOT A LOG LINE AT ALL
+THIS IS NOT A LOG LINE AT ALL
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+<corrupted entry>
+random text 123 !@#$%
+
+
+Failed password but no timestamp or IP
+THIS IS NOT A LOG LINE AT ALL
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Jun 15 02:16:04 server sshd[8632]: Failed password for root from 172.20.10.1 port 49829 ssh2
+Jun 15 02:16:14 server sshd[4521]: Failed password for ubuntu from 172.20.10.1 port 43705 ssh2
+Jun 15 02:16:19 server sshd[1624]: Failed password for root from 172.20.10.1 port 41833 ssh2
+Jun 15 02:16:27 server sshd[2512]: Failed password for admin from 172.20.10.1 port 57159 ssh2
+Jun 15 02:16:30 server sshd[1291]: Failed password for ubuntu from 172.20.10.1 port 63571 ssh2
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 BAD_TIME server sshd[]: no event
+THIS IS NOT A LOG LINE AT ALL
+   
+Jun 15 02:00:00 trailing garbage only
+<corrupted entry>
+%%% MALFORMED {incomplete entry
+%%% MALFORMED {incomplete entry
+   
+%%% MALFORMED {incomplete entry
+   
+Jun 15 02:00:00 trailing garbage only
+<corrupted entry>
+Jun 15 02:17:00 server sshd[4083]: Failed password for ubuntu from 172.20.10.1 port 57594 ssh2
+Jun 15 02:17:00 server sshd[2820]: Failed password for admin from 172.20.10.1 port 63851 ssh2
+Jun 15 02:17:07 server sshd[1985]: Failed password for admin from 172.20.10.1 port 58194 ssh2
+Jun 15 02:17:16 server sshd[5923]: Failed password for ubuntu from 172.20.10.1 port 40929 ssh2
+Jun 15 02:17:31 server sshd[5630]: Failed password for ubuntu from 172.20.10.1 port 52616 ssh2
+Jun 15 02:17:32 server sshd[4795]: Failed password for pi from 172.20.10.1 port 62885 ssh2
+Jun 15 02:17:33 server sshd[8020]: Failed password for root from 172.20.10.1 port 45864 ssh2
+Jun 15 02:17:33 server sshd[2745]: Failed password for root from 172.20.10.1 port 50354 ssh2
+Jun 15 02:17:47 server sshd[1453]: Failed password for root from 172.20.10.1 port 52952 ssh2
+<corrupted entry>
+Jun 15 02:00:00 trailing garbage only
+<corrupted entry>
+Jun 15 02:00:00 trailing garbage only
+
+Jun 15 BAD_TIME server sshd[]: no event
+<corrupted entry>
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+   
+Failed password but no timestamp or IP
+Jun 15 02:18:10 server sshd[3591]: Failed password for admin from 172.20.10.1 port 44894 ssh2
+Jun 15 02:18:12 server sshd[9322]: Failed password for root from 172.20.10.1 port 52852 ssh2
+Jun 15 02:18:46 server sshd[3353]: Failed password for ubuntu from 172.20.10.1 port 52597 ssh2
+
+
+Jun 15 02:00:00 trailing garbage only
+<corrupted entry>
+Failed password but no timestamp or IP
+THIS IS NOT A LOG LINE AT ALL
+%%% MALFORMED {incomplete entry
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Jun 15 BAD_TIME server sshd[]: no event
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+%%% MALFORMED {incomplete entry
+THIS IS NOT A LOG LINE AT ALL
+
+Jun 15 02:19:05 server sshd[2154]: Failed password for root from 172.20.10.1 port 57793 ssh2
+Jun 15 02:19:08 server sshd[4364]: Failed password for root from 172.20.10.1 port 62000 ssh2
+Jun 15 02:19:09 server sshd[5949]: Failed password for ubuntu from 172.20.10.1 port 54251 ssh2
+Jun 15 02:19:11 server sshd[6002]: Failed password for pi from 172.20.10.1 port 50626 ssh2
+Jun 15 02:19:12 server sshd[8408]: Failed password for pi from 172.20.10.1 port 47577 ssh2
+Jun 15 02:19:31 server sshd[5431]: Failed password for root from 172.20.10.1 port 50625 ssh2
+Jun 15 02:19:32 server sshd[6761]: Failed password for root from 172.20.10.1 port 64618 ssh2
+Jun 15 02:19:35 server sshd[5751]: Failed password for pi from 172.20.10.1 port 44726 ssh2
+Jun 15 02:19:41 server sshd[5768]: Failed password for admin from 172.20.10.1 port 61457 ssh2
+Jun 15 02:19:44 server sshd[5120]: Failed password for pi from 172.20.10.1 port 43368 ssh2
+Jun 15 02:19:46 server sshd[4013]: Failed password for pi from 172.20.10.1 port 50917 ssh2
+Jun 15 02:19:53 server sshd[7927]: Failed password for pi from 172.20.10.1 port 49671 ssh2
+Jun 15 02:19:54 server sshd[6263]: Failed password for ubuntu from 172.20.10.1 port 45662 ssh2
+Jun 15 02:19:57 server sshd[3907]: Failed password for admin from 172.20.10.1 port 57317 ssh2
+Jun 15 02:19:58 server sshd[1154]: Failed password for admin from 172.20.10.1 port 49919 ssh2
+Jun 15 02:19:58 server sshd[3245]: Failed password for admin from 172.20.10.1 port 59051 ssh2
+
+<corrupted entry>
+%%% MALFORMED {incomplete entry
+Failed password but no timestamp or IP
+Failed password but no timestamp or IP
+Failed password but no timestamp or IP
+   
+THIS IS NOT A LOG LINE AT ALL
+   
+<corrupted entry>
+Jun 15 02:20:06 server sshd[3964]: Failed password for admin from 172.20.10.1 port 59964 ssh2
+Jun 15 02:20:07 server sshd[1639]: Failed password for root from 172.20.10.1 port 50741 ssh2
+Jun 15 02:20:33 server sshd[2961]: Failed password for ubuntu from 172.20.10.1 port 53275 ssh2
+Jun 15 02:20:41 server sshd[8754]: Failed password for ubuntu from 172.20.10.1 port 48984 ssh2
+Jun 15 02:20:44 server sshd[7081]: Failed password for root from 172.20.10.1 port 51670 ssh2
+Jun 15 02:20:49 server sshd[6156]: Failed password for root from 172.20.10.1 port 44983 ssh2
+Jun 15 02:20:52 server sshd[9713]: Failed password for pi from 172.20.10.1 port 45541 ssh2
+Jun 15 02:20:55 server sshd[7719]: Failed password for ubuntu from 172.20.10.1 port 60257 ssh2
+random text 123 !@#$%
+<corrupted entry>
+random text 123 !@#$%
+
+Failed password but no timestamp or IP
+Jun 15 02:00:00 trailing garbage only
+   
+Jun 15 BAD_TIME server sshd[]: no event
+%%% MALFORMED {incomplete entry
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+random text 123 !@#$%
+Jun 15 02:21:00 server sshd[6896]: Failed password for pi from 172.20.10.1 port 47638 ssh2
+Jun 15 02:21:09 server sshd[5328]: Failed password for root from 172.20.10.1 port 53893 ssh2
+Jun 15 02:21:14 server sshd[6759]: Failed password for pi from 172.20.10.1 port 50111 ssh2
+Jun 15 02:21:24 server sshd[5845]: Failed password for root from 172.20.10.1 port 54521 ssh2
+Jun 15 02:21:29 server sshd[7507]: Failed password for root from 172.20.10.1 port 53572 ssh2
+Jun 15 02:21:33 server sshd[2826]: Failed password for admin from 172.20.10.1 port 45433 ssh2
+Jun 15 02:21:35 server sshd[2176]: Failed password for root from 172.20.10.1 port 40354 ssh2
+Jun 15 02:21:40 server sshd[4546]: Failed password for ubuntu from 172.20.10.1 port 53377 ssh2
+Jun 15 02:21:44 server sshd[7008]: Failed password for pi from 172.20.10.1 port 63337 ssh2
+Jun 15 02:21:47 server sshd[4883]: Failed password for ubuntu from 172.20.10.1 port 47604 ssh2
+Jun 15 02:21:48 server sshd[3466]: Failed password for ubuntu from 172.20.10.1 port 48297 ssh2
+random text 123 !@#$%
+Failed password but no timestamp or IP
+
+%%% MALFORMED {incomplete entry
+random text 123 !@#$%
+
+<corrupted entry>
+Jun 15 BAD_TIME server sshd[]: no event
+
+Jun 15 02:00:00 trailing garbage only
+<corrupted entry>
+%%% MALFORMED {incomplete entry
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Jun 15 02:22:00 server sshd[3163]: Failed password for root from 172.20.10.1 port 57822 ssh2
+Jun 15 02:22:01 server sshd[7006]: Failed password for ubuntu from 172.20.10.1 port 53519 ssh2
+Jun 15 02:22:02 server sshd[5473]: Failed password for root from 172.20.10.1 port 55232 ssh2
+Jun 15 02:22:07 server sshd[5831]: Failed password for ubuntu from 172.20.10.1 port 56674 ssh2
+Jun 15 02:22:16 server sshd[4872]: Failed password for root from 172.20.10.1 port 40784 ssh2
+Jun 15 02:22:44 server sshd[7280]: Failed password for admin from 172.20.10.1 port 62632 ssh2
+Jun 15 02:22:46 server sshd[2930]: Failed password for pi from 172.20.10.1 port 52926 ssh2
+Jun 15 02:22:47 server sshd[5601]: Failed password for admin from 172.20.10.1 port 49541 ssh2
+Jun 15 02:22:57 server sshd[2639]: Failed password for ubuntu from 172.20.10.1 port 49934 ssh2
+Jun 15 02:22:57 server sshd[4309]: Failed password for root from 172.20.10.1 port 64550 ssh2
+   
+
+random text 123 !@#$%
+Jun 15 02:00:00 trailing garbage only
+
+<corrupted entry>
+%%% MALFORMED {incomplete entry
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+THIS IS NOT A LOG LINE AT ALL
+Failed password but no timestamp or IP
+Jun 15 02:23:00 server sshd[5762]: Failed password for pi from 172.20.10.1 port 58400 ssh2
+Jun 15 02:23:04 server sshd[6314]: Failed password for pi from 172.20.10.1 port 46579 ssh2
+Jun 15 02:23:17 server sshd[6069]: Failed password for pi from 172.20.10.1 port 46466 ssh2
+Jun 15 02:23:25 server sshd[9417]: Failed password for root from 172.20.10.1 port 63891 ssh2
+Jun 15 02:23:30 server sshd[1044]: Failed password for ubuntu from 172.20.10.1 port 51730 ssh2
+Jun 15 02:23:38 server sshd[5730]: Failed password for pi from 172.20.10.1 port 52884 ssh2
+Jun 15 02:23:39 server sshd[7431]: Failed password for pi from 172.20.10.1 port 45186 ssh2
+Jun 15 02:23:53 server sshd[9306]: Failed password for pi from 172.20.10.1 port 46840 ssh2
+   
+   
+Failed password but no timestamp or IP
+   
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+random text 123 !@#$%
+random text 123 !@#$%
+   
+   
+Failed password but no timestamp or IP
+Jun 15 02:24:09 server sshd[5915]: Failed password for root from 172.20.10.1 port 45635 ssh2
+Jun 15 02:24:09 server sshd[7138]: Failed password for root from 172.20.10.1 port 43649 ssh2
+Jun 15 02:24:16 server sshd[2636]: Failed password for pi from 172.20.10.1 port 56459 ssh2
+Jun 15 02:24:17 server sshd[4456]: Failed password for root from 172.20.10.1 port 59001 ssh2
+Jun 15 02:24:28 server sshd[7318]: Failed password for root from 172.20.10.1 port 41791 ssh2
+Jun 15 02:24:29 server sshd[5646]: Failed password for ubuntu from 172.20.10.1 port 47771 ssh2
+Jun 15 02:24:30 server sshd[4702]: Failed password for admin from 172.20.10.1 port 51571 ssh2
+Jun 15 02:24:33 server sshd[1098]: Failed password for admin from 172.20.10.1 port 57658 ssh2
+Jun 15 02:24:38 server sshd[4119]: Failed password for ubuntu from 172.20.10.1 port 49603 ssh2
+Jun 15 02:00:00 trailing garbage only
+Jun 15 BAD_TIME server sshd[]: no event
+   
+THIS IS NOT A LOG LINE AT ALL
+THIS IS NOT A LOG LINE AT ALL
+
+Failed password but no timestamp or IP
+<corrupted entry>
+
+random text 123 !@#$%
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+<corrupted entry>
+%%% MALFORMED {incomplete entry
+
+Jun 15 BAD_TIME server sshd[]: no event
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+random text 123 !@#$%
+Jun 15 02:25:04 server sshd[7586]: Failed password for root from 172.20.10.1 port 62253 ssh2
+Jun 15 02:25:17 server sshd[9927]: Failed password for admin from 172.20.10.1 port 58185 ssh2
+Jun 15 02:25:19 server sshd[8480]: Failed password for ubuntu from 172.20.10.1 port 47414 ssh2
+Jun 15 02:25:26 server sshd[2990]: Failed password for admin from 172.20.10.1 port 45137 ssh2
+Jun 15 02:25:26 server sshd[2438]: Failed password for ubuntu from 172.20.10.1 port 51938 ssh2
+Jun 15 02:25:29 server sshd[1838]: Failed password for ubuntu from 172.20.10.1 port 40278 ssh2
+Jun 15 02:25:31 server sshd[5587]: Failed password for ubuntu from 172.20.10.1 port 59587 ssh2
+<corrupted entry>
+
+   
+
+Jun 15 02:00:00 trailing garbage only
+   
+
+THIS IS NOT A LOG LINE AT ALL
+random text 123 !@#$%
+<corrupted entry>
+Jun 15 02:26:14 server sshd[8416]: Failed password for admin from 172.20.10.1 port 63149 ssh2
+Jun 15 02:26:19 server sshd[5272]: Failed password for admin from 172.20.10.1 port 45155 ssh2
+Jun 15 02:26:23 server sshd[9892]: Failed password for ubuntu from 172.20.10.1 port 61587 ssh2
+Jun 15 02:26:26 server sshd[1213]: Failed password for ubuntu from 172.20.10.1 port 58276 ssh2
+Jun 15 02:26:32 server sshd[4081]: Failed password for pi from 172.20.10.1 port 45977 ssh2
+Jun 15 02:26:33 server sshd[3771]: Failed password for ubuntu from 172.20.10.1 port 47819 ssh2
+Jun 15 02:26:34 server sshd[7124]: Failed password for pi from 172.20.10.1 port 61506 ssh2
+Jun 15 02:26:34 server sshd[7702]: Failed password for pi from 172.20.10.1 port 44388 ssh2
+Jun 15 02:26:35 server sshd[2161]: Failed password for admin from 172.20.10.1 port 56872 ssh2
+Jun 15 02:26:56 server sshd[7362]: Failed password for pi from 172.20.10.1 port 41111 ssh2
+Jun 15 02:26:56 server sshd[9752]: Failed password for root from 172.20.10.1 port 50596 ssh2
+Jun 15 02:26:59 server sshd[5173]: Failed password for root from 172.20.10.1 port 52614 ssh2
+Jun 15 02:26:59 server sshd[8376]: Failed password for pi from 172.20.10.1 port 60876 ssh2
+Jun 15 02:26:59 server sshd[2992]: Failed password for ubuntu from 172.20.10.1 port 59184 ssh2
+%%% MALFORMED {incomplete entry
+%%% MALFORMED {incomplete entry
+Jun 15 BAD_TIME server sshd[]: no event
+<corrupted entry>
+Jun 15 BAD_TIME server sshd[]: no event
+
+Jun 15 02:00:00 trailing garbage only
+Jun 15 BAD_TIME server sshd[]: no event
+%%% MALFORMED {incomplete entry
+Failed password but no timestamp or IP
+THIS IS NOT A LOG LINE AT ALL
+<corrupted entry>
+Jun 15 02:27:00 server sshd[8499]: Failed password for admin from 172.20.10.1 port 54643 ssh2
+Jun 15 02:27:10 server sshd[3118]: Failed password for root from 172.20.10.1 port 60784 ssh2
+Jun 15 02:27:12 server sshd[2510]: Failed password for admin from 172.20.10.1 port 62972 ssh2
+Jun 15 02:27:13 server sshd[5708]: Failed password for root from 172.20.10.1 port 63406 ssh2
+Jun 15 02:27:20 server sshd[6353]: Failed password for root from 172.20.10.1 port 61264 ssh2
+Jun 15 02:27:20 server sshd[1433]: Failed password for root from 172.20.10.1 port 61627 ssh2
+Jun 15 02:27:28 server sshd[2392]: Failed password for admin from 172.20.10.1 port 46328 ssh2
+Jun 15 02:27:36 server sshd[3567]: Failed password for pi from 172.20.10.1 port 48758 ssh2
+Jun 15 02:27:36 server sshd[5486]: Failed password for admin from 172.20.10.1 port 44953 ssh2
+Jun 15 02:27:39 server sshd[3862]: Failed password for ubuntu from 172.20.10.1 port 51209 ssh2
+Jun 15 02:27:39 server sshd[4545]: Failed password for admin from 172.20.10.1 port 55415 ssh2
+Jun 15 02:27:40 server sshd[6639]: Failed password for pi from 172.20.10.1 port 55076 ssh2
+Jun 15 02:27:54 server sshd[4669]: Failed password for root from 172.20.10.1 port 48944 ssh2
+Jun 15 02:27:57 server sshd[4667]: Failed password for ubuntu from 172.20.10.1 port 43074 ssh2
+   
+<corrupted entry>
+   
+THIS IS NOT A LOG LINE AT ALL
+
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+   
+Failed password but no timestamp or IP
+   
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+<corrupted entry>
+Jun 15 BAD_TIME server sshd[]: no event
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Failed password but no timestamp or IP
+%%% MALFORMED {incomplete entry
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+
+Jun 15 02:28:03 server sshd[8153]: Failed password for ubuntu from 172.20.10.1 port 43997 ssh2
+Jun 15 02:28:12 server sshd[9395]: Failed password for pi from 172.20.10.1 port 59191 ssh2
+Jun 15 02:28:42 server sshd[4911]: Failed password for root from 172.20.10.1 port 49260 ssh2
+Jun 15 02:28:43 server sshd[9854]: Failed password for admin from 172.20.10.1 port 60748 ssh2
+Jun 15 02:28:47 server sshd[1929]: Failed password for admin from 172.20.10.1 port 63387 ssh2
+Jun 15 02:28:50 server sshd[1946]: Failed password for admin from 172.20.10.1 port 52016 ssh2
+Jun 15 02:28:56 server sshd[7487]: Failed password for root from 172.20.10.1 port 54406 ssh2
+Failed password but no timestamp or IP
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 02:00:00 trailing garbage only
+%%% MALFORMED {incomplete entry
+
+   
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Jun 15 BAD_TIME server sshd[]: no event
+Failed password but no timestamp or IP
+Failed password but no timestamp or IP
+Jun 15 02:29:22 server sshd[4329]: Failed password for ubuntu from 172.20.10.1 port 64876 ssh2
+Jun 15 02:29:25 server sshd[9536]: Failed password for ubuntu from 172.20.10.1 port 57100 ssh2
+Jun 15 02:29:25 server sshd[2473]: Failed password for root from 172.20.10.1 port 60467 ssh2
+Jun 15 02:29:25 server sshd[1539]: Failed password for ubuntu from 172.20.10.1 port 52451 ssh2
+Jun 15 02:29:41 server sshd[2471]: Failed password for pi from 172.20.10.1 port 45985 ssh2
+Jun 15 02:29:42 server sshd[4432]: Failed password for pi from 172.20.10.1 port 48485 ssh2
+Jun 15 02:29:47 server sshd[4280]: Failed password for pi from 172.20.10.1 port 57749 ssh2
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+%%% MALFORMED {incomplete entry
+THIS IS NOT A LOG LINE AT ALL
+random text 123 !@#$%
+<corrupted entry>
+<corrupted entry>
+Jun 15 02:00:00 trailing garbage only
+%%% MALFORMED {incomplete entry
+Jun 15 02:30:03 server sshd[4620]: Failed password for ubuntu from 172.20.10.1 port 51402 ssh2
+Jun 15 02:30:11 server sshd[7338]: Failed password for pi from 172.20.10.1 port 63196 ssh2
+Jun 15 02:30:20 server sshd[4101]: Failed password for ubuntu from 172.20.10.1 port 63879 ssh2
+Jun 15 02:30:22 server sshd[5512]: Failed password for admin from 172.20.10.1 port 41077 ssh2
+Jun 15 02:30:35 server sshd[2974]: Failed password for ubuntu from 172.20.10.1 port 53632 ssh2
+Jun 15 02:30:41 server sshd[8729]: Failed password for ubuntu from 172.20.10.1 port 40247 ssh2
+Jun 15 02:30:46 server sshd[1930]: Failed password for admin from 172.20.10.1 port 59694 ssh2
+Jun 15 02:30:52 server sshd[1002]: Failed password for admin from 172.20.10.1 port 59907 ssh2
+Jun 15 02:30:53 server sshd[6489]: Failed password for pi from 172.20.10.1 port 58495 ssh2
+
+random text 123 !@#$%
+
+THIS IS NOT A LOG LINE AT ALL
+
+Failed password but no timestamp or IP
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+random text 123 !@#$%
+Failed password but no timestamp or IP
+%%% MALFORMED {incomplete entry
+Jun 15 BAD_TIME server sshd[]: no event
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Jun 15 BAD_TIME server sshd[]: no event
+<corrupted entry>
+Jun 15 02:31:04 server sshd[2644]: Failed password for root from 172.20.10.1 port 50719 ssh2
+Jun 15 02:31:16 server sshd[6805]: Failed password for admin from 172.20.10.1 port 62738 ssh2
+Jun 15 02:31:25 server sshd[9359]: Failed password for admin from 172.20.10.1 port 44112 ssh2
+Jun 15 02:31:31 server sshd[9690]: Failed password for ubuntu from 172.20.10.1 port 57101 ssh2
+Jun 15 02:31:41 server sshd[5945]: Failed password for ubuntu from 172.20.10.1 port 55713 ssh2
+Jun 15 02:31:45 server sshd[4216]: Failed password for ubuntu from 172.20.10.1 port 49858 ssh2
+Jun 15 02:31:55 server sshd[7229]: Failed password for pi from 172.20.10.1 port 57681 ssh2
+Jun 15 02:31:58 server sshd[8045]: Failed password for pi from 172.20.10.1 port 47489 ssh2
+Failed password but no timestamp or IP
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 02:00:00 trailing garbage only
+Failed password but no timestamp or IP
+random text 123 !@#$%
+Jun 15 BAD_TIME server sshd[]: no event
+Jun 15 02:00:00 trailing garbage only
+
+Jun 15 02:00:00 trailing garbage only
+<corrupted entry>
+<corrupted entry>
+Jun 15 02:00:00 trailing garbage only
+Failed password but no timestamp or IP
+Jun 15 02:00:00 trailing garbage only
+Jun 15 BAD_TIME server sshd[]: no event
+Jun 15 02:32:01 server sshd[5297]: Failed password for pi from 172.20.10.1 port 47924 ssh2
+Jun 15 02:32:01 server sshd[4290]: Failed password for root from 172.20.10.1 port 58695 ssh2
+Jun 15 02:32:19 server sshd[4309]: Failed password for admin from 172.20.10.1 port 41707 ssh2
+Jun 15 02:32:23 server sshd[4239]: Failed password for ubuntu from 172.20.10.1 port 53229 ssh2
+Jun 15 02:32:24 server sshd[3033]: Failed password for ubuntu from 172.20.10.1 port 55771 ssh2
+Jun 15 02:32:28 server sshd[4811]: Failed password for pi from 172.20.10.1 port 40801 ssh2
+Jun 15 02:32:34 server sshd[4569]: Failed password for admin from 172.20.10.1 port 63468 ssh2
+Jun 15 02:32:36 server sshd[9148]: Failed password for ubuntu from 172.20.10.1 port 57578 ssh2
+Jun 15 02:32:38 server sshd[7630]: Failed password for root from 172.20.10.1 port 64279 ssh2
+Jun 15 02:32:41 server sshd[4875]: Failed password for pi from 172.20.10.1 port 52001 ssh2
+Jun 15 02:32:56 server sshd[4653]: Failed password for admin from 172.20.10.1 port 64394 ssh2
+<corrupted entry>
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Failed password but no timestamp or IP
+Jun 15 BAD_TIME server sshd[]: no event
+Failed password but no timestamp or IP
+random text 123 !@#$%
+%%% MALFORMED {incomplete entry
+Jun 15 02:33:03 server sshd[3923]: Failed password for ubuntu from 172.20.10.1 port 63533 ssh2
+Jun 15 02:33:05 server sshd[2038]: Failed password for root from 172.20.10.1 port 62827 ssh2
+Jun 15 02:33:05 server sshd[6433]: Failed password for root from 172.20.10.1 port 51102 ssh2
+Jun 15 02:33:06 server sshd[4677]: Failed password for ubuntu from 172.20.10.1 port 64296 ssh2
+Jun 15 02:33:06 server sshd[2745]: Failed password for admin from 172.20.10.1 port 43836 ssh2
+Jun 15 02:33:08 server sshd[6384]: Failed password for ubuntu from 172.20.10.1 port 56441 ssh2
+Jun 15 02:33:11 server sshd[1748]: Failed password for admin from 172.20.10.1 port 55774 ssh2
+Jun 15 02:33:15 server sshd[4901]: Failed password for root from 172.20.10.1 port 52784 ssh2
+Jun 15 02:33:21 server sshd[3690]: Failed password for admin from 172.20.10.1 port 47311 ssh2
+Jun 15 02:33:27 server sshd[2938]: Failed password for admin from 172.20.10.1 port 60008 ssh2
+Jun 15 02:33:31 server sshd[2789]: Failed password for ubuntu from 172.20.10.1 port 54948 ssh2
+Jun 15 02:33:38 server sshd[8214]: Failed password for ubuntu from 172.20.10.1 port 57519 ssh2
+Jun 15 02:33:50 server sshd[9410]: Failed password for pi from 172.20.10.1 port 41827 ssh2
+Jun 15 02:33:53 server sshd[8177]: Failed password for root from 172.20.10.1 port 57208 ssh2
+random text 123 !@#$%
+Jun 15 02:00:00 trailing garbage only
+<corrupted entry>
+random text 123 !@#$%
+
+Jun 15 02:00:00 trailing garbage only
+   
+THIS IS NOT A LOG LINE AT ALL
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Jun 15 02:34:04 server sshd[9192]: Failed password for ubuntu from 172.20.10.1 port 51692 ssh2
+Jun 15 02:34:15 server sshd[4048]: Failed password for ubuntu from 172.20.10.1 port 41201 ssh2
+Jun 15 02:34:26 server sshd[7746]: Failed password for admin from 172.20.10.1 port 45101 ssh2
+Jun 15 02:34:27 server sshd[3576]: Failed password for root from 172.20.10.1 port 49454 ssh2
+Jun 15 02:34:40 server sshd[2629]: Failed password for root from 172.20.10.1 port 51432 ssh2
+Jun 15 02:34:45 server sshd[7680]: Failed password for root from 172.20.10.1 port 41690 ssh2
+THIS IS NOT A LOG LINE AT ALL
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 02:00:00 trailing garbage only
+Failed password but no timestamp or IP
+   
+THIS IS NOT A LOG LINE AT ALL
+Failed password but no timestamp or IP
+random text 123 !@#$%
+Failed password but no timestamp or IP
+Failed password but no timestamp or IP
+%%% MALFORMED {incomplete entry
+Failed password but no timestamp or IP
+Jun 15 02:00:00 trailing garbage only
+
+<corrupted entry>
+Failed password but no timestamp or IP
+Jun 15 02:35:03 server sshd[5020]: Failed password for ubuntu from 172.20.10.1 port 41202 ssh2
+Jun 15 02:35:11 server sshd[4375]: Failed password for admin from 172.20.10.1 port 60068 ssh2
+Jun 15 02:35:12 server sshd[2790]: Failed password for root from 172.20.10.1 port 49201 ssh2
+Jun 15 02:35:14 server sshd[8194]: Failed password for ubuntu from 172.20.10.1 port 46571 ssh2
+Jun 15 02:35:32 server sshd[1968]: Failed password for pi from 172.20.10.1 port 59341 ssh2
+Jun 15 02:35:33 server sshd[5298]: Failed password for root from 172.20.10.1 port 50257 ssh2
+Jun 15 02:35:36 server sshd[3960]: Failed password for admin from 172.20.10.1 port 45902 ssh2
+Jun 15 02:35:42 server sshd[9239]: Failed password for admin from 172.20.10.1 port 56511 ssh2
+Jun 15 02:35:48 server sshd[9776]: Failed password for pi from 172.20.10.1 port 61671 ssh2
+Jun 15 02:35:52 server sshd[9503]: Failed password for pi from 172.20.10.1 port 63999 ssh2
+Jun 15 02:00:00 trailing garbage only
+THIS IS NOT A LOG LINE AT ALL
+   
+
+
+Jun 15 BAD_TIME server sshd[]: no event
+
+Jun 15 02:36:01 server sshd[8742]: Failed password for pi from 172.20.10.1 port 55972 ssh2
+Jun 15 02:36:04 server sshd[1906]: Failed password for pi from 172.20.10.1 port 51097 ssh2
+Jun 15 02:36:07 server sshd[4721]: Failed password for root from 172.20.10.1 port 62144 ssh2
+Jun 15 02:36:08 server sshd[7536]: Failed password for ubuntu from 172.20.10.1 port 51662 ssh2
+Jun 15 02:36:17 server sshd[4987]: Failed password for root from 172.20.10.1 port 64261 ssh2
+Jun 15 02:36:35 server sshd[6419]: Failed password for pi from 172.20.10.1 port 64420 ssh2
+Jun 15 02:36:40 server sshd[5119]: Failed password for admin from 172.20.10.1 port 42560 ssh2
+Jun 15 02:36:44 server sshd[1027]: Failed password for ubuntu from 172.20.10.1 port 48619 ssh2
+Jun 15 02:36:48 server sshd[4181]: Failed password for root from 172.20.10.1 port 64117 ssh2
+Jun 15 02:36:48 server sshd[7238]: Failed password for root from 172.20.10.1 port 47339 ssh2
+Jun 15 02:36:53 server sshd[9077]: Failed password for root from 172.20.10.1 port 40506 ssh2
+Jun 15 02:36:56 server sshd[4541]: Failed password for ubuntu from 172.20.10.1 port 41864 ssh2
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 02:00:00 trailing garbage only
+%%% MALFORMED {incomplete entry
+
+Jun 15 BAD_TIME server sshd[]: no event
+%%% MALFORMED {incomplete entry
+Failed password but no timestamp or IP
+Jun 15 02:37:00 server sshd[5396]: Failed password for admin from 172.20.10.1 port 51644 ssh2
+Jun 15 02:37:09 server sshd[1262]: Failed password for pi from 172.20.10.1 port 56639 ssh2
+Jun 15 02:37:09 server sshd[9095]: Failed password for ubuntu from 172.20.10.1 port 46292 ssh2
+Jun 15 02:37:18 server sshd[7586]: Failed password for root from 172.20.10.1 port 48414 ssh2
+Jun 15 02:37:21 server sshd[4036]: Failed password for admin from 172.20.10.1 port 61142 ssh2
+Jun 15 02:37:22 server sshd[9089]: Failed password for pi from 172.20.10.1 port 50935 ssh2
+Jun 15 02:37:23 server sshd[6880]: Failed password for pi from 172.20.10.1 port 56948 ssh2
+Jun 15 02:37:23 server sshd[6002]: Failed password for pi from 172.20.10.1 port 57110 ssh2
+Jun 15 02:37:26 server sshd[3657]: Failed password for root from 172.20.10.1 port 63805 ssh2
+Jun 15 02:37:26 server sshd[8845]: Failed password for ubuntu from 172.20.10.1 port 50912 ssh2
+Jun 15 02:37:40 server sshd[6572]: Failed password for ubuntu from 172.20.10.1 port 57389 ssh2
+Jun 15 02:37:52 server sshd[9440]: Failed password for ubuntu from 172.20.10.1 port 43327 ssh2
+THIS IS NOT A LOG LINE AT ALL
+<corrupted entry>
+Failed password but no timestamp or IP
+Failed password but no timestamp or IP
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Failed password but no timestamp or IP
+random text 123 !@#$%
+Jun 15 02:00:00 trailing garbage only
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+<corrupted entry>
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Jun 15 02:38:06 server sshd[1101]: Failed password for root from 172.20.10.1 port 46223 ssh2
+Jun 15 02:38:10 server sshd[1064]: Failed password for admin from 172.20.10.1 port 60530 ssh2
+Jun 15 02:38:11 server sshd[9796]: Failed password for ubuntu from 172.20.10.1 port 44751 ssh2
+Jun 15 02:38:23 server sshd[6781]: Failed password for pi from 172.20.10.1 port 52394 ssh2
+Jun 15 02:38:46 server sshd[6054]: Failed password for ubuntu from 172.20.10.1 port 63811 ssh2
+Jun 15 02:38:49 server sshd[2033]: Failed password for pi from 172.20.10.1 port 57463 ssh2
+<corrupted entry>
+Jun 15 BAD_TIME server sshd[]: no event
+Failed password but no timestamp or IP
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+THIS IS NOT A LOG LINE AT ALL
+%%% MALFORMED {incomplete entry
+   
+random text 123 !@#$%
+Failed password but no timestamp or IP
+Jun 15 02:00:00 trailing garbage only
+%%% MALFORMED {incomplete entry
+
+Jun 15 02:00:00 trailing garbage only
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 02:39:06 server sshd[1724]: Failed password for admin from 172.20.10.1 port 62653 ssh2
+Jun 15 02:39:16 server sshd[1492]: Failed password for root from 172.20.10.1 port 43161 ssh2
+Jun 15 02:39:41 server sshd[8424]: Failed password for ubuntu from 172.20.10.1 port 51840 ssh2
+Jun 15 02:39:46 server sshd[3719]: Failed password for pi from 172.20.10.1 port 59954 ssh2
+%%% MALFORMED {incomplete entry
+
+
+Failed password but no timestamp or IP
+random text 123 !@#$%
+   
+THIS IS NOT A LOG LINE AT ALL
+<corrupted entry>
+Jun 15 BAD_TIME server sshd[]: no event
+Failed password but no timestamp or IP
+random text 123 !@#$%
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+random text 123 !@#$%
+   
+Jun 15 02:40:05 server sshd[5808]: Failed password for root from 172.20.10.1 port 50650 ssh2
+Jun 15 02:40:09 server sshd[4004]: Failed password for admin from 172.20.10.1 port 51541 ssh2
+Jun 15 02:40:13 server sshd[8508]: Failed password for root from 172.20.10.1 port 49313 ssh2
+Jun 15 02:40:23 server sshd[2230]: Failed password for ubuntu from 172.20.10.1 port 56796 ssh2
+Jun 15 02:40:43 server sshd[8422]: Failed password for admin from 172.20.10.1 port 58980 ssh2
+Jun 15 02:40:45 server sshd[5902]: Failed password for admin from 172.20.10.1 port 59216 ssh2
+Jun 15 02:40:54 server sshd[8813]: Failed password for pi from 172.20.10.1 port 63106 ssh2
+Jun 15 02:40:59 server sshd[7749]: Failed password for pi from 172.20.10.1 port 41056 ssh2
+Failed password but no timestamp or IP
+Jun 15 BAD_TIME server sshd[]: no event
+
+Jun 15 BAD_TIME server sshd[]: no event
+Jun 15 02:00:00 trailing garbage only
+
+Jun 15 02:00:00 trailing garbage only
+Failed password but no timestamp or IP
+random text 123 !@#$%
+Jun 15 BAD_TIME server sshd[]: no event
+THIS IS NOT A LOG LINE AT ALL
+<corrupted entry>
+random text 123 !@#$%
+Failed password but no timestamp or IP
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 02:41:00 server sshd[6886]: Failed password for root from 172.20.10.1 port 61119 ssh2
+Jun 15 02:41:07 server sshd[9303]: Failed password for ubuntu from 172.20.10.1 port 62471 ssh2
+Jun 15 02:41:12 server sshd[2785]: Failed password for root from 172.20.10.1 port 58415 ssh2
+Jun 15 02:41:14 server sshd[6206]: Failed password for ubuntu from 172.20.10.1 port 51987 ssh2
+Jun 15 02:41:19 server sshd[6390]: Failed password for admin from 172.20.10.1 port 56098 ssh2
+Jun 15 02:41:24 server sshd[2551]: Failed password for admin from 172.20.10.1 port 54512 ssh2
+Jun 15 02:41:28 server sshd[8678]: Failed password for ubuntu from 172.20.10.1 port 49486 ssh2
+Jun 15 02:41:30 server sshd[9293]: Failed password for admin from 172.20.10.1 port 46198 ssh2
+Jun 15 02:41:30 server sshd[3244]: Failed password for root from 172.20.10.1 port 48895 ssh2
+Jun 15 02:41:35 server sshd[6332]: Failed password for pi from 172.20.10.1 port 48844 ssh2
+Jun 15 02:41:35 server sshd[4515]: Failed password for admin from 172.20.10.1 port 61803 ssh2
+Jun 15 02:41:44 server sshd[1678]: Failed password for pi from 172.20.10.1 port 57824 ssh2
+Jun 15 02:41:50 server sshd[4815]: Failed password for pi from 172.20.10.1 port 42914 ssh2
+Jun 15 02:41:56 server sshd[1932]: Failed password for admin from 172.20.10.1 port 47677 ssh2
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Jun 15 02:00:00 trailing garbage only
+random text 123 !@#$%
+
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+random text 123 !@#$%
+<corrupted entry>
+
+   
+THIS IS NOT A LOG LINE AT ALL
+<corrupted entry>
+Jun 15 02:42:00 server sshd[8955]: Failed password for admin from 172.20.10.1 port 45295 ssh2
+Jun 15 02:42:15 server sshd[5361]: Failed password for ubuntu from 172.20.10.1 port 47293 ssh2
+Jun 15 02:42:17 server sshd[1160]: Failed password for admin from 172.20.10.1 port 42380 ssh2
+Jun 15 02:42:22 server sshd[8366]: Failed password for pi from 172.20.10.1 port 48106 ssh2
+Jun 15 02:42:33 server sshd[4544]: Failed password for ubuntu from 172.20.10.1 port 44290 ssh2
+Jun 15 02:42:37 server sshd[8920]: Failed password for ubuntu from 172.20.10.1 port 47425 ssh2
+Jun 15 02:42:42 server sshd[5124]: Failed password for root from 172.20.10.1 port 61029 ssh2
+Jun 15 02:42:47 server sshd[6964]: Failed password for admin from 172.20.10.1 port 43592 ssh2
+Failed password but no timestamp or IP
+%%% MALFORMED {incomplete entry
+Jun 15 02:00:00 trailing garbage only
+Jun 15 02:00:00 trailing garbage only
+%%% MALFORMED {incomplete entry
+Failed password but no timestamp or IP
+   
+random text 123 !@#$%
+<corrupted entry>
+Jun 15 02:43:06 server sshd[3521]: Failed password for ubuntu from 172.20.10.1 port 55442 ssh2
+Jun 15 02:43:10 server sshd[9946]: Failed password for pi from 172.20.10.1 port 49014 ssh2
+Jun 15 02:43:12 server sshd[3961]: Failed password for pi from 172.20.10.1 port 42741 ssh2
+Jun 15 02:43:23 server sshd[3019]: Failed password for admin from 172.20.10.1 port 55010 ssh2
+Jun 15 02:43:26 server sshd[8486]: Failed password for admin from 172.20.10.1 port 62425 ssh2
+Jun 15 02:43:26 server sshd[1376]: Failed password for ubuntu from 172.20.10.1 port 45310 ssh2
+Jun 15 02:43:27 server sshd[5121]: Failed password for root from 172.20.10.1 port 49474 ssh2
+Jun 15 02:43:30 server sshd[2778]: Failed password for admin from 172.20.10.1 port 55979 ssh2
+Jun 15 02:43:32 server sshd[3296]: Failed password for pi from 172.20.10.1 port 40063 ssh2
+Jun 15 02:43:39 server sshd[8565]: Failed password for pi from 172.20.10.1 port 60954 ssh2
+Jun 15 02:43:41 server sshd[7499]: Failed password for ubuntu from 172.20.10.1 port 41078 ssh2
+Jun 15 02:43:42 server sshd[6295]: Failed password for pi from 172.20.10.1 port 56506 ssh2
+Jun 15 02:43:43 server sshd[2080]: Failed password for pi from 172.20.10.1 port 42188 ssh2
+<corrupted entry>
+   
+Failed password but no timestamp or IP
+
+Failed password but no timestamp or IP
+%%% MALFORMED {incomplete entry
+Jun 15 BAD_TIME server sshd[]: no event
+THIS IS NOT A LOG LINE AT ALL
+THIS IS NOT A LOG LINE AT ALL
+%%% MALFORMED {incomplete entry
+Jun 15 02:44:00 server sshd[5166]: Failed password for root from 172.20.10.1 port 41229 ssh2
+Jun 15 02:44:57 server sshd[3291]: Failed password for admin from 172.20.10.1 port 56908 ssh2
+Failed password but no timestamp or IP
+   
+THIS IS NOT A LOG LINE AT ALL
+random text 123 !@#$%
+Jun 15 02:00:00 trailing garbage only
+Jun 15 02:00:00 trailing garbage only
+Jun 15 02:00:00 trailing garbage only
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Jun 15 BAD_TIME server sshd[]: no event
+<corrupted entry>
+THIS IS NOT A LOG LINE AT ALL
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 02:45:02 server sshd[6752]: Failed password for pi from 172.20.10.1 port 40340 ssh2
+Jun 15 02:45:13 server sshd[7638]: Failed password for pi from 172.20.10.1 port 60622 ssh2
+Jun 15 02:45:16 server sshd[1347]: Failed password for admin from 172.20.10.1 port 63272 ssh2
+Jun 15 02:45:26 server sshd[1481]: Failed password for pi from 172.20.10.1 port 43347 ssh2
+Jun 15 02:45:40 server sshd[3681]: Failed password for ubuntu from 172.20.10.1 port 51618 ssh2
+Jun 15 02:45:43 server sshd[2653]: Failed password for pi from 172.20.10.1 port 44424 ssh2
+Jun 15 02:45:43 server sshd[4244]: Failed password for ubuntu from 172.20.10.1 port 43961 ssh2
+Jun 15 02:45:45 server sshd[5009]: Failed password for ubuntu from 172.20.10.1 port 63304 ssh2
+Jun 15 02:45:53 server sshd[9130]: Failed password for root from 172.20.10.1 port 51450 ssh2
+Jun 15 02:45:57 server sshd[2600]: Failed password for admin from 172.20.10.1 port 49551 ssh2
+%%% MALFORMED {incomplete entry
+   
+<corrupted entry>
+Jun 15 02:00:00 trailing garbage only
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+<corrupted entry>
+Jun 15 BAD_TIME server sshd[]: no event
+%%% MALFORMED {incomplete entry
+%%% MALFORMED {incomplete entry
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Failed password but no timestamp or IP
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 02:00:00 trailing garbage only
+Jun 15 02:46:04 server sshd[3330]: Failed password for root from 172.20.10.1 port 63673 ssh2
+Jun 15 02:46:07 server sshd[6488]: Failed password for pi from 172.20.10.1 port 51006 ssh2
+Jun 15 02:46:22 server sshd[9562]: Failed password for ubuntu from 172.20.10.1 port 54837 ssh2
+Jun 15 02:46:26 server sshd[1530]: Failed password for pi from 172.20.10.1 port 59934 ssh2
+Jun 15 02:46:27 server sshd[1664]: Failed password for pi from 172.20.10.1 port 47152 ssh2
+Jun 15 02:46:31 server sshd[4382]: Failed password for root from 172.20.10.1 port 41976 ssh2
+Jun 15 02:46:34 server sshd[3888]: Failed password for admin from 172.20.10.1 port 52103 ssh2
+Jun 15 02:46:43 server sshd[2288]: Failed password for ubuntu from 172.20.10.1 port 40764 ssh2
+Jun 15 02:46:43 server sshd[7533]: Failed password for ubuntu from 172.20.10.1 port 59333 ssh2
+Jun 15 02:46:44 server sshd[1294]: Failed password for root from 172.20.10.1 port 62398 ssh2
+Jun 15 02:46:47 server sshd[6593]: Failed password for root from 172.20.10.1 port 48376 ssh2
+Jun 15 02:46:49 server sshd[3372]: Failed password for root from 172.20.10.1 port 49605 ssh2
+Jun 15 02:46:53 server sshd[8013]: Failed password for root from 172.20.10.1 port 53435 ssh2
+Jun 15 02:46:55 server sshd[1361]: Failed password for root from 172.20.10.1 port 41784 ssh2
+%%% MALFORMED {incomplete entry
+<corrupted entry>
+<corrupted entry>
+
+random text 123 !@#$%
+<corrupted entry>
+<corrupted entry>
+Jun 15 02:00:00 trailing garbage only
+%%% MALFORMED {incomplete entry
+<corrupted entry>
+
+<corrupted entry>
+   
+THIS IS NOT A LOG LINE AT ALL
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 02:00:00 trailing garbage only
+   
+THIS IS NOT A LOG LINE AT ALL
+   
+Jun 15 02:47:04 server sshd[5484]: Failed password for root from 172.20.10.1 port 59166 ssh2
+Jun 15 02:47:07 server sshd[5787]: Failed password for admin from 172.20.10.1 port 60794 ssh2
+Jun 15 02:47:08 server sshd[7050]: Failed password for ubuntu from 172.20.10.1 port 47843 ssh2
+Jun 15 02:47:17 server sshd[5959]: Failed password for ubuntu from 172.20.10.1 port 64982 ssh2
+Jun 15 02:47:22 server sshd[9363]: Failed password for admin from 172.20.10.1 port 60300 ssh2
+Jun 15 02:47:27 server sshd[7861]: Failed password for root from 172.20.10.1 port 45915 ssh2
+Jun 15 02:47:34 server sshd[8321]: Failed password for ubuntu from 172.20.10.1 port 60275 ssh2
+Jun 15 02:47:46 server sshd[3685]: Failed password for ubuntu from 172.20.10.1 port 45560 ssh2
+Jun 15 02:47:46 server sshd[6987]: Failed password for admin from 172.20.10.1 port 51763 ssh2
+Jun 15 02:47:55 server sshd[2738]: Failed password for ubuntu from 172.20.10.1 port 60733 ssh2
+Jun 15 02:47:57 server sshd[4988]: Failed password for admin from 172.20.10.1 port 51443 ssh2
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+%%% MALFORMED {incomplete entry
+<corrupted entry>
+   
+
+Jun 15 BAD_TIME server sshd[]: no event
+Jun 15 02:00:00 trailing garbage only
+THIS IS NOT A LOG LINE AT ALL
+
+Jun 15 BAD_TIME server sshd[]: no event
+<corrupted entry>
+   
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 02:48:10 server sshd[8231]: Failed password for admin from 172.20.10.1 port 44690 ssh2
+Jun 15 02:48:17 server sshd[2862]: Failed password for pi from 172.20.10.1 port 54476 ssh2
+Jun 15 02:48:24 server sshd[7163]: Failed password for admin from 172.20.10.1 port 54787 ssh2
+Jun 15 02:48:25 server sshd[2007]: Failed password for root from 172.20.10.1 port 42463 ssh2
+Jun 15 02:48:26 server sshd[7153]: Failed password for admin from 172.20.10.1 port 41006 ssh2
+Jun 15 02:48:43 server sshd[5154]: Failed password for pi from 172.20.10.1 port 62243 ssh2
+Jun 15 BAD_TIME server sshd[]: no event
+Jun 15 BAD_TIME server sshd[]: no event
+THIS IS NOT A LOG LINE AT ALL
+THIS IS NOT A LOG LINE AT ALL
+%%% MALFORMED {incomplete entry
+   
+THIS IS NOT A LOG LINE AT ALL
+
+random text 123 !@#$%
+
+Jun 15 02:00:00 trailing garbage only
+<corrupted entry>
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Jun 15 02:49:12 server sshd[9987]: Failed password for ubuntu from 172.20.10.1 port 55102 ssh2
+Jun 15 02:49:16 server sshd[5895]: Failed password for pi from 172.20.10.1 port 56743 ssh2
+Jun 15 02:49:17 server sshd[6450]: Failed password for admin from 172.20.10.1 port 51874 ssh2
+Jun 15 02:49:25 server sshd[1440]: Failed password for root from 172.20.10.1 port 59548 ssh2
+Jun 15 02:49:27 server sshd[2526]: Failed password for admin from 172.20.10.1 port 59562 ssh2
+Jun 15 02:49:39 server sshd[5269]: Failed password for root from 172.20.10.1 port 52140 ssh2
+Jun 15 02:49:45 server sshd[2409]: Failed password for admin from 172.20.10.1 port 47587 ssh2
+Jun 15 02:49:50 server sshd[8742]: Failed password for ubuntu from 172.20.10.1 port 43685 ssh2
+Jun 15 02:49:51 server sshd[6275]: Failed password for root from 172.20.10.1 port 52049 ssh2
+Jun 15 02:49:53 server sshd[9025]: Failed password for root from 172.20.10.1 port 41249 ssh2
+Jun 15 02:49:53 server sshd[8207]: Failed password for ubuntu from 172.20.10.1 port 64098 ssh2
+Jun 15 02:49:54 server sshd[3121]: Failed password for admin from 172.20.10.1 port 63327 ssh2
+%%% MALFORMED {incomplete entry
+random text 123 !@#$%
+%%% MALFORMED {incomplete entry
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Jun 15 02:00:00 trailing garbage only
+Failed password but no timestamp or IP
+Failed password but no timestamp or IP
+random text 123 !@#$%
+%%% MALFORMED {incomplete entry
+Jun 15 02:50:00 server sshd[6777]: Failed password for admin from 172.20.10.1 port 47816 ssh2
+Jun 15 02:50:15 server sshd[6599]: Failed password for ubuntu from 172.20.10.1 port 40906 ssh2
+Jun 15 02:50:23 server sshd[7480]: Failed password for ubuntu from 172.20.10.1 port 60650 ssh2
+Jun 15 02:50:26 server sshd[3838]: Failed password for pi from 172.20.10.1 port 63865 ssh2
+Jun 15 02:50:33 server sshd[7299]: Failed password for ubuntu from 172.20.10.1 port 40221 ssh2
+Jun 15 02:50:33 server sshd[7794]: Failed password for pi from 172.20.10.1 port 61069 ssh2
+Jun 15 02:50:33 server sshd[1148]: Failed password for root from 172.20.10.1 port 45745 ssh2
+Jun 15 02:50:39 server sshd[9488]: Failed password for root from 172.20.10.1 port 49566 ssh2
+Jun 15 02:50:42 server sshd[1125]: Failed password for admin from 172.20.10.1 port 40788 ssh2
+Jun 15 02:50:53 server sshd[2613]: Failed password for root from 172.20.10.1 port 61892 ssh2
+
+THIS IS NOT A LOG LINE AT ALL
+Failed password but no timestamp or IP
+%%% MALFORMED {incomplete entry
+random text 123 !@#$%
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+
+
+Jun 15 02:00:00 trailing garbage only
+Jun 15 02:00:00 trailing garbage only
+Jun 15 02:51:07 server sshd[8945]: Failed password for pi from 172.20.10.1 port 45695 ssh2
+Jun 15 02:51:33 server sshd[4586]: Failed password for pi from 172.20.10.1 port 55142 ssh2
+Jun 15 02:51:41 server sshd[2072]: Failed password for root from 172.20.10.1 port 53837 ssh2
+Jun 15 02:51:41 server sshd[4928]: Failed password for pi from 172.20.10.1 port 62676 ssh2
+Jun 15 02:51:54 server sshd[8609]: Failed password for admin from 172.20.10.1 port 49061 ssh2
+Jun 15 02:51:56 server sshd[8936]: Failed password for root from 172.20.10.1 port 47975 ssh2
+Failed password but no timestamp or IP
+<corrupted entry>
+random text 123 !@#$%
+%%% MALFORMED {incomplete entry
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+<corrupted entry>
+<corrupted entry>
+random text 123 !@#$%
+Jun 15 02:00:00 trailing garbage only
+Jun 15 BAD_TIME server sshd[]: no event
+THIS IS NOT A LOG LINE AT ALL
+   
+%%% MALFORMED {incomplete entry
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+
+Jun 15 02:52:23 server sshd[9206]: Failed password for pi from 172.20.10.1 port 61251 ssh2
+Jun 15 02:52:41 server sshd[2381]: Failed password for pi from 172.20.10.1 port 56154 ssh2
+Jun 15 02:52:48 server sshd[5003]: Failed password for root from 172.20.10.1 port 63857 ssh2
+Jun 15 02:52:58 server sshd[8808]: Failed password for admin from 172.20.10.1 port 61806 ssh2
+Jun 15 02:52:59 server sshd[4454]: Failed password for root from 172.20.10.1 port 40706 ssh2
+Jun 15 BAD_TIME server sshd[]: no event
+Jun 15 02:00:00 trailing garbage only
+Jun 15 02:00:00 trailing garbage only
+random text 123 !@#$%
+   
+Jun 15 02:00:00 trailing garbage only
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 02:00:00 trailing garbage only
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 BAD_TIME server sshd[]: no event
+Failed password but no timestamp or IP
+<corrupted entry>
+Jun 15 02:53:02 server sshd[6217]: Failed password for root from 172.20.10.1 port 54112 ssh2
+Jun 15 02:53:03 server sshd[1001]: Failed password for admin from 172.20.10.1 port 58838 ssh2
+Jun 15 02:53:13 server sshd[9408]: Failed password for pi from 172.20.10.1 port 41774 ssh2
+Jun 15 02:53:14 server sshd[3282]: Failed password for pi from 172.20.10.1 port 56157 ssh2
+Jun 15 02:53:25 server sshd[8433]: Failed password for root from 172.20.10.1 port 41319 ssh2
+Jun 15 02:53:30 server sshd[8206]: Failed password for pi from 172.20.10.1 port 55501 ssh2
+Jun 15 02:53:41 server sshd[2274]: Failed password for pi from 172.20.10.1 port 59082 ssh2
+Jun 15 02:53:45 server sshd[4097]: Failed password for pi from 172.20.10.1 port 63867 ssh2
+Jun 15 02:53:58 server sshd[7890]: Failed password for ubuntu from 172.20.10.1 port 59011 ssh2
+Jun 15 02:53:58 server sshd[5818]: Failed password for pi from 172.20.10.1 port 63101 ssh2
+Jun 15 02:53:58 server sshd[8694]: Failed password for ubuntu from 172.20.10.1 port 62347 ssh2
+
+Failed password but no timestamp or IP
+
+THIS IS NOT A LOG LINE AT ALL
+THIS IS NOT A LOG LINE AT ALL
+Jun 15 02:00:00 trailing garbage only
+%%% MALFORMED {incomplete entry
+random text 123 !@#$%
+THIS IS NOT A LOG LINE AT ALL
+
+Jun 15 02:54:05 server sshd[5595]: Failed password for ubuntu from 172.20.10.1 port 58627 ssh2
+Jun 15 02:54:08 server sshd[4878]: Failed password for root from 172.20.10.1 port 47926 ssh2
+Jun 15 02:54:10 server sshd[2314]: Failed password for pi from 172.20.10.1 port 53399 ssh2
+Jun 15 02:54:22 server sshd[9825]: Failed password for admin from 172.20.10.1 port 61540 ssh2
+Jun 15 02:54:39 server sshd[9705]: Failed password for pi from 172.20.10.1 port 45279 ssh2
+Jun 15 02:54:40 server sshd[6520]: Failed password for ubuntu from 172.20.10.1 port 42105 ssh2
+Jun 15 02:54:41 server sshd[5565]: Failed password for ubuntu from 172.20.10.1 port 56338 ssh2
+Jun 15 02:54:46 server sshd[2109]: Failed password for pi from 172.20.10.1 port 50461 ssh2
+Jun 15 02:54:50 server sshd[5758]: Failed password for ubuntu from 172.20.10.1 port 41438 ssh2
+Jun 15 02:00:00 trailing garbage only
+%%% MALFORMED {incomplete entry
+<corrupted entry>
+Jun 15 BAD_TIME server sshd[]: no event
+Jun 15 02:00:00 trailing garbage only
+
+Jun 15 02:55:02 server sshd[5573]: Failed password for root from 172.20.10.1 port 51187 ssh2
+Jun 15 02:55:19 server sshd[6079]: Failed password for admin from 172.20.10.1 port 60807 ssh2
+Jun 15 02:55:36 server sshd[7176]: Failed password for admin from 172.20.10.1 port 42881 ssh2
+Jun 15 02:55:54 server sshd[3039]: Failed password for root from 172.20.10.1 port 44489 ssh2
+Jun 15 02:55:58 server sshd[2705]: Failed password for root from 172.20.10.1 port 49490 ssh2
+<corrupted entry>
+
+Jun 15 BAD_TIME server sshd[]: no event
+%%% MALFORMED {incomplete entry
+
+THIS IS NOT A LOG LINE AT ALL
+random text 123 !@#$%
+%%% MALFORMED {incomplete entry
+%%% MALFORMED {incomplete entry
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Failed password but no timestamp or IP
+   
+   
+Jun 15 02:00:00 trailing garbage only
+Jun 15 02:00:00 trailing garbage only
+random text 123 !@#$%
+Jun 15 02:56:06 server sshd[6745]: Failed password for root from 172.20.10.1 port 63497 ssh2
+Jun 15 02:56:13 server sshd[4329]: Failed password for root from 172.20.10.1 port 45902 ssh2
+Jun 15 02:56:29 server sshd[4935]: Failed password for admin from 172.20.10.1 port 52055 ssh2
+Jun 15 02:56:30 server sshd[4917]: Failed password for ubuntu from 172.20.10.1 port 58179 ssh2
+Jun 15 02:56:30 server sshd[6571]: Failed password for admin from 172.20.10.1 port 55253 ssh2
+Jun 15 02:56:31 server sshd[5500]: Failed password for ubuntu from 172.20.10.1 port 57087 ssh2
+Jun 15 02:56:39 server sshd[3726]: Failed password for ubuntu from 172.20.10.1 port 64678 ssh2
+Jun 15 02:56:51 server sshd[1498]: Failed password for pi from 172.20.10.1 port 44464 ssh2
+Jun 15 02:56:55 server sshd[2414]: Failed password for root from 172.20.10.1 port 58327 ssh2
+Jun 15 02:00:00 trailing garbage only
+Failed password but no timestamp or IP
+Jun 15 BAD_TIME server sshd[]: no event
+Jun 15 BAD_TIME server sshd[]: no event
+<corrupted entry>
+<corrupted entry>
+Jun 15 02:00:00 trailing garbage only
+
+Failed password but no timestamp or IP
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Failed password but no timestamp or IP
+random text 123 !@#$%
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+random text 123 !@#$%
+   
+THIS IS NOT A LOG LINE AT ALL
+
+%%% MALFORMED {incomplete entry
+%%% MALFORMED {incomplete entry
+Jun 15 02:57:01 server sshd[8206]: Failed password for root from 172.20.10.1 port 40686 ssh2
+Jun 15 02:57:12 server sshd[5630]: Failed password for root from 172.20.10.1 port 46445 ssh2
+Jun 15 02:57:26 server sshd[1193]: Failed password for admin from 172.20.10.1 port 46813 ssh2
+Jun 15 02:57:35 server sshd[3370]: Failed password for pi from 172.20.10.1 port 44895 ssh2
+Jun 15 02:57:41 server sshd[7035]: Failed password for root from 172.20.10.1 port 41169 ssh2
+Jun 15 02:57:44 server sshd[2831]: Failed password for pi from 172.20.10.1 port 60795 ssh2
+Jun 15 02:57:49 server sshd[3144]: Failed password for ubuntu from 172.20.10.1 port 41240 ssh2
+Jun 15 02:57:54 server sshd[3616]: Failed password for ubuntu from 172.20.10.1 port 47704 ssh2
+Failed password but no timestamp or IP
+
+Failed password but no timestamp or IP
+<corrupted entry>
+<corrupted entry>
+THIS IS NOT A LOG LINE AT ALL
+THIS IS NOT A LOG LINE AT ALL
+%%% MALFORMED {incomplete entry
+random text 123 !@#$%
+   
+Jun 15 02:00:00 trailing garbage only
+<corrupted entry>
+   
+Jun 15 02:58:15 server sshd[5235]: Failed password for pi from 172.20.10.1 port 57099 ssh2
+Jun 15 02:58:18 server sshd[6777]: Failed password for ubuntu from 172.20.10.1 port 51565 ssh2
+Jun 15 02:58:21 server sshd[9895]: Failed password for ubuntu from 172.20.10.1 port 51308 ssh2
+Jun 15 02:58:21 server sshd[8704]: Failed password for pi from 172.20.10.1 port 64540 ssh2
+Jun 15 02:58:25 server sshd[8299]: Failed password for pi from 172.20.10.1 port 58636 ssh2
+Jun 15 02:58:31 server sshd[2051]: Failed password for pi from 172.20.10.1 port 43929 ssh2
+Jun 15 02:58:34 server sshd[2436]: Failed password for ubuntu from 172.20.10.1 port 42052 ssh2
+Jun 15 02:58:36 server sshd[8202]: Failed password for root from 172.20.10.1 port 58683 ssh2
+Jun 15 02:58:40 server sshd[7053]: Failed password for ubuntu from 172.20.10.1 port 55751 ssh2
+Jun 15 02:58:54 server sshd[1747]: Failed password for admin from 172.20.10.1 port 40491 ssh2
+<corrupted entry>
+random text 123 !@#$%
+   
+
+   
+<corrupted entry>
+Jun 15 BAD_TIME server sshd[]: no event
+
+Jun 15 02:59:03 server sshd[7586]: Failed password for admin from 172.20.10.1 port 47195 ssh2
+Jun 15 02:59:15 server sshd[3687]: Failed password for root from 172.20.10.1 port 56606 ssh2
+Jun 15 02:59:24 server sshd[6794]: Failed password for ubuntu from 172.20.10.1 port 40196 ssh2
+Jun 15 02:59:30 server sshd[9683]: Failed password for admin from 172.20.10.1 port 48480 ssh2
+Jun 15 02:59:34 server sshd[1247]: Failed password for root from 172.20.10.1 port 47739 ssh2
+Jun 15 02:59:38 server sshd[8684]: Failed password for root from 172.20.10.1 port 63892 ssh2
+Jun 15 02:59:44 server sshd[9152]: Failed password for ubuntu from 172.20.10.1 port 55262 ssh2
+Jun 15 02:59:45 server sshd[4536]: Failed password for ubuntu from 172.20.10.1 port 53907 ssh2
+Jun 15 02:59:48 server sshd[8954]: Failed password for root from 172.20.10.1 port 64487 ssh2
+Jun 15 02:59:50 server sshd[2339]: Failed password for admin from 172.20.10.1 port 50347 ssh2
+Jun 15 02:59:53 server sshd[3698]: Failed password for pi from 172.20.10.1 port 52642 ssh2
+   
+%%% MALFORMED {incomplete entry
+Jun 15 02:00:00 trailing garbage only
+Jun 15 02:00:00 trailing garbage only
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+kernel: segfault at 0x0 ip 0x0 sp 0x0
+Jun 15 BAD_TIME server sshd[]: no event
+Jun 15 BAD_TIME server sshd[]: no event
+Failed password but no timestamp or IP
+Jun 15 02:00:00 trailing garbage only
+Jun 15 03:00:11 server sshd[2066]: Failed password for pi from 172.20.10.1 port 53029 ssh2
+Jun 15 03:00:17 server sshd[4722]: Failed password for ubuntu from 172.20.10.1 port 41061 ssh2
+Jun 15 03:00:21 server sshd[2201]: Failed password for ubuntu from 172.20.10.1 port 50490 ssh2
+Jun 15 03:00:32 server sshd[1263]: Failed password for ubuntu from 172.20.10.1 port 57094 ssh2
+Jun 15 03:00:43 server sshd[1527]: Failed password for admin from 172.20.10.1 port 56351 ssh2
+Jun 15 03:00:48 server sshd[1681]: Failed password for admin from 172.20.10.1 port 61954 ssh2
+Jun 15 03:00:54 server sshd[4667]: Failed password for ubuntu from 172.20.10.1 port 48505 ssh2
+Jun 15 03:01:04 server sshd[5138]: Failed password for admin from 172.20.10.1 port 54733 ssh2
+Jun 15 03:01:07 server sshd[6997]: Failed password for admin from 172.20.10.1 port 50878 ssh2
+Jun 15 03:01:12 server sshd[4576]: Failed password for ubuntu from 172.20.10.1 port 40091 ssh2
+Jun 15 03:01:20 server sshd[4488]: Failed password for pi from 172.20.10.1 port 51729 ssh2
+Jun 15 03:01:29 server sshd[1322]: Failed password for pi from 172.20.10.1 port 56982 ssh2
+Jun 15 03:01:31 server sshd[3367]: Failed password for root from 172.20.10.1 port 46991 ssh2
+Jun 15 03:01:36 server sshd[3191]: Failed password for pi from 172.20.10.1 port 54875 ssh2
+Jun 15 03:01:46 server sshd[3859]: Failed password for admin from 172.20.10.1 port 40193 ssh2
+Jun 15 03:02:02 server sshd[6790]: Failed password for root from 172.20.10.1 port 51656 ssh2
+Jun 15 03:02:05 server sshd[6531]: Failed password for ubuntu from 172.20.10.1 port 55605 ssh2
+Jun 15 03:02:07 server sshd[2208]: Failed password for ubuntu from 172.20.10.1 port 46070 ssh2
+Jun 15 03:02:08 server sshd[9385]: Failed password for root from 172.20.10.1 port 61967 ssh2
+Jun 15 03:02:09 server sshd[4086]: Failed password for root from 172.20.10.1 port 64617 ssh2
+Jun 15 03:02:14 server sshd[8506]: Failed password for admin from 172.20.10.1 port 57734 ssh2
+Jun 15 03:02:22 server sshd[1291]: Failed password for pi from 172.20.10.1 port 43047 ssh2
+Jun 15 03:02:25 server sshd[8211]: Failed password for ubuntu from 172.20.10.1 port 62661 ssh2
+Jun 15 03:02:25 server sshd[6534]: Failed password for admin from 172.20.10.1 port 41882 ssh2
+Jun 15 03:02:27 server sshd[2399]: Failed password for ubuntu from 172.20.10.1 port 45005 ssh2
+Jun 15 03:02:27 server sshd[9001]: Failed password for admin from 172.20.10.1 port 57795 ssh2
+Jun 15 03:02:45 server sshd[3314]: Failed password for ubuntu from 172.20.10.1 port 51198 ssh2
+Jun 15 03:03:20 server sshd[9302]: Failed password for admin from 172.20.10.1 port 45315 ssh2
+Jun 15 03:03:37 server sshd[9204]: Failed password for ubuntu from 172.20.10.1 port 43605 ssh2
+Jun 15 03:03:41 server sshd[9360]: Failed password for ubuntu from 172.20.10.1 port 54746 ssh2
+Jun 15 03:03:44 server sshd[4491]: Failed password for root from 172.20.10.1 port 64310 ssh2
+Jun 15 03:03:51 server sshd[6518]: Failed password for ubuntu from 172.20.10.1 port 46086 ssh2
+Jun 15 03:03:53 server sshd[5903]: Failed password for admin from 172.20.10.1 port 42131 ssh2
+Jun 15 03:03:59 server sshd[5388]: Failed password for ubuntu from 172.20.10.1 port 43241 ssh2
+Jun 15 03:04:00 server sshd[4859]: Failed password for pi from 172.20.10.1 port 53227 ssh2
+Jun 15 03:04:02 server sshd[6494]: Failed password for root from 172.20.10.1 port 43357 ssh2
+Jun 15 03:04:12 server sshd[5382]: Failed password for ubuntu from 172.20.10.1 port 64731 ssh2
+Jun 15 03:04:17 server sshd[9297]: Failed password for ubuntu from 172.20.10.1 port 46669 ssh2
+Jun 15 03:04:30 server sshd[1518]: Failed password for root from 172.20.10.1 port 42444 ssh2
+Jun 15 03:04:36 server sshd[2573]: Failed password for pi from 172.20.10.1 port 53523 ssh2
+Jun 15 03:04:41 server sshd[6339]: Failed password for pi from 172.20.10.1 port 54319 ssh2
+Jun 15 03:04:42 server sshd[1341]: Failed password for admin from 172.20.10.1 port 44568 ssh2
+Jun 15 03:04:42 server sshd[2935]: Failed password for admin from 172.20.10.1 port 61923 ssh2
+Jun 15 03:05:00 server sshd[9432]: Failed password for root from 172.20.10.1 port 61088 ssh2
+Jun 15 03:05:08 server sshd[5810]: Failed password for pi from 172.20.10.1 port 58918 ssh2
+Jun 15 03:05:15 server sshd[3478]: Failed password for admin from 172.20.10.1 port 60625 ssh2
+Jun 15 03:05:39 server sshd[6425]: Failed password for pi from 172.20.10.1 port 48727 ssh2
+Jun 15 03:05:43 server sshd[3738]: Failed password for admin from 172.20.10.1 port 51282 ssh2
+Jun 15 03:05:49 server sshd[8322]: Failed password for admin from 172.20.10.1 port 62482 ssh2
+Jun 15 03:05:50 server sshd[7252]: Failed password for root from 172.20.10.1 port 42363 ssh2
+Jun 15 03:06:02 server sshd[2947]: Failed password for pi from 172.20.10.1 port 58852 ssh2
+Jun 15 03:06:10 server sshd[9363]: Failed password for ubuntu from 172.20.10.1 port 46959 ssh2
+Jun 15 03:06:13 server sshd[8912]: Failed password for ubuntu from 172.20.10.1 port 44140 ssh2
+Jun 15 03:06:33 server sshd[5488]: Failed password for admin from 172.20.10.1 port 48287 ssh2
+Jun 15 03:06:46 server sshd[6019]: Failed password for root from 172.20.10.1 port 59962 ssh2
+Jun 15 03:06:47 server sshd[4133]: Failed password for pi from 172.20.10.1 port 45508 ssh2
+Jun 15 03:06:48 server sshd[9347]: Failed password for root from 172.20.10.1 port 40951 ssh2
+Jun 15 03:06:49 server sshd[4775]: Failed password for admin from 172.20.10.1 port 46445 ssh2
+Jun 15 03:06:52 server sshd[3874]: Failed password for admin from 172.20.10.1 port 59756 ssh2
+Jun 15 03:06:59 server sshd[8303]: Failed password for root from 172.20.10.1 port 43957 ssh2
+Jun 15 03:07:03 server sshd[9821]: Failed password for admin from 172.20.10.1 port 53353 ssh2
+Jun 15 03:07:15 server sshd[8231]: Failed password for pi from 172.20.10.1 port 48555 ssh2
+Jun 15 03:07:16 server sshd[2202]: Failed password for root from 172.20.10.1 port 60455 ssh2
+Jun 15 03:07:39 server sshd[1549]: Failed password for pi from 172.20.10.1 port 57934 ssh2
+Jun 15 03:07:47 server sshd[2511]: Failed password for admin from 172.20.10.1 port 51885 ssh2
+Jun 15 03:07:56 server sshd[1456]: Failed password for admin from 172.20.10.1 port 47290 ssh2
+Jun 15 03:07:56 server sshd[6005]: Failed password for admin from 172.20.10.1 port 51154 ssh2
+Jun 15 03:08:00 server sshd[5519]: Failed password for ubuntu from 172.20.10.1 port 49435 ssh2
+Jun 15 03:08:04 server sshd[7699]: Failed password for ubuntu from 172.20.10.1 port 41157 ssh2
+Jun 15 03:08:07 server sshd[8504]: Failed password for admin from 172.20.10.1 port 46930 ssh2
+Jun 15 03:08:10 server sshd[2717]: Failed password for root from 172.20.10.1 port 50278 ssh2
+Jun 15 03:08:18 server sshd[5518]: Failed password for root from 172.20.10.1 port 60590 ssh2
+Jun 15 03:08:21 server sshd[1935]: Failed password for root from 172.20.10.1 port 47496 ssh2
+Jun 15 03:08:52 server sshd[6006]: Failed password for ubuntu from 172.20.10.1 port 59731 ssh2
+Jun 15 03:08:58 server sshd[3529]: Failed password for pi from 172.20.10.1 port 59958 ssh2
+Jun 15 03:09:10 server sshd[4866]: Failed password for ubuntu from 172.20.10.1 port 48181 ssh2
+Jun 15 03:09:13 server sshd[2361]: Failed password for ubuntu from 172.20.10.1 port 52906 ssh2
+Jun 15 03:09:17 server sshd[6308]: Failed password for ubuntu from 172.20.10.1 port 47924 ssh2
+Jun 15 03:09:18 server sshd[8440]: Failed password for admin from 172.20.10.1 port 61310 ssh2
+Jun 15 03:09:24 server sshd[4840]: Failed password for pi from 172.20.10.1 port 51639 ssh2
+Jun 15 03:09:26 server sshd[7274]: Failed password for admin from 172.20.10.1 port 52683 ssh2
+Jun 15 03:09:38 server sshd[1108]: Failed password for admin from 172.20.10.1 port 50508 ssh2
+Jun 15 03:09:44 server sshd[2533]: Failed password for admin from 172.20.10.1 port 55219 ssh2
+Jun 15 03:09:48 server sshd[9197]: Failed password for root from 172.20.10.1 port 61903 ssh2
+Jun 15 03:09:51 server sshd[1586]: Failed password for root from 172.20.10.1 port 48211 ssh2
+Jun 15 03:10:07 server sshd[2502]: Failed password for ubuntu from 172.20.10.1 port 64269 ssh2
+Jun 15 03:10:20 server sshd[2850]: Failed password for root from 172.20.10.1 port 62125 ssh2
+Jun 15 03:10:31 server sshd[6382]: Failed password for admin from 172.20.10.1 port 51233 ssh2
+Jun 15 03:10:32 server sshd[2877]: Failed password for root from 172.20.10.1 port 55072 ssh2
+Jun 15 03:10:35 server sshd[7594]: Failed password for admin from 172.20.10.1 port 49360 ssh2
+Jun 15 03:10:45 server sshd[7333]: Failed password for admin from 172.20.10.1 port 48554 ssh2
+Jun 15 03:10:56 server sshd[7652]: Failed password for root from 172.20.10.1 port 53057 ssh2
+Jun 15 03:10:59 server sshd[2467]: Failed password for admin from 172.20.10.1 port 54222 ssh2
+Jun 15 03:11:03 server sshd[8935]: Failed password for pi from 172.20.10.1 port 44732 ssh2
+Jun 15 03:11:12 server sshd[8143]: Failed password for root from 172.20.10.1 port 59404 ssh2
+Jun 15 03:11:13 server sshd[3082]: Failed password for admin from 172.20.10.1 port 63808 ssh2
+Jun 15 03:11:13 server sshd[3354]: Failed password for admin from 172.20.10.1 port 60678 ssh2
+Jun 15 03:11:29 server sshd[2567]: Failed password for root from 172.20.10.1 port 45287 ssh2
+Jun 15 03:11:38 server sshd[1528]: Failed password for root from 172.20.10.1 port 57624 ssh2
+Jun 15 03:11:48 server sshd[5853]: Failed password for root from 172.20.10.1 port 64226 ssh2
+Jun 15 03:11:54 server sshd[7745]: Failed password for root from 172.20.10.1 port 49023 ssh2
+Jun 15 03:11:59 server sshd[3526]: Failed password for admin from 172.20.10.1 port 53802 ssh2
+Jun 15 03:12:14 server sshd[4569]: Failed password for admin from 172.20.10.1 port 49231 ssh2
+Jun 15 03:12:15 server sshd[8385]: Failed password for admin from 172.20.10.1 port 41642 ssh2
+Jun 15 03:12:16 server sshd[9322]: Failed password for pi from 172.20.10.1 port 46857 ssh2
+Jun 15 03:12:17 server sshd[9707]: Failed password for admin from 172.20.10.1 port 58824 ssh2
+Jun 15 03:12:21 server sshd[5790]: Failed password for ubuntu from 172.20.10.1 port 41986 ssh2
+Jun 15 03:12:29 server sshd[8572]: Failed password for pi from 172.20.10.1 port 53595 ssh2
+Jun 15 03:12:30 server sshd[2525]: Failed password for admin from 172.20.10.1 port 52234 ssh2
+Jun 15 03:12:36 server sshd[9653]: Failed password for admin from 172.20.10.1 port 62892 ssh2
+Jun 15 03:12:41 server sshd[1894]: Failed password for pi from 172.20.10.1 port 58596 ssh2
+Jun 15 03:12:41 server sshd[6135]: Failed password for root from 172.20.10.1 port 53603 ssh2
+Jun 15 03:12:56 server sshd[2978]: Failed password for root from 172.20.10.1 port 61754 ssh2
+Jun 15 03:13:09 server sshd[7847]: Failed password for ubuntu from 172.20.10.1 port 60362 ssh2
+Jun 15 03:13:12 server sshd[3936]: Failed password for admin from 172.20.10.1 port 43331 ssh2
+Jun 15 03:13:13 server sshd[4756]: Failed password for root from 172.20.10.1 port 64577 ssh2
+Jun 15 03:13:29 server sshd[7498]: Failed password for admin from 172.20.10.1 port 40606 ssh2
+Jun 15 03:13:35 server sshd[6578]: Failed password for root from 172.20.10.1 port 46233 ssh2
+Jun 15 03:13:35 server sshd[3919]: Failed password for ubuntu from 172.20.10.1 port 40939 ssh2
+Jun 15 03:13:43 server sshd[4599]: Failed password for ubuntu from 172.20.10.1 port 45125 ssh2
+Jun 15 03:13:44 server sshd[2851]: Failed password for root from 172.20.10.1 port 53370 ssh2
+Jun 15 03:14:13 server sshd[5870]: Failed password for pi from 172.20.10.1 port 56542 ssh2
+Jun 15 03:14:13 server sshd[4832]: Failed password for admin from 172.20.10.1 port 59506 ssh2
+Jun 15 03:14:15 server sshd[4299]: Failed password for root from 172.20.10.1 port 41241 ssh2
+Jun 15 03:14:22 server sshd[8665]: Failed password for ubuntu from 172.20.10.1 port 62619 ssh2
+Jun 15 03:14:23 server sshd[2038]: Failed password for admin from 172.20.10.1 port 50795 ssh2
+Jun 15 03:14:34 server sshd[2448]: Failed password for admin from 172.20.10.1 port 44577 ssh2
+Jun 15 03:14:34 server sshd[7208]: Failed password for root from 172.20.10.1 port 40298 ssh2
+Jun 15 03:14:38 server sshd[2649]: Failed password for root from 172.20.10.1 port 51281 ssh2
+Jun 15 03:14:59 server sshd[2311]: Failed password for admin from 172.20.10.1 port 49969 ssh2
+Jun 15 03:15:02 server sshd[9155]: Failed password for root from 172.20.10.1 port 64081 ssh2
+Jun 15 03:15:14 server sshd[4719]: Failed password for admin from 172.20.10.1 port 61914 ssh2
+Jun 15 03:15:19 server sshd[7274]: Failed password for ubuntu from 172.20.10.1 port 62725 ssh2
+Jun 15 03:15:20 server sshd[3039]: Failed password for ubuntu from 172.20.10.1 port 46016 ssh2
+Jun 15 03:15:20 server sshd[8241]: Failed password for admin from 172.20.10.1 port 50196 ssh2
+Jun 15 03:15:29 server sshd[4877]: Failed password for pi from 172.20.10.1 port 58841 ssh2
+Jun 15 03:15:30 server sshd[4624]: Failed password for admin from 172.20.10.1 port 42157 ssh2
+Jun 15 03:15:32 server sshd[3369]: Failed password for admin from 172.20.10.1 port 47632 ssh2
+Jun 15 03:15:34 server sshd[3431]: Failed password for pi from 172.20.10.1 port 44060 ssh2
+Jun 15 03:15:34 server sshd[2897]: Failed password for root from 172.20.10.1 port 48257 ssh2
+Jun 15 03:15:36 server sshd[8083]: Failed password for root from 172.20.10.1 port 63510 ssh2
+Jun 15 03:15:39 server sshd[1715]: Failed password for admin from 172.20.10.1 port 45561 ssh2
+Jun 15 03:15:56 server sshd[5100]: Failed password for ubuntu from 172.20.10.1 port 54551 ssh2
+Jun 15 03:15:56 server sshd[3068]: Failed password for admin from 172.20.10.1 port 54419 ssh2
+Jun 15 03:16:01 server sshd[6651]: Failed password for ubuntu from 172.20.10.1 port 57021 ssh2
+Jun 15 03:16:05 server sshd[2432]: Failed password for pi from 172.20.10.1 port 64945 ssh2
+Jun 15 03:16:13 server sshd[8531]: Failed password for ubuntu from 172.20.10.1 port 43949 ssh2
+Jun 15 03:16:24 server sshd[2027]: Failed password for admin from 172.20.10.1 port 47494 ssh2
+Jun 15 03:16:25 server sshd[8559]: Failed password for root from 172.20.10.1 port 41105 ssh2
+Jun 15 03:16:29 server sshd[2342]: Failed password for pi from 172.20.10.1 port 47109 ssh2
+Jun 15 03:16:34 server sshd[7754]: Failed password for ubuntu from 172.20.10.1 port 40952 ssh2
+Jun 15 03:16:53 server sshd[6056]: Failed password for pi from 172.20.10.1 port 48064 ssh2
+Jun 15 03:17:01 server sshd[2541]: Failed password for root from 172.20.10.1 port 46705 ssh2
+Jun 15 03:17:07 server sshd[7218]: Failed password for pi from 172.20.10.1 port 62696 ssh2
+Jun 15 03:17:16 server sshd[9119]: Failed password for root from 172.20.10.1 port 47960 ssh2
+Jun 15 03:17:19 server sshd[8495]: Failed password for admin from 172.20.10.1 port 50990 ssh2
+Jun 15 03:17:36 server sshd[6420]: Failed password for admin from 172.20.10.1 port 64283 ssh2
+Jun 15 03:17:44 server sshd[1775]: Failed password for admin from 172.20.10.1 port 62317 ssh2
+Jun 15 03:17:44 server sshd[5245]: Failed password for ubuntu from 172.20.10.1 port 47660 ssh2
+Jun 15 03:17:55 server sshd[9862]: Failed password for admin from 172.20.10.1 port 51521 ssh2
+Jun 15 03:17:59 server sshd[3964]: Failed password for admin from 172.20.10.1 port 42277 ssh2
+Jun 15 03:18:05 server sshd[9947]: Failed password for ubuntu from 172.20.10.1 port 62205 ssh2
+Jun 15 03:18:12 server sshd[2833]: Failed password for pi from 172.20.10.1 port 45425 ssh2
+Jun 15 03:18:21 server sshd[9099]: Failed password for pi from 172.20.10.1 port 48421 ssh2
+Jun 15 03:18:22 server sshd[1927]: Failed password for ubuntu from 172.20.10.1 port 48990 ssh2
+Jun 15 03:18:27 server sshd[2017]: Failed password for root from 172.20.10.1 port 62431 ssh2
+Jun 15 03:18:45 server sshd[6393]: Failed password for admin from 172.20.10.1 port 43062 ssh2
+Jun 15 03:18:46 server sshd[7176]: Failed password for admin from 172.20.10.1 port 46501 ssh2
+Jun 15 03:18:54 server sshd[5534]: Failed password for root from 172.20.10.1 port 64207 ssh2
+Jun 15 03:19:05 server sshd[1983]: Failed password for ubuntu from 172.20.10.1 port 59960 ssh2
+Jun 15 03:19:05 server sshd[8731]: Failed password for pi from 172.20.10.1 port 44528 ssh2
+Jun 15 03:19:16 server sshd[8824]: Failed password for root from 172.20.10.1 port 61210 ssh2
+Jun 15 03:19:20 server sshd[8181]: Failed password for pi from 172.20.10.1 port 43552 ssh2
+Jun 15 03:19:41 server sshd[6440]: Failed password for root from 172.20.10.1 port 44951 ssh2
+Jun 15 03:19:54 server sshd[8267]: Failed password for admin from 172.20.10.1 port 43222 ssh2
+Jun 15 03:20:00 server sshd[6970]: Failed password for root from 172.20.10.1 port 57393 ssh2
+Jun 15 03:20:18 server sshd[8590]: Failed password for root from 172.20.10.1 port 44646 ssh2
+Jun 15 03:20:20 server sshd[2604]: Failed password for admin from 172.20.10.1 port 49195 ssh2
+Jun 15 03:20:35 server sshd[9160]: Failed password for pi from 172.20.10.1 port 61939 ssh2
+Jun 15 03:20:40 server sshd[1693]: Failed password for pi from 172.20.10.1 port 40351 ssh2
+Jun 15 03:20:44 server sshd[2603]: Failed password for pi from 172.20.10.1 port 47942 ssh2
+Jun 15 03:20:45 server sshd[7580]: Failed password for pi from 172.20.10.1 port 60308 ssh2
+Jun 15 03:20:52 server sshd[2932]: Failed password for pi from 172.20.10.1 port 64920 ssh2
+Jun 15 03:20:56 server sshd[8708]: Failed password for ubuntu from 172.20.10.1 port 51303 ssh2
+Jun 15 03:21:05 server sshd[1656]: Failed password for pi from 172.20.10.1 port 63680 ssh2
+Jun 15 03:21:23 server sshd[1467]: Failed password for root from 172.20.10.1 port 59977 ssh2
+Jun 15 03:21:25 server sshd[2469]: Failed password for root from 172.20.10.1 port 54401 ssh2
+Jun 15 03:21:31 server sshd[2455]: Failed password for admin from 172.20.10.1 port 44204 ssh2
+Jun 15 03:21:33 server sshd[3760]: Failed password for root from 172.20.10.1 port 63555 ssh2
+Jun 15 03:21:36 server sshd[2621]: Failed password for ubuntu from 172.20.10.1 port 49226 ssh2
+Jun 15 03:21:45 server sshd[8442]: Failed password for admin from 172.20.10.1 port 46027 ssh2
+Jun 15 03:21:45 server sshd[2261]: Failed password for pi from 172.20.10.1 port 46610 ssh2
+Jun 15 03:21:52 server sshd[1708]: Failed password for ubuntu from 172.20.10.1 port 52493 ssh2
+Jun 15 03:21:54 server sshd[7168]: Failed password for admin from 172.20.10.1 port 48510 ssh2
+Jun 15 03:22:00 server sshd[9197]: Failed password for root from 172.20.10.1 port 51860 ssh2
+Jun 15 03:22:10 server sshd[7847]: Failed password for pi from 172.20.10.1 port 52639 ssh2
+Jun 15 03:22:10 server sshd[2972]: Failed password for root from 172.20.10.1 port 59473 ssh2
+Jun 15 03:22:30 server sshd[4477]: Failed password for admin from 172.20.10.1 port 60542 ssh2
+Jun 15 03:22:38 server sshd[5207]: Failed password for ubuntu from 172.20.10.1 port 47819 ssh2
+Jun 15 03:22:45 server sshd[7296]: Failed password for ubuntu from 172.20.10.1 port 63331 ssh2
+Jun 15 03:22:47 server sshd[3565]: Failed password for root from 172.20.10.1 port 49335 ssh2
+Jun 15 03:22:52 server sshd[6836]: Failed password for ubuntu from 172.20.10.1 port 47544 ssh2
+Jun 15 03:22:56 server sshd[1245]: Failed password for ubuntu from 172.20.10.1 port 40903 ssh2
+Jun 15 03:23:05 server sshd[4657]: Failed password for root from 172.20.10.1 port 42123 ssh2
+Jun 15 03:23:05 server sshd[7940]: Failed password for ubuntu from 172.20.10.1 port 42431 ssh2
+Jun 15 03:23:06 server sshd[8712]: Failed password for ubuntu from 172.20.10.1 port 52179 ssh2
+Jun 15 03:23:12 server sshd[4588]: Failed password for pi from 172.20.10.1 port 51971 ssh2
+Jun 15 03:23:16 server sshd[3677]: Failed password for root from 172.20.10.1 port 59697 ssh2
+Jun 15 03:23:16 server sshd[5553]: Failed password for ubuntu from 172.20.10.1 port 46740 ssh2
+Jun 15 03:23:31 server sshd[2932]: Failed password for ubuntu from 172.20.10.1 port 46301 ssh2
+Jun 15 03:23:41 server sshd[3326]: Failed password for root from 172.20.10.1 port 59590 ssh2
+Jun 15 03:23:45 server sshd[6721]: Failed password for admin from 172.20.10.1 port 56140 ssh2
+Jun 15 03:23:45 server sshd[9401]: Failed password for root from 172.20.10.1 port 54623 ssh2
+Jun 15 03:23:47 server sshd[5191]: Failed password for ubuntu from 172.20.10.1 port 62724 ssh2
+Jun 15 03:24:04 server sshd[6583]: Failed password for pi from 172.20.10.1 port 57032 ssh2
+Jun 15 03:24:05 server sshd[5505]: Failed password for pi from 172.20.10.1 port 49519 ssh2
+Jun 15 03:24:05 server sshd[6433]: Failed password for root from 172.20.10.1 port 61127 ssh2
+Jun 15 03:24:07 server sshd[2422]: Failed password for root from 172.20.10.1 port 63475 ssh2
+Jun 15 03:24:11 server sshd[1605]: Failed password for pi from 172.20.10.1 port 43296 ssh2
+Jun 15 03:24:15 server sshd[7074]: Failed password for ubuntu from 172.20.10.1 port 52488 ssh2
+Jun 15 03:24:19 server sshd[7899]: Failed password for ubuntu from 172.20.10.1 port 55752 ssh2
+Jun 15 03:24:26 server sshd[6468]: Failed password for pi from 172.20.10.1 port 59007 ssh2
+Jun 15 03:24:29 server sshd[2498]: Failed password for admin from 172.20.10.1 port 55305 ssh2
+Jun 15 03:24:34 server sshd[4960]: Failed password for root from 172.20.10.1 port 47088 ssh2
+Jun 15 03:24:37 server sshd[7095]: Failed password for pi from 172.20.10.1 port 51796 ssh2
+Jun 15 03:24:41 server sshd[3242]: Failed password for ubuntu from 172.20.10.1 port 51252 ssh2
+Jun 15 03:24:43 server sshd[6277]: Failed password for root from 172.20.10.1 port 60607 ssh2
+Jun 15 03:24:50 server sshd[6918]: Failed password for root from 172.20.10.1 port 43922 ssh2
+Jun 15 03:24:57 server sshd[3977]: Failed password for admin from 172.20.10.1 port 40512 ssh2
+Jun 15 03:25:07 server sshd[2444]: Failed password for admin from 172.20.10.1 port 43976 ssh2
+Jun 15 03:25:20 server sshd[8462]: Failed password for root from 172.20.10.1 port 55514 ssh2
+Jun 15 03:25:22 server sshd[3299]: Failed password for admin from 172.20.10.1 port 60194 ssh2
+Jun 15 03:25:38 server sshd[3282]: Failed password for ubuntu from 172.20.10.1 port 44752 ssh2
+Jun 15 03:25:40 server sshd[7771]: Failed password for pi from 172.20.10.1 port 49645 ssh2
+Jun 15 03:25:40 server sshd[8501]: Failed password for admin from 172.20.10.1 port 43321 ssh2
+Jun 15 03:25:43 server sshd[6718]: Failed password for root from 172.20.10.1 port 43665 ssh2
+Jun 15 03:25:45 server sshd[4148]: Failed password for ubuntu from 172.20.10.1 port 46628 ssh2
+Jun 15 03:25:46 server sshd[4745]: Failed password for admin from 172.20.10.1 port 61021 ssh2
+Jun 15 03:25:55 server sshd[1896]: Failed password for ubuntu from 172.20.10.1 port 57417 ssh2
+Jun 15 03:25:59 server sshd[9120]: Failed password for pi from 172.20.10.1 port 49566 ssh2
+Jun 15 03:26:04 server sshd[9605]: Failed password for admin from 172.20.10.1 port 43242 ssh2
+Jun 15 03:26:04 server sshd[8201]: Failed password for admin from 172.20.10.1 port 56486 ssh2
+Jun 15 03:26:10 server sshd[3374]: Failed password for root from 172.20.10.1 port 51903 ssh2
+Jun 15 03:26:11 server sshd[3497]: Failed password for pi from 172.20.10.1 port 45823 ssh2
+Jun 15 03:26:24 server sshd[4627]: Failed password for pi from 172.20.10.1 port 50130 ssh2
+Jun 15 03:26:25 server sshd[2873]: Failed password for root from 172.20.10.1 port 51528 ssh2
+Jun 15 03:26:26 server sshd[3328]: Failed password for ubuntu from 172.20.10.1 port 55072 ssh2
+Jun 15 03:26:37 server sshd[1029]: Failed password for ubuntu from 172.20.10.1 port 41613 ssh2
+Jun 15 03:26:42 server sshd[3999]: Failed password for ubuntu from 172.20.10.1 port 40348 ssh2
+Jun 15 03:26:44 server sshd[2359]: Failed password for admin from 172.20.10.1 port 41293 ssh2
+Jun 15 03:26:45 server sshd[3868]: Failed password for admin from 172.20.10.1 port 45894 ssh2
+Jun 15 03:26:46 server sshd[5831]: Failed password for admin from 172.20.10.1 port 57512 ssh2
+Jun 15 03:26:47 server sshd[5895]: Failed password for pi from 172.20.10.1 port 64834 ssh2
+Jun 15 03:26:47 server sshd[8329]: Failed password for root from 172.20.10.1 port 44814 ssh2
+Jun 15 03:26:49 server sshd[9130]: Failed password for admin from 172.20.10.1 port 48496 ssh2
+Jun 15 03:27:01 server sshd[4028]: Failed password for root from 172.20.10.1 port 63438 ssh2
+Jun 15 03:27:08 server sshd[7011]: Failed password for pi from 172.20.10.1 port 57062 ssh2
+Jun 15 03:27:16 server sshd[6927]: Failed password for pi from 172.20.10.1 port 50473 ssh2
+Jun 15 03:27:21 server sshd[2095]: Failed password for root from 172.20.10.1 port 55719 ssh2
+Jun 15 03:27:30 server sshd[4478]: Failed password for ubuntu from 172.20.10.1 port 40314 ssh2
+Jun 15 03:27:31 server sshd[5145]: Failed password for admin from 172.20.10.1 port 43250 ssh2
+Jun 15 03:27:40 server sshd[1680]: Failed password for pi from 172.20.10.1 port 46032 ssh2
+Jun 15 03:27:44 server sshd[4504]: Failed password for pi from 172.20.10.1 port 54929 ssh2
+Jun 15 03:27:45 server sshd[8969]: Failed password for pi from 172.20.10.1 port 47794 ssh2
+Jun 15 03:27:49 server sshd[9191]: Failed password for ubuntu from 172.20.10.1 port 57516 ssh2
+Jun 15 03:27:52 server sshd[2305]: Failed password for pi from 172.20.10.1 port 50192 ssh2
+Jun 15 03:27:56 server sshd[8449]: Failed password for admin from 172.20.10.1 port 51196 ssh2
+Jun 15 03:28:00 server sshd[9440]: Failed password for pi from 172.20.10.1 port 51469 ssh2
+Jun 15 03:28:14 server sshd[3681]: Failed password for admin from 172.20.10.1 port 54522 ssh2
+Jun 15 03:28:20 server sshd[6214]: Failed password for ubuntu from 172.20.10.1 port 60017 ssh2
+Jun 15 03:28:32 server sshd[8418]: Failed password for root from 172.20.10.1 port 62170 ssh2
+Jun 15 03:28:51 server sshd[5548]: Failed password for pi from 172.20.10.1 port 61072 ssh2
+Jun 15 03:28:54 server sshd[8349]: Failed password for pi from 172.20.10.1 port 47510 ssh2
+Jun 15 03:29:08 server sshd[7804]: Failed password for ubuntu from 172.20.10.1 port 42498 ssh2
+Jun 15 03:29:13 server sshd[8018]: Failed password for admin from 172.20.10.1 port 56040 ssh2
+Jun 15 03:29:15 server sshd[1064]: Failed password for admin from 172.20.10.1 port 47535 ssh2
+Jun 15 03:29:19 server sshd[8340]: Failed password for root from 172.20.10.1 port 45286 ssh2
+Jun 15 03:29:31 server sshd[5039]: Failed password for pi from 172.20.10.1 port 45394 ssh2
+Jun 15 03:29:33 server sshd[2182]: Failed password for root from 172.20.10.1 port 50654 ssh2
+Jun 15 03:29:55 server sshd[3045]: Failed password for root from 172.20.10.1 port 55123 ssh2
+Jun 15 03:29:58 server sshd[7629]: Failed password for pi from 172.20.10.1 port 42202 ssh2
+Jun 15 03:30:01 server sshd[4576]: Failed password for root from 172.20.10.1 port 53093 ssh2
+Jun 15 03:30:05 server sshd[5213]: Failed password for ubuntu from 172.20.10.1 port 58496 ssh2
+Jun 15 03:30:08 server sshd[7979]: Failed password for root from 172.20.10.1 port 60354 ssh2
+Jun 15 03:30:11 server sshd[1249]: Failed password for ubuntu from 172.20.10.1 port 48814 ssh2
+Jun 15 03:30:13 server sshd[8448]: Failed password for pi from 172.20.10.1 port 63848 ssh2
+Jun 15 03:30:15 server sshd[1096]: Failed password for pi from 172.20.10.1 port 44361 ssh2
+Jun 15 03:30:15 server sshd[2054]: Failed password for pi from 172.20.10.1 port 40322 ssh2
+Jun 15 03:30:19 server sshd[8454]: Failed password for ubuntu from 172.20.10.1 port 42824 ssh2
+Jun 15 03:30:23 server sshd[5546]: Failed password for ubuntu from 172.20.10.1 port 45304 ssh2
+Jun 15 03:30:23 server sshd[7227]: Failed password for pi from 172.20.10.1 port 51957 ssh2
+Jun 15 03:30:28 server sshd[7143]: Failed password for pi from 172.20.10.1 port 48158 ssh2
+Jun 15 03:30:30 server sshd[8890]: Failed password for ubuntu from 172.20.10.1 port 45897 ssh2
+Jun 15 03:30:40 server sshd[3085]: Failed password for pi from 172.20.10.1 port 43386 ssh2
+Jun 15 03:30:44 server sshd[7421]: Failed password for admin from 172.20.10.1 port 55246 ssh2
+Jun 15 03:30:44 server sshd[3760]: Failed password for root from 172.20.10.1 port 55183 ssh2
+Jun 15 03:30:48 server sshd[8163]: Failed password for ubuntu from 172.20.10.1 port 45748 ssh2
+Jun 15 03:30:52 server sshd[3532]: Failed password for admin from 172.20.10.1 port 48112 ssh2
+Jun 15 03:30:59 server sshd[9369]: Failed password for pi from 172.20.10.1 port 57827 ssh2
+Jun 15 03:31:01 server sshd[4758]: Failed password for ubuntu from 172.20.10.1 port 42364 ssh2
+Jun 15 03:31:04 server sshd[7447]: Failed password for ubuntu from 172.20.10.1 port 60080 ssh2
+Jun 15 03:31:12 server sshd[3123]: Failed password for admin from 172.20.10.1 port 56090 ssh2
+Jun 15 03:31:17 server sshd[7541]: Failed password for pi from 172.20.10.1 port 50428 ssh2
+Jun 15 03:31:21 server sshd[5332]: Failed password for root from 172.20.10.1 port 61138 ssh2
+Jun 15 03:31:21 server sshd[1898]: Failed password for ubuntu from 172.20.10.1 port 45657 ssh2
+Jun 15 03:31:25 server sshd[6479]: Failed password for root from 172.20.10.1 port 63076 ssh2
+Jun 15 03:31:26 server sshd[3079]: Failed password for ubuntu from 172.20.10.1 port 43095 ssh2
+Jun 15 03:31:28 server sshd[7155]: Failed password for ubuntu from 172.20.10.1 port 41368 ssh2
+Jun 15 03:31:30 server sshd[9671]: Failed password for ubuntu from 172.20.10.1 port 42455 ssh2
+Jun 15 03:31:36 server sshd[3376]: Failed password for ubuntu from 172.20.10.1 port 40491 ssh2
+Jun 15 03:31:43 server sshd[6073]: Failed password for pi from 172.20.10.1 port 50336 ssh2
+Jun 15 03:31:48 server sshd[5837]: Failed password for pi from 172.20.10.1 port 54121 ssh2
+Jun 15 03:31:55 server sshd[3349]: Failed password for pi from 172.20.10.1 port 61935 ssh2
+Jun 15 03:32:01 server sshd[4620]: Failed password for ubuntu from 172.20.10.1 port 46929 ssh2
+Jun 15 03:32:14 server sshd[3820]: Failed password for root from 172.20.10.1 port 48384 ssh2
+Jun 15 03:32:20 server sshd[9555]: Failed password for ubuntu from 172.20.10.1 port 45273 ssh2
+Jun 15 03:32:24 server sshd[3637]: Failed password for pi from 172.20.10.1 port 44385 ssh2
+Jun 15 03:32:27 server sshd[4853]: Failed password for admin from 172.20.10.1 port 61595 ssh2
+Jun 15 03:32:39 server sshd[1258]: Failed password for root from 172.20.10.1 port 51596 ssh2
+Jun 15 03:32:46 server sshd[1880]: Failed password for pi from 172.20.10.1 port 45536 ssh2
+Jun 15 03:33:00 server sshd[2072]: Failed password for pi from 172.20.10.1 port 62092 ssh2
+Jun 15 03:33:10 server sshd[5908]: Failed password for root from 172.20.10.1 port 44649 ssh2
+Jun 15 03:33:31 server sshd[8314]: Failed password for root from 172.20.10.1 port 57383 ssh2
+Jun 15 03:33:46 server sshd[2754]: Failed password for admin from 172.20.10.1 port 58051 ssh2
+Jun 15 03:33:47 server sshd[6596]: Failed password for admin from 172.20.10.1 port 61615 ssh2
+Jun 15 03:33:53 server sshd[6104]: Failed password for ubuntu from 172.20.10.1 port 58784 ssh2
+Jun 15 03:34:03 server sshd[1522]: Failed password for ubuntu from 172.20.10.1 port 61965 ssh2
+Jun 15 03:34:33 server sshd[3796]: Failed password for ubuntu from 172.20.10.1 port 41752 ssh2
+Jun 15 03:34:34 server sshd[9203]: Failed password for root from 172.20.10.1 port 57364 ssh2
+Jun 15 03:34:59 server sshd[3531]: Failed password for pi from 172.20.10.1 port 51043 ssh2
+Jun 15 03:35:07 server sshd[4625]: Failed password for ubuntu from 172.20.10.1 port 61288 ssh2
+Jun 15 03:35:13 server sshd[7163]: Failed password for root from 172.20.10.1 port 41962 ssh2
+Jun 15 03:35:25 server sshd[4617]: Failed password for ubuntu from 172.20.10.1 port 57279 ssh2
+Jun 15 03:35:41 server sshd[8710]: Failed password for ubuntu from 172.20.10.1 port 59408 ssh2
+Jun 15 03:35:58 server sshd[2411]: Failed password for pi from 172.20.10.1 port 62763 ssh2
+Jun 15 03:36:06 server sshd[2582]: Failed password for admin from 172.20.10.1 port 44694 ssh2
+Jun 15 03:36:08 server sshd[5916]: Failed password for ubuntu from 172.20.10.1 port 42897 ssh2
+Jun 15 03:36:19 server sshd[3559]: Failed password for pi from 172.20.10.1 port 64193 ssh2
+Jun 15 03:36:20 server sshd[1520]: Failed password for pi from 172.20.10.1 port 45816 ssh2
+Jun 15 03:36:23 server sshd[4397]: Failed password for admin from 172.20.10.1 port 54161 ssh2
+Jun 15 03:36:32 server sshd[3495]: Failed password for pi from 172.20.10.1 port 41150 ssh2
+Jun 15 03:36:38 server sshd[2026]: Failed password for admin from 172.20.10.1 port 60485 ssh2
+Jun 15 03:36:50 server sshd[1419]: Failed password for root from 172.20.10.1 port 59424 ssh2
+Jun 15 03:36:53 server sshd[4802]: Failed password for admin from 172.20.10.1 port 46488 ssh2
+Jun 15 03:37:06 server sshd[9534]: Failed password for admin from 172.20.10.1 port 62205 ssh2
+Jun 15 03:37:12 server sshd[1715]: Failed password for ubuntu from 172.20.10.1 port 45719 ssh2
+Jun 15 03:37:24 server sshd[7716]: Failed password for admin from 172.20.10.1 port 60807 ssh2
+Jun 15 03:37:35 server sshd[3050]: Failed password for pi from 172.20.10.1 port 51624 ssh2
+Jun 15 03:38:01 server sshd[3597]: Failed password for root from 172.20.10.1 port 59854 ssh2
+Jun 15 03:38:08 server sshd[4338]: Failed password for admin from 172.20.10.1 port 47197 ssh2
+Jun 15 03:38:19 server sshd[3767]: Failed password for root from 172.20.10.1 port 44712 ssh2
+Jun 15 03:38:26 server sshd[9991]: Failed password for root from 172.20.10.1 port 42717 ssh2
+Jun 15 03:38:29 server sshd[2935]: Failed password for root from 172.20.10.1 port 47232 ssh2
+Jun 15 03:38:34 server sshd[1422]: Failed password for pi from 172.20.10.1 port 57963 ssh2
+Jun 15 03:38:37 server sshd[6289]: Failed password for admin from 172.20.10.1 port 63444 ssh2
+Jun 15 03:38:46 server sshd[5016]: Failed password for admin from 172.20.10.1 port 47460 ssh2
+Jun 15 03:38:53 server sshd[2472]: Failed password for ubuntu from 172.20.10.1 port 51853 ssh2
+Jun 15 03:39:11 server sshd[5245]: Failed password for ubuntu from 172.20.10.1 port 64169 ssh2
+Jun 15 03:39:11 server sshd[1464]: Failed password for ubuntu from 172.20.10.1 port 53890 ssh2
+Jun 15 03:39:19 server sshd[9822]: Failed password for pi from 172.20.10.1 port 56955 ssh2
+Jun 15 03:39:28 server sshd[6676]: Failed password for admin from 172.20.10.1 port 46833 ssh2
+Jun 15 03:39:33 server sshd[4452]: Failed password for ubuntu from 172.20.10.1 port 54260 ssh2
+Jun 15 03:39:39 server sshd[1942]: Failed password for pi from 172.20.10.1 port 47762 ssh2
+Jun 15 03:39:43 server sshd[1724]: Failed password for pi from 172.20.10.1 port 48616 ssh2
+Jun 15 03:39:49 server sshd[8193]: Failed password for admin from 172.20.10.1 port 54247 ssh2
+Jun 15 03:39:50 server sshd[8417]: Failed password for ubuntu from 172.20.10.1 port 64732 ssh2
+Jun 15 03:39:50 server sshd[9404]: Failed password for root from 172.20.10.1 port 48052 ssh2
+Jun 15 03:40:00 server sshd[6025]: Failed password for root from 172.20.10.1 port 49976 ssh2
+Jun 15 03:40:12 server sshd[9506]: Failed password for ubuntu from 172.20.10.1 port 43312 ssh2
+Jun 15 03:40:19 server sshd[5227]: Failed password for ubuntu from 172.20.10.1 port 46054 ssh2
+Jun 15 03:40:25 server sshd[3563]: Failed password for ubuntu from 172.20.10.1 port 53879 ssh2
+Jun 15 03:40:25 server sshd[6613]: Failed password for pi from 172.20.10.1 port 53311 ssh2
+Jun 15 03:40:47 server sshd[9184]: Failed password for pi from 172.20.10.1 port 54550 ssh2
+Jun 15 03:40:47 server sshd[5122]: Failed password for ubuntu from 172.20.10.1 port 52000 ssh2
+Jun 15 03:40:48 server sshd[4834]: Failed password for ubuntu from 172.20.10.1 port 59886 ssh2
+Jun 15 03:40:53 server sshd[5886]: Failed password for root from 172.20.10.1 port 63713 ssh2
+Jun 15 03:40:54 server sshd[4775]: Failed password for ubuntu from 172.20.10.1 port 63075 ssh2
+Jun 15 03:41:35 server sshd[6941]: Failed password for ubuntu from 172.20.10.1 port 40347 ssh2
+Jun 15 03:41:45 server sshd[4223]: Failed password for ubuntu from 172.20.10.1 port 46592 ssh2
+Jun 15 03:41:50 server sshd[4900]: Failed password for admin from 172.20.10.1 port 62325 ssh2
+Jun 15 03:41:51 server sshd[2227]: Failed password for root from 172.20.10.1 port 50552 ssh2
+Jun 15 03:41:53 server sshd[9627]: Failed password for ubuntu from 172.20.10.1 port 46088 ssh2
+Jun 15 03:41:56 server sshd[1226]: Failed password for pi from 172.20.10.1 port 54384 ssh2
+Jun 15 03:42:15 server sshd[1215]: Failed password for pi from 172.20.10.1 port 57623 ssh2
+Jun 15 03:42:20 server sshd[3522]: Failed password for ubuntu from 172.20.10.1 port 48455 ssh2
+Jun 15 03:42:24 server sshd[2100]: Failed password for ubuntu from 172.20.10.1 port 60589 ssh2
+Jun 15 03:42:30 server sshd[2543]: Failed password for root from 172.20.10.1 port 59209 ssh2
+Jun 15 03:42:30 server sshd[7194]: Failed password for ubuntu from 172.20.10.1 port 60926 ssh2
+Jun 15 03:42:34 server sshd[3201]: Failed password for root from 172.20.10.1 port 47980 ssh2
+Jun 15 03:42:34 server sshd[4657]: Failed password for ubuntu from 172.20.10.1 port 48594 ssh2
+Jun 15 03:42:36 server sshd[6703]: Failed password for admin from 172.20.10.1 port 55362 ssh2
+Jun 15 03:42:56 server sshd[1898]: Failed password for admin from 172.20.10.1 port 60274 ssh2
+Jun 15 03:42:58 server sshd[6253]: Failed password for pi from 172.20.10.1 port 58385 ssh2
+Jun 15 03:43:08 server sshd[3406]: Failed password for ubuntu from 172.20.10.1 port 47470 ssh2
+Jun 15 03:43:09 server sshd[4961]: Failed password for admin from 172.20.10.1 port 43035 ssh2
+Jun 15 03:43:16 server sshd[8440]: Failed password for pi from 172.20.10.1 port 58411 ssh2
+Jun 15 03:43:30 server sshd[1288]: Failed password for admin from 172.20.10.1 port 52911 ssh2
+Jun 15 03:43:33 server sshd[3667]: Failed password for ubuntu from 172.20.10.1 port 43466 ssh2
+Jun 15 03:43:43 server sshd[1977]: Failed password for pi from 172.20.10.1 port 56165 ssh2
+Jun 15 03:43:49 server sshd[6939]: Failed password for admin from 172.20.10.1 port 60607 ssh2
+Jun 15 03:43:56 server sshd[2010]: Failed password for admin from 172.20.10.1 port 50092 ssh2
+Jun 15 03:44:03 server sshd[3384]: Failed password for ubuntu from 172.20.10.1 port 50955 ssh2
+Jun 15 03:44:19 server sshd[1507]: Failed password for admin from 172.20.10.1 port 50933 ssh2
+Jun 15 03:44:23 server sshd[8663]: Failed password for ubuntu from 172.20.10.1 port 58908 ssh2
+Jun 15 03:44:32 server sshd[1544]: Failed password for pi from 172.20.10.1 port 55660 ssh2
+Jun 15 03:44:48 server sshd[2967]: Failed password for admin from 172.20.10.1 port 56388 ssh2
+Jun 15 03:44:53 server sshd[2409]: Failed password for pi from 172.20.10.1 port 41417 ssh2
+Jun 15 03:45:17 server sshd[3650]: Failed password for pi from 172.20.10.1 port 54350 ssh2
+Jun 15 03:45:29 server sshd[2811]: Failed password for pi from 172.20.10.1 port 47355 ssh2
+Jun 15 03:45:31 server sshd[3625]: Failed password for pi from 172.20.10.1 port 40712 ssh2
+Jun 15 03:45:33 server sshd[8046]: Failed password for pi from 172.20.10.1 port 55212 ssh2
+Jun 15 03:45:36 server sshd[6319]: Failed password for admin from 172.20.10.1 port 57388 ssh2
+Jun 15 03:45:40 server sshd[9404]: Failed password for ubuntu from 172.20.10.1 port 64511 ssh2
+Jun 15 03:45:43 server sshd[4274]: Failed password for ubuntu from 172.20.10.1 port 55820 ssh2
+Jun 15 03:45:58 server sshd[8783]: Failed password for root from 172.20.10.1 port 56411 ssh2
+Jun 15 03:45:58 server sshd[6408]: Failed password for ubuntu from 172.20.10.1 port 59925 ssh2
+Jun 15 03:45:58 server sshd[6754]: Failed password for admin from 172.20.10.1 port 52693 ssh2
+Jun 15 03:46:03 server sshd[8415]: Failed password for admin from 172.20.10.1 port 41232 ssh2
+Jun 15 03:46:09 server sshd[3408]: Failed password for ubuntu from 172.20.10.1 port 57951 ssh2
+Jun 15 03:46:13 server sshd[2875]: Failed password for ubuntu from 172.20.10.1 port 40405 ssh2
+Jun 15 03:46:13 server sshd[1502]: Failed password for pi from 172.20.10.1 port 47413 ssh2
+Jun 15 03:46:19 server sshd[6352]: Failed password for pi from 172.20.10.1 port 46047 ssh2
+Jun 15 03:46:22 server sshd[1245]: Failed password for root from 172.20.10.1 port 46873 ssh2
+Jun 15 03:46:30 server sshd[7349]: Failed password for pi from 172.20.10.1 port 50994 ssh2
+Jun 15 03:46:36 server sshd[9122]: Failed password for root from 172.20.10.1 port 57445 ssh2
+Jun 15 03:46:43 server sshd[7421]: Failed password for admin from 172.20.10.1 port 46279 ssh2
+Jun 15 03:46:44 server sshd[5963]: Failed password for root from 172.20.10.1 port 64410 ssh2
+Jun 15 03:46:44 server sshd[7954]: Failed password for root from 172.20.10.1 port 64453 ssh2
+Jun 15 03:46:48 server sshd[5691]: Failed password for root from 172.20.10.1 port 59173 ssh2
+Jun 15 03:47:03 server sshd[1501]: Failed password for admin from 172.20.10.1 port 54115 ssh2
+Jun 15 03:47:09 server sshd[5854]: Failed password for ubuntu from 172.20.10.1 port 46086 ssh2
+Jun 15 03:47:10 server sshd[3388]: Failed password for admin from 172.20.10.1 port 56915 ssh2
+Jun 15 03:47:12 server sshd[5988]: Failed password for ubuntu from 172.20.10.1 port 59113 ssh2
+Jun 15 03:47:12 server sshd[1653]: Failed password for pi from 172.20.10.1 port 63932 ssh2
+Jun 15 03:47:14 server sshd[9157]: Failed password for ubuntu from 172.20.10.1 port 54251 ssh2
+Jun 15 03:47:15 server sshd[6338]: Failed password for admin from 172.20.10.1 port 53973 ssh2
+Jun 15 03:47:19 server sshd[3188]: Failed password for admin from 172.20.10.1 port 57665 ssh2
+Jun 15 03:47:28 server sshd[2916]: Failed password for root from 172.20.10.1 port 48666 ssh2
+Jun 15 03:47:28 server sshd[5810]: Failed password for admin from 172.20.10.1 port 59072 ssh2
+Jun 15 03:47:38 server sshd[8601]: Failed password for admin from 172.20.10.1 port 63024 ssh2
+Jun 15 03:47:38 server sshd[9611]: Failed password for root from 172.20.10.1 port 52964 ssh2
+Jun 15 03:47:50 server sshd[6599]: Failed password for pi from 172.20.10.1 port 52863 ssh2
+Jun 15 03:47:51 server sshd[9799]: Failed password for root from 172.20.10.1 port 47306 ssh2
+Jun 15 03:48:01 server sshd[2402]: Failed password for root from 172.20.10.1 port 63131 ssh2
+Jun 15 03:48:02 server sshd[5672]: Failed password for pi from 172.20.10.1 port 44603 ssh2
+Jun 15 03:48:04 server sshd[1253]: Failed password for root from 172.20.10.1 port 56283 ssh2
+Jun 15 03:48:20 server sshd[3278]: Failed password for root from 172.20.10.1 port 57949 ssh2
+Jun 15 03:48:29 server sshd[1533]: Failed password for ubuntu from 172.20.10.1 port 51004 ssh2
+Jun 15 03:48:36 server sshd[8483]: Failed password for admin from 172.20.10.1 port 63504 ssh2
+Jun 15 03:48:50 server sshd[8811]: Failed password for ubuntu from 172.20.10.1 port 56675 ssh2
+Jun 15 03:48:57 server sshd[4524]: Failed password for pi from 172.20.10.1 port 45060 ssh2
+Jun 15 03:49:09 server sshd[5035]: Failed password for root from 172.20.10.1 port 56163 ssh2
+Jun 15 03:49:11 server sshd[1883]: Failed password for pi from 172.20.10.1 port 53894 ssh2
+Jun 15 03:49:17 server sshd[7304]: Failed password for root from 172.20.10.1 port 61545 ssh2
+Jun 15 03:49:27 server sshd[6329]: Failed password for pi from 172.20.10.1 port 53402 ssh2
+Jun 15 03:49:40 server sshd[5017]: Failed password for ubuntu from 172.20.10.1 port 58046 ssh2
+Jun 15 03:49:47 server sshd[8786]: Failed password for ubuntu from 172.20.10.1 port 60665 ssh2
+Jun 15 03:49:59 server sshd[2359]: Failed password for pi from 172.20.10.1 port 64803 ssh2
+Jun 15 03:50:03 server sshd[7847]: Failed password for admin from 172.20.10.1 port 53334 ssh2
+Jun 15 03:50:04 server sshd[2309]: Failed password for pi from 172.20.10.1 port 52432 ssh2
+Jun 15 03:50:08 server sshd[5875]: Failed password for root from 172.20.10.1 port 43655 ssh2
+Jun 15 03:50:20 server sshd[7574]: Failed password for pi from 172.20.10.1 port 43886 ssh2
+Jun 15 03:50:22 server sshd[1982]: Failed password for admin from 172.20.10.1 port 58487 ssh2
+Jun 15 03:50:26 server sshd[1744]: Failed password for root from 172.20.10.1 port 60522 ssh2
+Jun 15 03:50:42 server sshd[6999]: Failed password for ubuntu from 172.20.10.1 port 55549 ssh2
+Jun 15 03:50:53 server sshd[9976]: Failed password for root from 172.20.10.1 port 41364 ssh2
+Jun 15 03:50:56 server sshd[2178]: Failed password for pi from 172.20.10.1 port 45903 ssh2
+Jun 15 03:51:09 server sshd[7193]: Failed password for admin from 172.20.10.1 port 46007 ssh2
+Jun 15 03:51:12 server sshd[2879]: Failed password for ubuntu from 172.20.10.1 port 45505 ssh2
+Jun 15 03:51:16 server sshd[2916]: Failed password for root from 172.20.10.1 port 52471 ssh2
+Jun 15 03:51:22 server sshd[8208]: Failed password for root from 172.20.10.1 port 56940 ssh2
+Jun 15 03:51:24 server sshd[2002]: Failed password for ubuntu from 172.20.10.1 port 43528 ssh2
+Jun 15 03:51:28 server sshd[5727]: Failed password for pi from 172.20.10.1 port 45091 ssh2
+Jun 15 03:51:34 server sshd[9221]: Failed password for admin from 172.20.10.1 port 43112 ssh2
+Jun 15 03:51:39 server sshd[9470]: Failed password for root from 172.20.10.1 port 51827 ssh2
+Jun 15 03:51:48 server sshd[3011]: Failed password for root from 172.20.10.1 port 57779 ssh2
+Jun 15 03:51:53 server sshd[8868]: Failed password for ubuntu from 172.20.10.1 port 44883 ssh2
+Jun 15 03:51:53 server sshd[4508]: Failed password for ubuntu from 172.20.10.1 port 51826 ssh2
+Jun 15 03:51:55 server sshd[8967]: Failed password for admin from 172.20.10.1 port 48572 ssh2
+Jun 15 03:52:01 server sshd[6521]: Failed password for pi from 172.20.10.1 port 56756 ssh2
+Jun 15 03:52:06 server sshd[8546]: Failed password for ubuntu from 172.20.10.1 port 50573 ssh2
+Jun 15 03:52:15 server sshd[8565]: Failed password for root from 172.20.10.1 port 46478 ssh2
+Jun 15 03:52:30 server sshd[3322]: Failed password for root from 172.20.10.1 port 56317 ssh2
+Jun 15 03:52:35 server sshd[2579]: Failed password for pi from 172.20.10.1 port 63323 ssh2
+Jun 15 03:52:46 server sshd[5204]: Failed password for root from 172.20.10.1 port 63931 ssh2
+Jun 15 03:52:47 server sshd[9446]: Failed password for ubuntu from 172.20.10.1 port 62112 ssh2
+Jun 15 03:52:51 server sshd[8788]: Failed password for pi from 172.20.10.1 port 53461 ssh2
+Jun 15 03:53:01 server sshd[1418]: Failed password for admin from 172.20.10.1 port 52125 ssh2
+Jun 15 03:53:06 server sshd[7024]: Failed password for pi from 172.20.10.1 port 43677 ssh2
+Jun 15 03:53:10 server sshd[3246]: Failed password for pi from 172.20.10.1 port 55386 ssh2
+Jun 15 03:53:26 server sshd[3562]: Failed password for ubuntu from 172.20.10.1 port 56764 ssh2
+Jun 15 03:53:26 server sshd[1838]: Failed password for ubuntu from 172.20.10.1 port 49977 ssh2
+Jun 15 03:53:45 server sshd[3324]: Failed password for admin from 172.20.10.1 port 50930 ssh2
+Jun 15 03:53:47 server sshd[8101]: Failed password for admin from 172.20.10.1 port 52471 ssh2
+Jun 15 03:54:01 server sshd[6731]: Failed password for ubuntu from 172.20.10.1 port 60944 ssh2
+Jun 15 03:54:09 server sshd[6751]: Failed password for root from 172.20.10.1 port 54599 ssh2
+Jun 15 03:54:16 server sshd[7258]: Failed password for admin from 172.20.10.1 port 62678 ssh2
+Jun 15 03:54:17 server sshd[5979]: Failed password for admin from 172.20.10.1 port 43623 ssh2
+Jun 15 03:54:17 server sshd[9427]: Failed password for admin from 172.20.10.1 port 54018 ssh2
+Jun 15 03:54:33 server sshd[1270]: Failed password for pi from 172.20.10.1 port 46478 ssh2
+Jun 15 03:54:35 server sshd[5975]: Failed password for pi from 172.20.10.1 port 55367 ssh2
+Jun 15 03:54:44 server sshd[2481]: Failed password for ubuntu from 172.20.10.1 port 46467 ssh2
+Jun 15 03:54:52 server sshd[3102]: Failed password for root from 172.20.10.1 port 57311 ssh2
+Jun 15 03:54:52 server sshd[6855]: Failed password for admin from 172.20.10.1 port 43033 ssh2
+Jun 15 03:54:58 server sshd[1175]: Failed password for root from 172.20.10.1 port 41554 ssh2
+Jun 15 03:55:02 server sshd[7241]: Failed password for ubuntu from 172.20.10.1 port 44301 ssh2
+Jun 15 03:55:05 server sshd[3589]: Failed password for ubuntu from 172.20.10.1 port 61666 ssh2
+Jun 15 03:55:11 server sshd[5519]: Failed password for ubuntu from 172.20.10.1 port 57907 ssh2
+Jun 15 03:55:13 server sshd[1120]: Failed password for admin from 172.20.10.1 port 46699 ssh2
+Jun 15 03:55:17 server sshd[8201]: Failed password for pi from 172.20.10.1 port 59505 ssh2
+Jun 15 03:55:22 server sshd[7268]: Failed password for root from 172.20.10.1 port 43213 ssh2
+Jun 15 03:55:25 server sshd[9757]: Failed password for admin from 172.20.10.1 port 59972 ssh2
+Jun 15 03:55:28 server sshd[7956]: Failed password for admin from 172.20.10.1 port 41856 ssh2
+Jun 15 03:55:30 server sshd[2870]: Failed password for admin from 172.20.10.1 port 56824 ssh2
+Jun 15 03:55:45 server sshd[9728]: Failed password for admin from 172.20.10.1 port 40428 ssh2
+Jun 15 03:55:47 server sshd[4809]: Failed password for ubuntu from 172.20.10.1 port 64093 ssh2
+Jun 15 03:55:55 server sshd[8461]: Failed password for ubuntu from 172.20.10.1 port 53709 ssh2
+Jun 15 03:56:03 server sshd[4623]: Failed password for admin from 172.20.10.1 port 60082 ssh2
+Jun 15 03:56:12 server sshd[1590]: Failed password for admin from 172.20.10.1 port 47227 ssh2
+Jun 15 03:56:14 server sshd[7976]: Failed password for pi from 172.20.10.1 port 41989 ssh2
+Jun 15 03:56:23 server sshd[9197]: Failed password for ubuntu from 172.20.10.1 port 46318 ssh2
+Jun 15 03:56:34 server sshd[7161]: Failed password for admin from 172.20.10.1 port 60539 ssh2
+Jun 15 03:56:53 server sshd[8754]: Failed password for ubuntu from 172.20.10.1 port 57106 ssh2
+Jun 15 03:56:59 server sshd[1822]: Failed password for pi from 172.20.10.1 port 61745 ssh2
+Jun 15 03:57:03 server sshd[9494]: Failed password for ubuntu from 172.20.10.1 port 50984 ssh2
+Jun 15 03:57:06 server sshd[9495]: Failed password for root from 172.20.10.1 port 55860 ssh2
+Jun 15 03:57:32 server sshd[5397]: Failed password for root from 172.20.10.1 port 55283 ssh2
+Jun 15 03:57:32 server sshd[9205]: Failed password for pi from 172.20.10.1 port 58735 ssh2
+Jun 15 03:57:43 server sshd[1206]: Failed password for pi from 172.20.10.1 port 63502 ssh2
+Jun 15 03:57:57 server sshd[7063]: Failed password for ubuntu from 172.20.10.1 port 57810 ssh2
+Jun 15 03:57:59 server sshd[1219]: Failed password for ubuntu from 172.20.10.1 port 44544 ssh2
+Jun 15 03:58:03 server sshd[4397]: Failed password for root from 172.20.10.1 port 56462 ssh2
+Jun 15 03:58:17 server sshd[3179]: Failed password for root from 172.20.10.1 port 58269 ssh2
+Jun 15 03:58:19 server sshd[7309]: Failed password for root from 172.20.10.1 port 42794 ssh2
+Jun 15 03:58:29 server sshd[3158]: Failed password for root from 172.20.10.1 port 54844 ssh2
+Jun 15 03:58:32 server sshd[1861]: Failed password for pi from 172.20.10.1 port 40056 ssh2
+Jun 15 03:58:39 server sshd[3642]: Failed password for ubuntu from 172.20.10.1 port 52340 ssh2
+Jun 15 03:58:40 server sshd[4240]: Failed password for admin from 172.20.10.1 port 51807 ssh2
+Jun 15 03:58:44 server sshd[4196]: Failed password for ubuntu from 172.20.10.1 port 40579 ssh2
+Jun 15 03:58:44 server sshd[3185]: Failed password for root from 172.20.10.1 port 45247 ssh2
+Jun 15 03:58:48 server sshd[9663]: Failed password for ubuntu from 172.20.10.1 port 57168 ssh2
+Jun 15 03:58:48 server sshd[5150]: Failed password for pi from 172.20.10.1 port 42487 ssh2
+Jun 15 03:58:49 server sshd[5584]: Failed password for pi from 172.20.10.1 port 43182 ssh2
+Jun 15 03:58:57 server sshd[5730]: Failed password for admin from 172.20.10.1 port 46981 ssh2
+Jun 15 03:59:00 server sshd[2429]: Failed password for admin from 172.20.10.1 port 43371 ssh2
+Jun 15 03:59:22 server sshd[5084]: Failed password for pi from 172.20.10.1 port 61729 ssh2
+Jun 15 03:59:41 server sshd[6758]: Failed password for ubuntu from 172.20.10.1 port 44371 ssh2
+Jun 15 03:59:56 server sshd[5162]: Failed password for root from 172.20.10.1 port 63501 ssh2
+Jun 15 03:59:58 server sshd[9500]: Failed password for root from 172.20.10.1 port 61226 ssh2
+Jun 15 03:59:58 server sshd[2739]: Failed password for pi from 172.20.10.1 port 45438 ssh2
+Jun 15 04:00:03 server sshd[6951]: Failed password for ubuntu from 172.20.10.1 port 53130 ssh2
+Jun 15 04:00:09 server sshd[1788]: Failed password for admin from 172.20.10.1 port 56277 ssh2
+Jun 15 04:00:10 server sshd[3536]: Failed password for pi from 172.20.10.1 port 53307 ssh2
+Jun 15 04:00:13 server sshd[9099]: Failed password for pi from 172.20.10.1 port 56368 ssh2
+Jun 15 04:00:17 server sshd[8723]: Failed password for admin from 172.20.10.1 port 55460 ssh2
+Jun 15 04:00:18 server sshd[8237]: Failed password for ubuntu from 172.20.10.1 port 63150 ssh2
+Jun 15 04:00:22 server sshd[1971]: Failed password for root from 172.20.10.1 port 41541 ssh2
+Jun 15 04:00:23 server sshd[5350]: Failed password for admin from 172.20.10.1 port 42289 ssh2
+Jun 15 04:00:27 server sshd[9598]: Failed password for root from 172.20.10.1 port 47855 ssh2
+Jun 15 04:00:29 server sshd[1222]: Failed password for root from 172.20.10.1 port 50383 ssh2
+Jun 15 04:00:30 server sshd[2904]: Failed password for ubuntu from 172.20.10.1 port 48341 ssh2
+Jun 15 04:00:40 server sshd[7369]: Failed password for pi from 172.20.10.1 port 59563 ssh2
+Jun 15 04:00:57 server sshd[7335]: Failed password for pi from 172.20.10.1 port 47421 ssh2
