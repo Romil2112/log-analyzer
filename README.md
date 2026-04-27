@@ -88,7 +88,7 @@ python log_analyzer.py auth.log --report report.html
 
 ### With AI summary
 ```bash
-export ANTHROPIC_API_KEY=sk-...
+export ANTHROPIC_API_KEY=sk-ant-your-key-here
 python log_analyzer.py auth.log --no-db --ai-summary --report report.html
 ```
 

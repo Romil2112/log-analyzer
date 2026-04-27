@@ -86,8 +86,8 @@ MITRE_TECHNIQUES: dict[str, dict] = {
 # ── Severity scoring ──────────────────────────────────────────────────────────
 
 _SEVERITY_THRESHOLDS: dict[str, list[tuple[int, str]]] = {
-    "brute_force": [(50, "CRITICAL"), (20, "HIGH"), (10, "MEDIUM")],
-    "port_scan":   [(100, "CRITICAL"), (50, "HIGH"), (30, "MEDIUM")],
+    "brute_force": [(100, "CRITICAL"), (30, "HIGH"), (10, "MEDIUM")],
+    "port_scan":   [(500, "CRITICAL"), (100, "HIGH"), (50, "MEDIUM")],
     "flood_404":   [(200, "CRITICAL"), (100, "HIGH"), (50, "MEDIUM")],
 }
 
@@ -660,6 +660,10 @@ REPORT_TEMPLATE = """<!DOCTYPE html>
       <div class="value" style="color:#fbbf24">{{ port_scan_count }}</div>
       <div class="label">Port Scan Incidents</div>
     </div>
+    <div class="stat-card" style="border-color:#06b6d4">
+      <div class="value" style="color:#22d3ee">{{ flood_404_count }}</div>
+      <div class="label">404 Flood Incidents</div>
+    </div>
     <div class="stat-card" style="border-color:#8b5cf6">
       <div class="value" style="color:#a78bfa">{{ unique_ips }}</div>
       <div class="label">Attacker IPs</div>
@@ -864,7 +868,57 @@ REPORT_TEMPLATE = """<!DOCTYPE html>
   </div>
   {% endif %}
 
-  {% if not brute_force_incidents and not port_scan_incidents and not ml_anomalies %}
+  {% if flood_404_incidents %}
+  <div class="section">
+    <h2>&#x26A0;&#xFE0F; 404 Flood Incidents</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Source IP</th><th>Severity</th><th>404 Requests</th>
+          <th>First Seen</th><th>Last Seen</th><th>Duration</th>
+          <th>MITRE ATT&CK</th>
+          {% if ml_enabled %}<th>Anomaly Score</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for inc in flood_404_incidents %}
+        <tr>
+          <td><code>{{ inc.source_ip }}</code></td>
+          <td>
+            <span class="badge"
+                  style="background:{{ inc.sev_bg }};color:{{ inc.sev_fg }};">
+              {{ inc.severity }}
+            </span>
+          </td>
+          <td>{{ inc.event_count }}</td>
+          <td>{{ inc.first_seen }}</td>
+          <td>{{ inc.last_seen }}</td>
+          <td>{{ inc.duration }}</td>
+          <td>
+            <a href="{{ inc.mitre_url }}" target="_blank" rel="noopener"
+               class="mitre-badge">{{ inc.mitre_id }}</a>
+            <div style="font-size:.72rem;color:#64748b;margin-top:.15rem;">
+              {{ inc.mitre_tactic }}
+            </div>
+          </td>
+          {% if ml_enabled %}
+          <td>
+            <div class="score-wrap">
+              <span class="score-label">{{ "%.3f"|format(inc.anomaly_score) }}</span>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:{{ (inc.anomaly_score*100)|int }}%;background:{{ inc.bar_color }};"></div>
+              </div>
+            </div>
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  {% if not brute_force_incidents and not port_scan_incidents and not flood_404_incidents and not ml_anomalies %}
   <div class="section">
     <p style="color:#4ade80;font-size:1.1rem;">&#x2705; No incidents detected.</p>
   </div>
@@ -909,9 +963,9 @@ new Chart(document.getElementById('topIpChart'), {
 
 new Chart(document.getElementById('incidentTypePie'), {
   type:'doughnut',
-  data:{ labels:['Brute Force','Port Scan'],
-         datasets:[{data:[{{ brute_force_count }},{{ port_scan_count }}],
-           backgroundColor:['#ef4444','#f59e0b']}] },
+  data:{ labels:['Brute Force','Port Scan','404 Flood'],
+         datasets:[{data:[{{ brute_force_count }},{{ port_scan_count }},{{ flood_404_count }}],
+           backgroundColor:['#ef4444','#f59e0b','#06b6d4']}] },
   options:{ plugins:{legend:_l, title:{display:true,text:'Incident Types',color:'#f1f5f9'}} }
 });
 
@@ -965,6 +1019,7 @@ def generate_report(
 ) -> None:
     bf_incidents = [i for i in incidents if i["incident_type"] == "brute_force"]
     ps_incidents = [i for i in incidents if i["incident_type"] == "port_scan"]
+    f4_incidents = [i for i in incidents if i["incident_type"] == "flood_404"]
     ml_enabled   = anomaly_scores is not None
     scores       = anomaly_scores or {}
     rule_ips     = {i["source_ip"] for i in incidents}
@@ -1090,6 +1145,16 @@ def generate_report(
             }
             for i in sorted(ps_incidents, key=lambda x: -x["event_count"])
         ],
+        flood_404_count=len(f4_incidents),
+        flood_404_incidents=[
+            {
+                **_enrich_inc(i),
+                "first_seen": _fmt_dt(i["first_seen"]),
+                "last_seen":  _fmt_dt(i["last_seen"]),
+                "duration":   _duration(i["first_seen"], i["last_seen"]),
+            }
+            for i in sorted(f4_incidents, key=lambda x: -x["event_count"])
+        ],
     )
 
     with open(output_path, "w", encoding="utf-8") as fh:
@@ -1132,18 +1197,8 @@ def detect_404_flood(events: list[dict]) -> list[dict]:
 
 # ── Severity scoring (public) ─────────────────────────────────────────────────
 
-_SCORE_SEVERITY_THRESHOLDS: dict[str, list[tuple[int, str]]] = {
-    "brute_force": [(100, "CRITICAL"), (30, "HIGH"), (10, "MEDIUM")],
-    "port_scan":   [(500, "CRITICAL"), (100, "HIGH"), (50, "MEDIUM")],
-    "flood_404":   [(200, "CRITICAL"), (100, "HIGH"), (50, "MEDIUM")],
-}
-
-
 def score_severity(incident: dict) -> str:
-    for threshold, level in _SCORE_SEVERITY_THRESHOLDS.get(incident["incident_type"], []):
-        if incident["event_count"] >= threshold:
-            return level
-    return "LOW"
+    return get_severity(incident)
 
 
 # ── Allowlist helpers ─────────────────────────────────────────────────────────
@@ -1213,6 +1268,12 @@ def build_parser() -> argparse.ArgumentParser:
                    metavar="N")
     p.add_argument("--port-scan-window",      type=int, default=PORT_SCAN_WINDOW,
                    metavar="MIN")
+    p.add_argument("--flood-404-threshold",   type=int, default=FLOOD_404_THRESHOLD,
+                   metavar="N")
+    p.add_argument("--flood-404-window",      type=int, default=FLOOD_404_WINDOW,
+                   metavar="MIN")
+    p.add_argument("--allowlist", default="", metavar="CIDR,...",
+                   help="Comma-separated IPs/CIDRs to exclude from all detection")
     p.add_argument("--ai-summary", action="store_true", help="Generate AI executive summary via Claude API")
     return p
 
@@ -1223,10 +1284,13 @@ def main() -> None:  # noqa: C901
 
     global BRUTE_FORCE_THRESHOLD, BRUTE_FORCE_WINDOW
     global PORT_SCAN_THRESHOLD,   PORT_SCAN_WINDOW, ML_ANOMALY_THRESHOLD
+    global FLOOD_404_THRESHOLD,   FLOOD_404_WINDOW
     BRUTE_FORCE_THRESHOLD = args.brute_force_threshold
     BRUTE_FORCE_WINDOW    = args.brute_force_window
     PORT_SCAN_THRESHOLD   = args.port_scan_threshold
     PORT_SCAN_WINDOW      = args.port_scan_window
+    FLOOD_404_THRESHOLD   = args.flood_404_threshold
+    FLOOD_404_WINDOW      = args.flood_404_window
     ML_ANOMALY_THRESHOLD  = args.ml_threshold
 
     # ── --init-schema ─────────────────────────────────────────────────────────
@@ -1271,6 +1335,16 @@ def main() -> None:  # noqa: C901
         f"[green][+][/green] Parsed [bold]{len(events):,}[/bold] events  "
         f"[dim]({n_lines:,} lines)[/dim]"
     )
+
+    # ── allowlist filtering ───────────────────────────────────────────────────
+    if args.allowlist:
+        al     = build_allowlist([e.strip() for e in args.allowlist.split(",")])
+        before = len(events)
+        events = filter_allowlist(events, al)
+        console.print(
+            f"[dim][*] Allowlist: {len(al)} entr{'ies' if len(al) != 1 else 'y'} — "
+            f"{before - len(events)} events filtered.[/dim]"
+        )
 
     # ── rule-based detection ──────────────────────────────────────────────────
     console.print("[cyan][*][/cyan] Running rule-based detections...")
