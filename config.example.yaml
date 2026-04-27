@@ -1,0 +1,29 @@
+# log-analyzer configuration file
+# Copy to config.yaml and adjust as needed.
+# CLI flags always override config file values.
+
+database:
+  dsn: "postgresql://postgres:postgres@localhost:5432/log_analyzer"
+
+detection:
+  brute_force:
+    threshold: 5        # failed logins to trigger alert
+    window_minutes: 10  # sliding window size
+  port_scan:
+    threshold: 20       # unique ports to trigger alert
+    window_minutes: 5
+  flood_404:
+    threshold: 30       # 404 responses to trigger alert
+    window_minutes: 5
+
+# IPs/CIDRs to exclude from all detection
+allowlist:
+  - "127.0.0.1"
+  - "::1"
+  # - "192.168.1.0/24"
+
+# Set false to skip GeoIP enrichment (requires internet access)
+geoip: true
+
+report:
+  output: "incident_report.html"
