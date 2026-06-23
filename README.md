@@ -6,14 +6,17 @@ A CLI security tool that parses SSH `auth.log` and Windows Event Log CSV files, 
 
 ## Features
 
-- **Rule-based detection** — sliding-window brute-force, port scan, and 404-flood alerts
+- **Multi-source parsing** — SSH `auth.log`, Windows Event Log CSV, and Apache/Nginx access logs (auto-detected)
+- **Rule-based detection** — sliding-window brute-force, port scan, and 404-flood / web-scan alerts
 - **ML anomaly detection** — Isolation Forest on 8 behavioural features per source IP; catches low-and-slow attackers rules miss
 - **MITRE ATT&CK mapping** — every incident tagged with technique ID, tactic, and documentation link
+- **IP enrichment** — threat-intel reputation (known-bad CIDR feed) + optional MaxMind GeoLite2 GeoIP country
+- **Sigma export** — emit detections as vendor-neutral [Sigma](https://github.com/SigmaHQ/sigma) rules (`--export-sigma`) for Splunk/Sentinel/Elastic
 - **Rich CLI** — color-coded tables, severity badges (CRITICAL/HIGH/MEDIUM/LOW), and live progress bars
 - **Claude AI summaries** — 3-sentence SOC executive summary via the Anthropic API (`--ai-summary`)
 - **HTML reports** — Chart.js dashboards: timeline, top-attacker IPs, event breakdown, ML anomaly scores
 - **Docker support** — `docker compose up` spins up Postgres + analyzer together
-- **GitHub Actions CI** — runs all 103 pytest tests and uploads a sample report on every push
+- **GitHub Actions CI** — runs all 113 pytest tests and uploads a sample report on every push
 
 ## Prerequisites
 
@@ -27,7 +30,9 @@ A CLI security tool that parses SSH `auth.log` and Windows Event Log CSV files, 
 
 | Area | Details |
 |---|---|
-| Security Detection | Sliding-window brute-force, port scan, and 404-flood rule engine |
+| Security Detection | Sliding-window brute-force, port scan, and 404-flood rule engine over SSH/Windows/web logs |
+| Detection-as-Code | Exports findings as Sigma rules (vendor-neutral) for SIEM deployment |
+| Threat Intel / GeoIP | Known-bad CIDR reputation matching + optional MaxMind GeoLite2 country enrichment |
 | ML / Anomaly Detection | Isolation Forest on 8 behavioural features; catches low-and-slow attacks |
 | MITRE ATT&CK | Technique mapping (T1110.001, T1046, T1595.002), tactic labelling, clickable report links |
 | PostgreSQL | Schema design, psycopg2 batch inserts, JSONB incident details |
@@ -85,6 +90,25 @@ python log_analyzer.py auth.log --no-db --report report.html
 ### With PostgreSQL
 ```bash
 python log_analyzer.py auth.log --report report.html
+```
+
+### Web access logs (Apache/Nginx)
+```bash
+# Auto-detects the access-log format and runs 404-flood / web-scan detection
+python log_analyzer.py access.log --no-db --report report.html
+```
+
+### Threat-intel + GeoIP enrichment
+```bash
+# Uses the bundled known-bad CIDR feed by default; add your own and a GeoIP DB
+python log_analyzer.py auth.log --no-db \
+  --threat-intel-file my_badips.txt \
+  --geoip-db GeoLite2-Country.mmdb
+```
+
+### Export Sigma rules (detection-as-code)
+```bash
+python log_analyzer.py auth.log --no-db --export-sigma ./sigma_rules
 ```
 
 ### With AI summary
