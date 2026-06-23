@@ -1,0 +1,13 @@
+# Known-bad CIDR feed for log-analyzer threat-intel enrichment.
+# One IP or CIDR per line. '#' starts a comment.
+#
+# This is a small illustrative feed. In production, replace/append with a real
+# source such as Spamhaus DROP, FireHOL level1, or an AbuseIPDB export.
+
+# --- Genuinely abuse-associated ranges ---
+185.220.100.0/22      # Tor exit-node range frequently seen in brute-force logs
+45.33.0.0/16          # commodity VPS range commonly abused for scanning
+
+# --- Lab/example ranges (RFC 5737 documentation space) used by the sample logs ---
+198.51.100.0/24       # TEST-NET-2 (sample data)
+203.0.113.0/24        # TEST-NET-3 (sample data)

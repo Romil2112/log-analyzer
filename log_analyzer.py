@@ -47,6 +47,14 @@ try:
 except ImportError:
     AI_SUMMARY_AVAILABLE = False
 
+import enrichment
+
+try:
+    import sigma_export
+    SIGMA_AVAILABLE = True
+except ImportError:
+    SIGMA_AVAILABLE = False
+
 console = Console()
 
 # ── Constants ─────────────────────────────────────────────────────────────────
@@ -233,12 +241,55 @@ def parse_windows_csv(path: str, progress: Progress | None = None, task=None) ->
     return events
 
 
+# ── Apache/Nginx access-log parsing ───────────────────────────────────────────
+
+_WEB_LINE = re.compile(
+    r'^(?P<ip>\S+) \S+ \S+ \[(?P<ts>[^\]]+)\] '
+    r'"(?P<method>[A-Z]+) (?P<path>\S+)[^"]*" (?P<status>\d{3})'
+)
+
+
+def _web_timestamp(ts: str) -> datetime:
+    try:
+        return datetime.strptime(ts, "%d/%b/%Y:%H:%M:%S %z")
+    except ValueError:
+        dt = dateparser.parse(ts)
+        return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+def parse_web_log(path: str, progress: Progress | None = None, task=None) -> list[dict]:
+    """Parse Apache/Nginx combined/common access logs. HTTP 404s become
+    ``http_404`` events, which feed the 404-flood / scanning detector."""
+    events = []
+    with open(path, "r", errors="replace") as fh:
+        for raw in fh:
+            raw = raw.rstrip("\n")
+            m = _WEB_LINE.search(raw)
+            if m:
+                g = m.groupdict()
+                status = int(g["status"])
+                events.append({
+                    "log_type":   "apache_nginx",
+                    "event_type": "http_404" if status == 404 else "http_request",
+                    "event_time": _web_timestamp(g["ts"]),
+                    "source_ip":  g["ip"],
+                    "username":   None,
+                    "port":       None,
+                    "raw_line":   raw,
+                })
+            if progress is not None and task is not None:
+                progress.advance(task)
+    return events
+
+
 def detect_log_format(path: str) -> str:
     ext = Path(path).suffix.lower()
     if ext == ".csv":
         return "windows"
     with open(path, "r", errors="replace") as fh:
         first = fh.readline()
+    if _WEB_LINE.search(first):
+        return "web"
     if re.match(r'^\w{3}\s+\d+\s+\d{2}:\d{2}:\d{2}', first):
         return "ssh"
     return "windows"
@@ -523,6 +574,31 @@ def print_mitre_summary(incidents: list[dict]) -> None:
             border_style="yellow",
             padding=(0, 2),
         ))
+
+
+def print_enrichment_summary(incidents: list[dict]) -> None:
+    """Show GeoIP country + threat-intel reputation for each attacker IP."""
+    by_ip: dict[str, dict] = {}
+    for inc in incidents:
+        ip = inc.get("source_ip")
+        if ip and ip not in by_ip:
+            by_ip[ip] = inc
+    if not by_ip:
+        return
+
+    lines = []
+    for ip, inc in sorted(by_ip.items(), key=lambda kv: -kv[1]["event_count"])[:15]:
+        intel = "[bold red]KNOWN-BAD[/bold red]" if inc.get("known_bad") else "[green]clean[/green]"
+        geo   = inc.get("country", "Unknown")
+        lines.append(f"  [cyan]{ip:<18}[/cyan] geo=[white]{geo:<8}[/white] intel={intel}")
+
+    bad = sum(1 for inc in by_ip.values() if inc.get("known_bad"))
+    console.print(Panel(
+        "\n".join(lines),
+        title=f"[bold]IP Enrichment — GeoIP + Threat Intel[/bold]  [dim]({bad} known-bad)[/dim]",
+        border_style="magenta",
+        padding=(0, 2),
+    ))
 
 
 # ── Database ──────────────────────────────────────────────────────────────────
@@ -1251,7 +1327,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--report",   default="incident_report.html", metavar="FILE",
                    help="Output HTML report path (default: incident_report.html)")
-    p.add_argument("--format",   choices=["ssh", "windows", "auto"], default="auto",
+    p.add_argument("--format",   choices=["ssh", "windows", "web", "auto"], default="auto",
                    help="Log format (default: auto-detect)")
     p.add_argument("--no-db",    action="store_true", help="Skip PostgreSQL storage")
     p.add_argument("--no-ml",    action="store_true", help="Skip Isolation Forest")
@@ -1275,6 +1351,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--allowlist", default="", metavar="CIDR,...",
                    help="Comma-separated IPs/CIDRs to exclude from all detection")
     p.add_argument("--ai-summary", action="store_true", help="Generate AI executive summary via Claude API")
+    p.add_argument("--no-enrich", action="store_true",
+                   help="Skip GeoIP + threat-intel enrichment")
+    p.add_argument("--threat-intel-file", metavar="FILE", default=None,
+                   help="Known-bad CIDR list (default: bundled threat_intel.txt)")
+    p.add_argument("--geoip-db", metavar="FILE", default=None,
+                   help="MaxMind GeoLite2-Country .mmdb path (or set GEOIP_DB_PATH)")
+    p.add_argument("--export-sigma", metavar="DIR", default=None,
+                   help="Write Sigma detection rules for observed incidents to DIR")
     return p
 
 
@@ -1328,6 +1412,8 @@ def main() -> None:  # noqa: C901
         task = progress.add_task(f"Parsing {Path(log_path).name}", total=n_lines)
         if fmt == "ssh":
             events = parse_ssh_log(log_path, progress=progress, task=task)
+        elif fmt == "web":
+            events = parse_web_log(log_path, progress=progress, task=task)
         else:
             events = parse_windows_csv(log_path, progress=progress, task=task)
 
@@ -1353,12 +1439,22 @@ def main() -> None:  # noqa: C901
     flood     = detect_404_flood(events)
     incidents = enrich_incidents(bf + ps + flood)
 
+    # ── GeoIP + threat-intel enrichment ───────────────────────────────────────
+    if not args.no_enrich:
+        ti_networks = enrichment.load_threat_intel(args.threat_intel_file)
+        geo         = enrichment.GeoIP(args.geoip_db)
+        enrichment.enrich_incidents(incidents, ti_networks, geo)
+        geo.close()
+
     # ── rich incident + MITRE table ───────────────────────────────────────────
     console.print()
     print_incident_table(incidents)
     console.print()
     print_mitre_summary(incidents)
     console.print()
+    if not args.no_enrich:
+        print_enrichment_summary(incidents)
+        console.print()
 
     # ── ML anomaly detection ──────────────────────────────────────────────────
     anomaly_scores: dict[str, float] | None = None
@@ -1426,6 +1522,17 @@ def main() -> None:  # noqa: C901
     console.print(f"[cyan][*][/cyan] Generating HTML report -> [bold]{args.report}[/bold]...")
     generate_report(events, incidents, log_path, args.report, anomaly_scores, feat_rows)
     console.print(f"[green][+][/green] Report written: [bold]{args.report}[/bold]")
+
+    # ── Sigma rule export (detection-as-code) ─────────────────────────────────
+    if args.export_sigma:
+        if not SIGMA_AVAILABLE:
+            console.print("[yellow][!][/yellow] Sigma export unavailable — run: pip install pyyaml")
+        else:
+            paths = sigma_export.export_sigma(incidents, args.export_sigma)
+            console.print(
+                f"[green][+][/green] Wrote [bold]{len(paths)}[/bold] Sigma rule(s) "
+                f"to [bold]{args.export_sigma}[/bold]"
+            )
 
     if args.ai_summary:
         if not AI_SUMMARY_AVAILABLE:
