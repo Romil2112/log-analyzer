@@ -48,6 +48,7 @@ except ImportError:
     AI_SUMMARY_AVAILABLE = False
 
 import enrichment
+import soc_push
 
 try:
     import sigma_export
@@ -1359,6 +1360,9 @@ def build_parser() -> argparse.ArgumentParser:
                    help="MaxMind GeoLite2-Country .mmdb path (or set GEOIP_DB_PATH)")
     p.add_argument("--export-sigma", metavar="DIR", default=None,
                    help="Write Sigma detection rules for observed incidents to DIR")
+    p.add_argument("--push-soc", metavar="URL", default=None,
+                   help="POST detected incidents to a SOC-Dashboard ingestion endpoint "
+                        "(e.g. http://localhost:8000/api/alerts)")
     return p
 
 
@@ -1533,6 +1537,16 @@ def main() -> None:  # noqa: C901
                 f"[green][+][/green] Wrote [bold]{len(paths)}[/bold] Sigma rule(s) "
                 f"to [bold]{args.export_sigma}[/bold]"
             )
+
+    # ── Push incidents to SOC-Dashboard (Detect -> Triage handoff) ─────────────
+    if args.push_soc:
+        console.print(f"[cyan][*][/cyan] Pushing incidents to SOC dashboard -> [bold]{args.push_soc}[/bold]...")
+        ok, errors = soc_push.push_incidents(incidents, args.push_soc)
+        console.print(
+            f"[green][+][/green] Pushed [bold]{ok}/{len(incidents)}[/bold] incident(s) to the SOC dashboard."
+        )
+        if errors:
+            console.print(f"[yellow][!][/yellow] {len(errors)} push error(s); first: {errors[0]}")
 
     if args.ai_summary:
         if not AI_SUMMARY_AVAILABLE:

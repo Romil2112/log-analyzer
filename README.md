@@ -12,6 +12,7 @@ A CLI security tool that parses SSH `auth.log` and Windows Event Log CSV files, 
 - **MITRE ATT&CK mapping** — every incident tagged with technique ID, tactic, and documentation link
 - **IP enrichment** — threat-intel reputation (known-bad CIDR feed) + optional MaxMind GeoLite2 GeoIP country
 - **Sigma export** — emit detections as vendor-neutral [Sigma](https://github.com/SigmaHQ/sigma) rules (`--export-sigma`) for Splunk/Sentinel/Elastic
+- **SOC-Dashboard handoff** — `--push-soc <url>` POSTs detected incidents straight into the [SOC-Dashboard](https://github.com/Romil2112/SOC-Dashboard) triage queue (Detect → Triage)
 - **Rich CLI** — color-coded tables, severity badges (CRITICAL/HIGH/MEDIUM/LOW), and live progress bars
 - **Claude AI summaries** — 3-sentence SOC executive summary via the Anthropic API (`--ai-summary`)
 - **HTML reports** — Chart.js dashboards: timeline, top-attacker IPs, event breakdown, ML anomaly scores
@@ -109,6 +110,12 @@ python log_analyzer.py auth.log --no-db \
 ### Export Sigma rules (detection-as-code)
 ```bash
 python log_analyzer.py auth.log --no-db --export-sigma ./sigma_rules
+```
+
+### Push detections into the SOC-Dashboard queue
+```bash
+# Detect, then POST each incident to the companion SOC-Dashboard for triage
+python log_analyzer.py access.log --no-db --push-soc http://localhost:8000/api/alerts
 ```
 
 ### With AI summary
