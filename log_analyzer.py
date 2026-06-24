@@ -47,6 +47,7 @@ try:
 except ImportError:
     AI_SUMMARY_AVAILABLE = False
 
+import contracts
 import enrichment
 import soc_push
 
@@ -1437,6 +1438,9 @@ def main() -> None:  # noqa: C901
         )
 
     # ── rule-based detection ──────────────────────────────────────────────────
+    # Fail loud if any detector consumes an event type no parser produces
+    # (an orphaned detector would otherwise run and silently find nothing).
+    contracts.assert_event_contract()
     console.print("[cyan][*][/cyan] Running rule-based detections...")
     bf        = detect_brute_force(events)
     ps        = detect_port_scan(events)

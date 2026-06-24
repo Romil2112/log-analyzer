@@ -1,4 +1,4 @@
-![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Tests](https://img.shields.io/badge/pytest-126%20passing-brightgreen?logo=pytest&logoColor=white)
+![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Tests](https://img.shields.io/badge/pytest-131%20passing-brightgreen?logo=pytest&logoColor=white)
 
 # log-analyzer
 
@@ -18,7 +18,8 @@ A CLI security tool that parses SSH `auth.log` and Windows Event Log CSV files, 
 - **AI summaries at scale** — concurrent batch summarization (`ai_scale.py`) with bounded concurrency, retry/backoff on rate limits, and per-run token-cost + latency (p50/p95) instrumentation
 - **HTML reports** — Chart.js dashboards: timeline, top-attacker IPs, event breakdown, ML anomaly scores
 - **Docker support** — `docker compose up` spins up Postgres + analyzer together
-- **GitHub Actions CI** — runs all 126 pytest tests and uploads a sample report on every push
+- **Fail-loud event contract** — a startup/CI check (`contracts.py`) asserts every detector's required event types are produced by some parser, so an "orphaned detector" can't silently run and find nothing
+- **GitHub Actions CI** — runs all 131 pytest tests and uploads a sample report on every push
 
 ## Prerequisites
 
@@ -188,6 +189,7 @@ log-analyzer/
 ├── log_analyzer.py        # Main CLI — parsing, detection, ML, report generation
 ├── ai_summary.py          # Claude API executive summary integration
 ├── ai_scale.py            # Concurrent batch summarization + token-cost/latency metrics
+├── contracts.py           # Producer/consumer event-type contract (fail-loud check)
 ├── benchmark_ai.py        # Concurrency benchmark (stubbed, no live API calls)
 ├── generate_test_logs.py  # Synthetic SSH + Windows log generator
 ├── schema.sql             # PostgreSQL schema (log_events, incidents)
@@ -205,7 +207,8 @@ log-analyzer/
 │   ├── test_detection.py  # rule, ML, parsing, DB unit + integration tests
 │   ├── test_web_enrichment_sigma.py  # web-log / enrichment / Sigma tests
 │   ├── test_soc_push.py   # SOC-Dashboard push tests
-│   └── test_ai_scale.py   # concurrent AI summarization tests (126 total)
+│   ├── test_ai_scale.py   # concurrent AI summarization tests
+│   └── test_contract.py   # producer/consumer event-contract tests (131 total)
 └── .github/workflows/
     └── ci.yml             # GitHub Actions: test + report artifact
 ```
