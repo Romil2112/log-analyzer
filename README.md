@@ -79,6 +79,10 @@ A CLI security tool that parses SSH `auth.log` and Windows Event Log CSV files, 
 [+] Report written: report.html
 ```
 
+> The demo runs against `test_auth_10k.log`, a 10,000-event SSH fixture produced by
+> `python generate_test_logs.py --scale` (gitignored, generated on demand). The 12
+> `test_*.log` files committed to the repo are ready-to-use fixtures for the test suite.
+
 ## Quick Start
 
 ### Install
@@ -197,12 +201,19 @@ log-analyzer/
 ├── config.example.yaml    # All detection thresholds and allowlist options
 ├── Dockerfile             # Container image
 ├── docker-compose.yml     # Postgres + analyzer services
-├── test_auth_10k.log      # 10,000-event SSH fixture
-├── test_auth_50k.log      # 50,000-event scale fixture
-├── test_coordinated.log   # Coordinated multi-IP attack
-├── test_highvol.log       # High-volume mixed attack
-├── test_malformed.log     # Malformed-line edge cases
-├── test_events.csv        # Windows Event Log CSV fixture
+├── test_auth_50k.log      # 50,000-event SSH scale fixture
+├── test_highvol.log       # 50,000-event high-volume stress fixture
+├── test_coordinated.log   # Coordinated multi-IP (low-and-slow) attack
+├── test_slow_brute.log    # Slow credential-stuffing spread over hours
+├── test_large_scan.log    # Large port-scan fixture
+├── test_mixed.log         # Mixed SSH + web (404-flood) attack
+├── test_web_access.log    # Web-access log fixture
+├── test_ipv6.log          # IPv6 address parsing fixture
+├── test_unicode.log       # Unicode / non-ASCII line handling
+├── test_malformed.log     # Malformed / unparseable-line edge cases
+├── test_empty.log         # Empty-file edge case
+├── test_single.log        # Single-event edge case
+│                          # (test_auth_10k.log + test_events.csv are generated on demand — gitignored)
 ├── tests/
 │   ├── test_detection.py  # rule, ML, parsing, DB unit + integration tests
 │   ├── test_web_enrichment_sigma.py  # web-log / enrichment / Sigma tests
