@@ -29,6 +29,15 @@ def test_port_scan_uses_distinct_port_count():
     assert "value_count >= 20" in q["splunk"]
 
 
+def test_sentinel_kql_pipes_start_each_line():
+    # Every KQL pipe operator must begin its own line; a missing newline before
+    # the appended `| summarize` / `| where` tail would yield invalid KQL.
+    q = siem_export.incident_to_queries("port_scan")
+    for line in q["sentinel"].splitlines():
+        if "|" in line:
+            assert line.lstrip().startswith("|"), f"pipe not at line start: {line!r}"
+
+
 def test_flood_404_threshold():
     q = siem_export.incident_to_queries("flood_404")
     for dialect in q.values():
