@@ -19,6 +19,7 @@ aggregation natively — the field mapping still comes from the pySigma pipeline
 """
 from __future__ import annotations
 
+import logging
 import uuid
 from pathlib import Path
 
@@ -31,6 +32,8 @@ from sigma.backends.elasticsearch.elasticsearch_esql import ESQLBackend
 from sigma.backends.kusto import KustoBackend
 
 import sigma_export
+
+logger = logging.getLogger(__name__)
 
 # Stable UUID namespace so generated rule ids are deterministic across runs.
 _NS = uuid.UUID("1b4d3c2e-0000-4000-8000-abcdef012345")
@@ -181,7 +184,9 @@ def incident_to_queries(incident_type: str) -> dict[str, str] | None:
         else:
             # Sentinel/Kusto: pySigma predicate + native KQL aggregation tail.
             out = backend.convert(SigmaCollection.from_yaml(base_yaml))
-            queries[target] = out[0] + _sentinel_aggregation(
+            # rstrip so the leading-newline aggregation tail can't produce a
+            # blank line if the backend already emitted a trailing newline.
+            queries[target] = out[0].rstrip() + _sentinel_aggregation(
                 spec, cfg["fields"], cfg["kql_count"]
             )
     return queries
@@ -203,6 +208,7 @@ def export_siem(incidents: list[dict], out_dir: str) -> list[str]:
             continue
         queries = incident_to_queries(itype)
         if queries is None:
+            logger.warning("skipping unknown incident type: %r", itype)
             continue
         seen.add(itype)
         for target, query in queries.items():

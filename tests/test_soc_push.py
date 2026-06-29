@@ -56,6 +56,7 @@ def test_push_incidents_posts_each_and_counts_success(monkeypatch):
     assert errors == []
     assert len(posted) == 2
     assert posted[0]["category"] == "brute_force"
+    assert posted[1]["category"] == "port_scan"  # port_scan maps to itself
 
 
 def test_push_incidents_records_errors(monkeypatch):
