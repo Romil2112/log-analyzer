@@ -7,3 +7,7 @@ rich>=13.7.0
 anthropic>=0.40.0
 pyyaml>=6.0
 geoip2>=4.0
+pysigma>=0.11
+pysigma-backend-splunk>=1.1
+pysigma-backend-elasticsearch>=1.1
+pysigma-backend-kusto>=0.4

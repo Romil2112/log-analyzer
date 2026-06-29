@@ -57,6 +57,12 @@ try:
 except ImportError:
     SIGMA_AVAILABLE = False
 
+try:
+    import siem_export
+    SIEM_AVAILABLE = True
+except ImportError:
+    SIEM_AVAILABLE = False
+
 console = Console()
 
 # ── Constants ─────────────────────────────────────────────────────────────────
@@ -1361,6 +1367,9 @@ def build_parser() -> argparse.ArgumentParser:
                    help="MaxMind GeoLite2-Country .mmdb path (or set GEOIP_DB_PATH)")
     p.add_argument("--export-sigma", metavar="DIR", default=None,
                    help="Write Sigma detection rules for observed incidents to DIR")
+    p.add_argument("--export-siem", metavar="DIR", default=None,
+                   help="Compile observed incidents into native SIEM queries "
+                        "(Splunk SPL, Elastic ES|QL, Sentinel KQL) in DIR")
     p.add_argument("--push-soc", metavar="URL", default=None,
                    help="POST detected incidents to a SOC-Dashboard ingestion endpoint "
                         "(e.g. http://localhost:8000/api/alerts)")
@@ -1540,6 +1549,21 @@ def main() -> None:  # noqa: C901
             console.print(
                 f"[green][+][/green] Wrote [bold]{len(paths)}[/bold] Sigma rule(s) "
                 f"to [bold]{args.export_sigma}[/bold]"
+            )
+
+    # ── Native SIEM query export (Splunk / Elastic / Sentinel via pySigma) ─────
+    if args.export_siem:
+        if not SIEM_AVAILABLE:
+            console.print(
+                "[yellow][!][/yellow] SIEM export unavailable — run: "
+                "pip install pysigma pysigma-backend-splunk "
+                "pysigma-backend-elasticsearch pysigma-backend-kusto"
+            )
+        else:
+            paths = siem_export.export_siem(incidents, args.export_siem)
+            console.print(
+                f"[green][+][/green] Wrote [bold]{len(paths)}[/bold] native SIEM "
+                f"query file(s) to [bold]{args.export_siem}[/bold]"
             )
 
     # ── Push incidents to SOC-Dashboard (Detect -> Triage handoff) ─────────────
