@@ -4,10 +4,10 @@ CREATE TABLE IF NOT EXISTS log_events (
     event_time TIMESTAMPTZ NOT NULL,
     log_type TEXT NOT NULL,          -- 'ssh', 'windows', or 'apache_nginx'
     event_type TEXT NOT NULL,        -- 'failed_login', 'successful_login', 'connection', 'http_404', etc.
-    source_ip TEXT,
-    username TEXT,
+    source_ip TEXT,                  -- PII: encrypted at rest when DB_ENCRYPTION_KEY is set
+    username TEXT,                   -- PII: encrypted at rest when DB_ENCRYPTION_KEY is set; --scrub-usernames hashes it
     port INTEGER,
-    raw_line TEXT,
+    raw_line TEXT,                   -- may contain PII; encrypted at rest when keyed, suppressed by --no-raw-lines
     ingested_at TIMESTAMPTZ DEFAULT NOW()
 );
 

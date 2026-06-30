@@ -8,9 +8,12 @@ generates an HTML incident report with Chart.js visualisations.
 
 import argparse
 import csv
+import hashlib
+import hmac
 import json
 import os
 import re
+import secrets
 import sys
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
@@ -50,6 +53,7 @@ except ImportError:
 import contracts
 import enrichment
 import soc_push
+from crypto import encrypt_field, get_fernet
 
 try:
     import sigma_export
@@ -622,7 +626,14 @@ def init_schema(conn):
     conn.commit()
 
 
-def store_events(conn, events: list[dict], source_file: str):
+def store_events(conn, events: list[dict], source_file: str, fernet=None):
+    """Persist events. When DB_ENCRYPTION_KEY is set, the PII columns
+    (source_ip, username, raw_line) are encrypted at rest. Encryption is applied
+    to per-row copies so the in-memory events (used for the report) are
+    untouched.
+    """
+    if fernet is None:
+        fernet = get_fernet()
     sql = """
         INSERT INTO log_events
             (source_file, event_time, log_type, event_type, source_ip, username, port, raw_line)
@@ -630,13 +641,23 @@ def store_events(conn, events: list[dict], source_file: str):
             (%(source_file)s, %(event_time)s, %(log_type)s, %(event_type)s,
              %(source_ip)s, %(username)s, %(port)s, %(raw_line)s)
     """
-    rows = [{**e, "source_file": source_file} for e in events]
+    rows = []
+    for e in events:
+        row = {**e, "source_file": source_file}
+        if fernet is not None:
+            row["source_ip"] = encrypt_field(fernet, row.get("source_ip"))
+            row["username"] = encrypt_field(fernet, row.get("username"))
+            row["raw_line"] = encrypt_field(fernet, row.get("raw_line"))
+        rows.append(row)
     with conn.cursor() as cur:
         psycopg2.extras.execute_batch(cur, sql, rows, page_size=500)
     conn.commit()
 
 
-def store_incidents(conn, incidents: list[dict]):
+def store_incidents(conn, incidents: list[dict], fernet=None):
+    """Persist incidents, encrypting source_ip at rest when a key is configured."""
+    if fernet is None:
+        fernet = get_fernet()
     sql = """
         INSERT INTO incidents
             (incident_type, source_ip, first_seen, last_seen, event_count, severity, details)
@@ -644,10 +665,105 @@ def store_incidents(conn, incidents: list[dict]):
             (%(incident_type)s, %(source_ip)s, %(first_seen)s, %(last_seen)s,
              %(event_count)s, %(severity)s, %(details)s)
     """
-    rows = [{**i, "details": json.dumps(i["details"])} for i in incidents]
+    rows = []
+    for i in incidents:
+        row = {**i, "details": json.dumps(i["details"])}
+        if fernet is not None:
+            row["source_ip"] = encrypt_field(fernet, row.get("source_ip"))
+        rows.append(row)
     with conn.cursor() as cur:
         psycopg2.extras.execute_batch(cur, sql, rows)
     conn.commit()
+
+
+def purge_old_records(conn, days: int) -> tuple[int, int]:
+    """Delete log_events (by event_time) and incidents (by first_seen) older than
+    `days`. No-op when days <= 0. Returns (events_deleted, incidents_deleted).
+    """
+    if days <= 0:
+        return (0, 0)
+    with conn.cursor() as cur:
+        cur.execute(
+            "DELETE FROM log_events WHERE event_time < now() - make_interval(days => %s)",
+            (days,),
+        )
+        events_deleted = cur.rowcount
+        cur.execute(
+            "DELETE FROM incidents WHERE first_seen < now() - make_interval(days => %s)",
+            (days,),
+        )
+        incidents_deleted = cur.rowcount
+    conn.commit()
+    return (events_deleted, incidents_deleted)
+
+
+# ── Privacy controls (scrubbing / redaction / pseudonymization) ─────────────────
+
+def scrub_username(username):
+    """Replace a username with a stable, non-reversible SHA-256 pseudonym."""
+    if not username:
+        return username
+    return "user_" + hashlib.sha256(username.encode("utf-8")).hexdigest()[:8]
+
+
+def make_ip_pseudonymizer():
+    """Return an ip->pseudonym function using a random per-process HMAC key.
+
+    The key and the mapping live in memory only and are never written to disk,
+    so pseudonyms are stable within a run but not linkable across runs.
+    """
+    session_key = secrets.token_bytes(32)
+    cache: dict = {}
+
+    def pseudonymize(ip):
+        if not ip:
+            return ip
+        if ip not in cache:
+            digest = hmac.new(session_key, ip.encode("utf-8"), hashlib.sha256).hexdigest()
+            cache[ip] = "ip_" + digest[:12]
+        return cache[ip]
+
+    return pseudonymize
+
+
+def apply_privacy_transforms(events, incidents, args):
+    """Apply opt-in privacy controls to in-memory events/incidents BEFORE they
+    are displayed, reported, or stored. Detection and enrichment have already
+    run on the original data, so detection logic is unaffected.
+
+    Returns a list of human-readable banner strings describing what was applied.
+    """
+    banners = []
+
+    if getattr(args, "pseudonymize", False):
+        pseudonymize = make_ip_pseudonymizer()
+        for e in events:
+            if e.get("source_ip"):
+                e["source_ip"] = pseudonymize(e["source_ip"])
+        for i in incidents:
+            if i.get("source_ip"):
+                i["source_ip"] = pseudonymize(i["source_ip"])
+        banners.append(
+            "IP pseudonymization ACTIVE — source IPs replaced with per-run HMAC "
+            "pseudonyms (key in memory only)."
+        )
+
+    if getattr(args, "scrub_usernames", False):
+        for e in events:
+            if e.get("username"):
+                e["username"] = scrub_username(e["username"])
+        banners.append(
+            "Username scrubbing ACTIVE — usernames replaced with SHA-256 pseudonyms."
+        )
+
+    if getattr(args, "no_raw_lines", False):
+        for e in events:
+            e["raw_line"] = None
+        banners.append(
+            "Raw-line redaction ACTIVE — original log lines are not stored or reported."
+        )
+
+    return banners
 
 
 # ── HTML Report ───────────────────────────────────────────────────────────────
@@ -729,6 +845,16 @@ REPORT_TEMPLATE = """<!DOCTYPE html>
   </p>
 </header>
 <main>
+
+  <!-- ── Confidentiality notice ──────────────────────────────────────────── -->
+  <div style="background:#422006;border:1px solid #b45309;border-radius:6px;
+              padding:.8rem 1rem;margin-bottom:1.25rem;color:#fed7aa;font-size:.9rem;">
+    &#x26A0;&#xFE0F; <strong>Confidential — contains potentially personal data.</strong>
+    This report may include IP addresses, usernames, and incident details that can
+    qualify as personal data under the GDPR, CCPA, and similar laws. Handle, store,
+    and share it only in accordance with your organization's data-protection
+    obligations.
+  </div>
 
   <!-- ── Summary cards ───────────────────────────────────────────────────── -->
   <div class="stats">
@@ -1068,6 +1194,14 @@ new Chart(document.getElementById('mlAnomalyChart'), {
 });
 {% endif %}
 </script>
+<footer style="max-width:1280px;margin:2rem auto;padding:1rem 1.25rem;
+               border-top:1px solid #334155;color:#64748b;font-size:.82rem;
+               text-align:center;">
+  Free &amp; open-source (MIT) ·
+  <a href="https://github.com/Romil2112/log-analyzer" style="color:#94a3b8;">log-analyzer on GitHub</a>
+  · demonstration / trial project · authorized use only · provided as-is, no warranty.
+  Handle any data in this report confidentially.
+</footer>
 </body>
 </html>
 """
@@ -1373,6 +1507,19 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--push-soc", metavar="URL", default=None,
                    help="POST detected incidents to a SOC-Dashboard ingestion endpoint "
                         "(e.g. http://localhost:8000/api/alerts)")
+
+    # ── privacy / data-protection controls ────────────────────────────────────
+    privacy = p.add_argument_group("privacy controls")
+    privacy.add_argument("--scrub-usernames", action="store_true",
+                         help="Replace usernames with SHA-256 pseudonyms before storage/reporting")
+    privacy.add_argument("--no-raw-lines", action="store_true",
+                         help="Do not store or report original raw log lines (they may contain PII)")
+    privacy.add_argument("--pseudonymize", action="store_true",
+                         help="Replace source IPs with stable per-run HMAC pseudonyms "
+                              "(mapping kept in memory only)")
+    privacy.add_argument("--retention-days", type=int, default=0, metavar="N",
+                         help="Delete log_events/incidents older than N days after processing "
+                              "(0 = keep forever)")
     return p
 
 
@@ -1411,6 +1558,16 @@ def main() -> None:  # noqa: C901
 
     n_lines = _line_count(log_path)
     _print_header(log_path, fmt, n_lines)
+
+    # ── field-level encryption status (PII columns encrypted at rest) ──────────
+    fernet = get_fernet()
+    if fernet is not None:
+        console.print("[green][+][/green] Field encryption ACTIVE (DB_ENCRYPTION_KEY set)")
+    else:
+        console.print(
+            "[dim][*] Field encryption DISABLED — set DB_ENCRYPTION_KEY to "
+            "encrypt PII at rest[/dim]"
+        )
 
     # ── parse with live progress bar ──────────────────────────────────────────
     with Progress(
@@ -1462,6 +1619,12 @@ def main() -> None:  # noqa: C901
         geo         = enrichment.GeoIP(args.geoip_db)
         enrichment.enrich_incidents(incidents, ti_networks, geo)
         geo.close()
+
+    # ── privacy controls ──────────────────────────────────────────────────────
+    # Applied after detection + enrichment (which need the real values) but
+    # before anything is displayed, reported, or stored.
+    for banner in apply_privacy_transforms(events, incidents, args):
+        console.print(f"[yellow][*][/yellow] {banner}")
 
     # ── rich incident + MITRE table ───────────────────────────────────────────
     console.print()
@@ -1521,13 +1684,20 @@ def main() -> None:  # noqa: C901
             console.print("[cyan][*][/cyan] Storing events to PostgreSQL...")
             conn = get_connection(args.dsn)
             init_schema(conn)
-            store_events(conn, events, log_path)
-            store_incidents(conn, incidents)
-            conn.close()
+            store_events(conn, events, log_path, fernet)
+            store_incidents(conn, incidents, fernet)
             console.print(
                 f"[green][+][/green] Stored [bold]{len(events):,}[/bold] events "
                 f"and [bold]{len(incidents)}[/bold] incidents."
             )
+            if args.retention_days > 0:
+                ev_del, inc_del = purge_old_records(conn, args.retention_days)
+                console.print(
+                    f"[green][+][/green] Retention: purged [bold]{ev_del}[/bold] event(s) "
+                    f"and [bold]{inc_del}[/bold] incident(s) older than "
+                    f"[bold]{args.retention_days}[/bold] day(s)."
+                )
+            conn.close()
         except psycopg2.OperationalError as exc:
             console.print(f"[red][!] DB error:[/red] {exc}")
             console.print("[yellow][!] Use --no-db to skip database storage.[/yellow]")
