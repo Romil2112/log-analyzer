@@ -8,6 +8,7 @@ Uses only the standard library (no extra dependency).
 from __future__ import annotations
 
 import json
+import sys
 import urllib.error
 import urllib.request
 
@@ -46,6 +47,13 @@ def incident_to_alert(incident: dict) -> dict:
 
 def push_incidents(incidents: list[dict], url: str, timeout: float = 10.0) -> tuple[int, list[str]]:
     """POST each incident as an alert. Returns (success_count, error_messages)."""
+    if url.startswith("http://"):
+        # Warn but do not block (localhost/dev is fine over HTTP).
+        print(
+            "[!] WARNING: pushing over plaintext HTTP — source IPs and usernames "
+            "will be transmitted unencrypted. Use HTTPS in production.",
+            file=sys.stderr,
+        )
     ok, errors = 0, []
     for inc in incidents:
         data = json.dumps(incident_to_alert(inc)).encode("utf-8")

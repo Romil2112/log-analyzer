@@ -1,4 +1,4 @@
-![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Tests](https://img.shields.io/badge/pytest-136%20passing-brightgreen?logo=pytest&logoColor=white)
+![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Open Source](https://img.shields.io/badge/Open%20Source-Free%20to%20Use-success) ![Tests](https://img.shields.io/badge/pytest-146%20passing-brightgreen?logo=pytest&logoColor=white)
 
 # log-analyzer
 
@@ -20,7 +20,8 @@ A CLI security tool that parses SSH `auth.log` and Windows Event Log CSV files, 
 - **HTML reports** — Chart.js dashboards: timeline, top-attacker IPs, event breakdown, ML anomaly scores
 - **Docker support** — `docker compose up` spins up Postgres + analyzer together
 - **Fail-loud event contract** — a startup/CI check (`contracts.py`) asserts every detector's required event types are produced by some parser, so an "orphaned detector" can't silently run and find nothing
-- **GitHub Actions CI** — runs all 136 pytest tests and uploads a sample report on every push
+- **Privacy controls** — optional field-level encryption at rest (`DB_ENCRYPTION_KEY`), username scrubbing (`--scrub-usernames`), raw-line redaction (`--no-raw-lines`), IP pseudonymization (`--pseudonymize`), and data retention (`--retention-days`)
+- **GitHub Actions CI** — runs all 146 pytest tests and uploads a sample report on every push
 
 ## Prerequisites
 
@@ -199,10 +200,14 @@ docker compose up
 | `--flood-404-threshold N` | `30` | 404 requests to trigger alert |
 | `--flood-404-window MIN` | `5` | Sliding window in minutes |
 | `--allowlist CIDR,...` | — | Comma-separated IPs/CIDRs to exclude from detection |
-| `--format {ssh,windows,auto}` | `auto` | Log format override |
+| `--format {ssh,windows,web,auto}` | `auto` | Log format override |
 | `--export-sigma DIR` | — | Write vendor-neutral Sigma rules for observed incidents |
 | `--export-siem DIR` | — | Compile native Splunk SPL / Elastic ES&#124;QL / Sentinel KQL queries |
 | `--push-soc URL` | — | POST detected incidents to a SOC-Dashboard ingestion endpoint |
+| `--scrub-usernames` | — | Replace usernames with SHA-256 pseudonyms before storage/reporting |
+| `--no-raw-lines` | — | Do not store or report original raw log lines (may contain PII) |
+| `--pseudonymize` | — | Replace source IPs with stable per-run HMAC pseudonyms (in-memory only) |
+| `--retention-days N` | `0` | Delete events/incidents older than N days after processing (0 = keep forever) |
 | `--init-schema` | — | Create database schema and exit |
 
 ## HTML Report
@@ -218,6 +223,7 @@ docker compose up
 ```
 log-analyzer/
 ├── log_analyzer.py        # Main CLI — parsing, detection, ML, report generation
+├── crypto.py              # Fernet field-level encryption helpers (encryption at rest)
 ├── ai_summary.py          # Claude API executive summary integration
 ├── ai_scale.py            # Concurrent batch summarization + token-cost/latency metrics
 ├── sigma_export.py        # Vendor-neutral Sigma rule export (detection-as-code)
@@ -249,7 +255,8 @@ log-analyzer/
 │   ├── test_siem_export.py  # native SIEM query compilation tests (pySigma)
 │   ├── test_soc_push.py   # SOC-Dashboard push tests
 │   ├── test_ai_scale.py   # concurrent AI summarization tests
-│   └── test_contract.py   # producer/consumer event-contract tests (136 total)
+│   ├── test_contract.py   # producer/consumer event-contract tests
+│   └── test_privacy.py    # encryption, scrubbing, pseudonymization, retention (146 total)
 └── .github/workflows/
     └── ci.yml             # GitHub Actions: test + report artifact
 ```
@@ -260,6 +267,98 @@ log-analyzer/
 python -m pytest tests/ -v
 ```
 
+## Privacy & Legal Compliance
+
+log-analyzer processes security logs that routinely contain **personal data** — source IP
+addresses, usernames, and raw log lines. Depending on jurisdiction these may be regulated
+under the **GDPR, CCPA**, and similar laws. The controls below let you minimize and protect
+that data; lawful, compliant operation remains the operator's responsibility.
+
+### Data Collected
+
+| Field | Sensitivity | Default handling |
+|---|---|---|
+| `source_ip` | PII | Stored; encrypt with `DB_ENCRYPTION_KEY`, pseudonymize with `--pseudonymize` |
+| `username` | PII | Stored; encrypt with `DB_ENCRYPTION_KEY`, hash with `--scrub-usernames` |
+| `raw_line` | May contain PII | Stored; encrypt with `DB_ENCRYPTION_KEY`, suppress with `--no-raw-lines` |
+| event/incident metadata (type, time, counts, severity) | Non-personal | Stored as-is |
+
+### Pseudonymization / Scrubbing / Redaction
+
+These opt-in flags transform data **after** detection and enrichment (so detection accuracy
+is unchanged) and **before** anything is displayed, written to the report, or stored:
+
+- `--pseudonymize` — replaces each source IP with a stable per-run HMAC-SHA256 pseudonym
+  (`ip_<hash>`). The random session key and the IP→pseudonym mapping live **in memory only**
+  and are never written to disk, so pseudonyms are consistent within a run but not linkable
+  across runs.
+- `--scrub-usernames` — replaces usernames with `user_<sha256[:8]>` hashes.
+- `--no-raw-lines` — stores `NULL` instead of the original log line and omits it from reports.
+
+### Data Retention
+
+`--retention-days N` deletes `log_events` (by `event_time`) and `incidents` (by `first_seen`)
+older than *N* days once processing completes. `0` (the default) keeps data forever.
+
+### Encryption at Rest (`DB_ENCRYPTION_KEY`)
+
+Setting `DB_ENCRYPTION_KEY` transparently encrypts the PII columns
+(`log_events.source_ip`, `username`, `raw_line` and `incidents.source_ip`) with Fernet
+(AES-128-CBC + HMAC) before they are written to PostgreSQL. Generate a key with:
+
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+- If unset, encryption is **disabled gracefully** and values are stored as plaintext. The CLI
+  prints whether encryption is `ACTIVE` or `DISABLED` at startup.
+- ⚠️ **Rotating `DB_ENCRYPTION_KEY` without re-encrypting existing rows makes previously
+  encrypted data unreadable.** Keep the key stable, or re-encrypt on rotation.
+
+When pushing to a SOC dashboard, prefer an **HTTPS** endpoint — `--push-soc` warns when the
+URL is plaintext `http://` because IPs and usernames would otherwise traverse the network
+unencrypted.
+
+### Authorized Use Only
+
+Use log-analyzer only on systems and logs that **you own or are explicitly authorized to
+analyze**. Unauthorized access to or monitoring of computer systems and logs may violate the
+U.S. **CFAA**, the UK **Computer Misuse Act**, EU cybercrime / information-systems laws, and
+similar statutes.
+
+### Open Source & Responsible Use
+
+This is free and open-source software provided **as-is, without warranty**, as a
+demonstration / learning project — not an audited commercial security product. See
+[Legal Notice & Responsible Use](#️-legal-notice--responsible-use) and
+[SECURITY.md](SECURITY.md).
+
+### No Warranty
+
+The software is provided "as is" under the MIT License, without warranty of any kind. The
+operator bears responsibility for lawful use and for compliance with all applicable
+data-protection and computer-misuse laws.
+
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
+
+## ⚖️ Legal Notice & Responsible Use
+
+This project is **free and open-source software**, released under the **MIT License** as a
+**demonstration / learning / trial project**. It is provided **"as is", without warranty of
+any kind**, and is **not an audited or certified commercial security product**.
+
+- **Authorized use only.** Use it solely on systems, networks, and logs that you own or are
+  **explicitly authorized** to analyze.
+- **Do no harm.** Do not use it to surveil, stalk, harass, invade the privacy of, or conduct
+  unauthorized monitoring of any person or organization.
+- **Compliance is the operator's responsibility.** Logs may contain IP addresses, usernames,
+  and other personal data. Compliance with **GDPR, CCPA, HIPAA, and equivalent laws** — where
+  applicable — rests with the operator.
+- **Misuse may be illegal.** Unauthorized access to or monitoring of computer systems may
+  violate laws such as the U.S. **CFAA**, the UK **Computer Misuse Act**, and EU
+  information-systems directives.
+
+By using this software you accept responsibility for operating it lawfully. See
+[SECURITY.md](SECURITY.md) to report a vulnerability.
