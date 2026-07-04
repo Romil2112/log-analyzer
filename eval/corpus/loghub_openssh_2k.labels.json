@@ -1,0 +1,162 @@
+{
+  "dataset": "loghub-OpenSSH_2k (LabSZ, real internet-facing SSH server)",
+  "source": "https://github.com/logpai/loghub -> OpenSSH/OpenSSH_2k.log",
+  "provenance": "hand-labeled by dataset domain knowledge (see label_loghub.py); labels are independent of the detector threshold",
+  "unit": "source_ip",
+  "benign_default": true,
+  "classes": [
+    "brute_force",
+    "benign"
+  ],
+  "counts": {
+    "total_ips": 24,
+    "malicious": 23,
+    "benign": 1
+  },
+  "allowlist": [],
+  "labels": {
+    "119.137.62.142": {
+      "class": "benign",
+      "malicious": false,
+      "note": "sole successful interactive login (operator)"
+    },
+    "173.234.31.186": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 2,
+      "note": "remote credential attack against public SSH server"
+    },
+    "52.80.34.196": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 5,
+      "note": "remote credential attack against public SSH server"
+    },
+    "202.100.179.208": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 2,
+      "note": "remote credential attack against public SSH server"
+    },
+    "5.36.59.76": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 2,
+      "note": "remote credential attack against public SSH server"
+    },
+    "112.95.230.3": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 26,
+      "note": "remote credential attack against public SSH server"
+    },
+    "123.235.32.19": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 7,
+      "note": "remote credential attack against public SSH server"
+    },
+    "183.136.162.51": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 2,
+      "note": "remote credential attack against public SSH server"
+    },
+    "191.210.223.172": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 1,
+      "note": "remote credential attack against public SSH server"
+    },
+    "195.154.37.122": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 2,
+      "note": "remote credential attack against public SSH server"
+    },
+    "103.207.39.165": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 1,
+      "note": "remote credential attack against public SSH server"
+    },
+    "175.102.13.6": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 1,
+      "note": "remote credential attack against public SSH server"
+    },
+    "5.188.10.180": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 17,
+      "note": "remote credential attack against public SSH server"
+    },
+    "103.207.39.212": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 3,
+      "note": "remote credential attack against public SSH server"
+    },
+    "106.5.5.195": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 2,
+      "note": "remote credential attack against public SSH server"
+    },
+    "185.190.58.151": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 17,
+      "note": "remote credential attack against public SSH server"
+    },
+    "103.99.0.122": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 46,
+      "note": "remote credential attack against public SSH server"
+    },
+    "187.141.143.180": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 80,
+      "note": "remote credential attack against public SSH server"
+    },
+    "103.207.39.16": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 3,
+      "note": "remote credential attack against public SSH server"
+    },
+    "104.192.3.34": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 2,
+      "note": "remote credential attack against public SSH server"
+    },
+    "60.2.12.12": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 5,
+      "note": "remote credential attack against public SSH server"
+    },
+    "119.4.203.64": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 6,
+      "note": "remote credential attack against public SSH server"
+    },
+    "183.62.140.253": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 286,
+      "note": "remote credential attack against public SSH server"
+    },
+    "88.147.143.242": {
+      "class": "brute_force",
+      "malicious": true,
+      "failed_attempts": 1,
+      "note": "remote credential attack against public SSH server"
+    }
+  }
+}

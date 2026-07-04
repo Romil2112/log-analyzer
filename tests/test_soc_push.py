@@ -59,6 +59,31 @@ def test_push_incidents_posts_each_and_counts_success(monkeypatch):
     assert posted[1]["category"] == "port_scan"  # port_scan maps to itself
 
 
+def test_push_incidents_sends_api_key_header(monkeypatch):
+    captured = []
+
+    class _Resp:
+        status = 201
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+
+    def fake_urlopen(req, timeout=None):
+        # urllib normalises header names to Title-Case (X-api-key)
+        captured.append(req.headers)
+        return _Resp()
+
+    monkeypatch.setattr(soc_push.urllib.request, "urlopen", fake_urlopen)
+    inc = [{"incident_type": "brute_force", "source_ip": "1.2.3.4",
+            "event_count": 5, "severity": "HIGH"}]
+
+    soc_push.push_incidents(inc, "http://localhost:8000/api/alerts", api_key="s3cret")
+    assert captured[0].get("X-api-key") == "s3cret"
+
+    captured.clear()
+    soc_push.push_incidents(inc, "http://localhost:8000/api/alerts")
+    assert "X-api-key" not in captured[0]
+
+
 def test_push_incidents_records_errors(monkeypatch):
     import urllib.error
 

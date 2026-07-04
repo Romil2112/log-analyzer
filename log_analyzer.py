@@ -1509,6 +1509,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--push-soc", metavar="URL", default=None,
                    help="POST detected incidents to a SOC-Dashboard ingestion endpoint "
                         "(e.g. http://localhost:8000/api/alerts)")
+    p.add_argument("--soc-api-key", metavar="KEY",
+                   default=os.environ.get("SOC_ALERTS_API_KEY"),
+                   help="X-API-Key for the SOC-Dashboard ingest endpoint "
+                        "(default: $SOC_ALERTS_API_KEY). Required by a hardened dashboard.")
 
     # ── privacy / data-protection controls ────────────────────────────────────
     privacy = p.add_argument_group("privacy controls")
@@ -1741,7 +1745,10 @@ def main() -> None:  # noqa: C901
     # ── Push incidents to SOC-Dashboard (Detect -> Triage handoff) ─────────────
     if args.push_soc:
         console.print(f"[cyan][*][/cyan] Pushing incidents to SOC dashboard -> [bold]{args.push_soc}[/bold]...")
-        ok, errors = soc_push.push_incidents(incidents, args.push_soc)
+        if not args.soc_api_key:
+            console.print("[yellow][!][/yellow] No --soc-api-key/$SOC_ALERTS_API_KEY set; "
+                          "a hardened dashboard will reject the push with 401.")
+        ok, errors = soc_push.push_incidents(incidents, args.push_soc, api_key=args.soc_api_key)
         console.print(
             f"[green][+][/green] Pushed [bold]{ok}/{len(incidents)}[/bold] incident(s) to the SOC dashboard."
         )

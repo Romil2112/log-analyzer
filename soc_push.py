@@ -45,8 +45,17 @@ def incident_to_alert(incident: dict) -> dict:
     }
 
 
-def push_incidents(incidents: list[dict], url: str, timeout: float = 10.0) -> tuple[int, list[str]]:
-    """POST each incident as an alert. Returns (success_count, error_messages)."""
+def push_incidents(
+    incidents: list[dict],
+    url: str,
+    api_key: str | None = None,
+    timeout: float = 10.0,
+) -> tuple[int, list[str]]:
+    """POST each incident as an alert. Returns (success_count, error_messages).
+
+    SOC-Dashboard's ``POST /api/alerts`` requires a matching ``X-API-Key`` header
+    (its ``ALERTS_API_KEY``); pass it via ``api_key`` or the request will 401.
+    """
     if url.startswith("http://"):
         # Warn but do not block (localhost/dev is fine over HTTP).
         print(
@@ -54,12 +63,14 @@ def push_incidents(incidents: list[dict], url: str, timeout: float = 10.0) -> tu
             "will be transmitted unencrypted. Use HTTPS in production.",
             file=sys.stderr,
         )
+    headers = {"Content-Type": "application/json"}
+    if api_key:
+        headers["X-API-Key"] = api_key
     ok, errors = 0, []
     for inc in incidents:
         data = json.dumps(incident_to_alert(inc)).encode("utf-8")
         req = urllib.request.Request(
-            url, data=data, method="POST",
-            headers={"Content-Type": "application/json"},
+            url, data=data, method="POST", headers=headers,
         )
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:

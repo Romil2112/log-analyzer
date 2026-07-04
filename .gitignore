@@ -7,3 +7,10 @@ test_auth.log
 test_events.csv
 test_auth_10k.log
 .claude/
+.DS_Store
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
