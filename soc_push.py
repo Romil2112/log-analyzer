@@ -10,7 +10,10 @@ from __future__ import annotations
 import json
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
+
+_ALLOWED_SCHEMES = ("http", "https")
 
 # log-analyzer incident_type -> SOC-Dashboard alert category
 _CATEGORY = {
@@ -55,7 +58,17 @@ def push_incidents(
 
     SOC-Dashboard's ``POST /api/alerts`` requires a matching ``X-API-Key`` header
     (its ``ALERTS_API_KEY``); pass it via ``api_key`` or the request will 401.
+
+    Raises:
+        ValueError: if ``url`` does not use an ``http``/``https`` scheme. This
+            guards ``urllib.request.urlopen`` against ``file:``/custom schemes
+            (bandit B310) so a crafted DSN cannot read local files.
     """
+    scheme = urllib.parse.urlparse(url).scheme.lower()
+    if scheme not in _ALLOWED_SCHEMES:
+        raise ValueError(
+            f"refusing to push to non-HTTP(S) URL scheme {scheme!r}: {url!r}"
+        )
     if url.startswith("http://"):
         # Warn but do not block (localhost/dev is fine over HTTP).
         print(
@@ -73,7 +86,8 @@ def push_incidents(
             url, data=data, method="POST", headers=headers,
         )
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
+            # url scheme validated to http/https above (see push_incidents guard)
+            with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec B310
                 if 200 <= resp.status < 300:
                     ok += 1
                 else:

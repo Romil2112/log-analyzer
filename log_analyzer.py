@@ -1450,6 +1450,22 @@ def filter_allowlist(events: list[dict], allowlist: list) -> list[dict]:
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
+def _positive_int(value: str) -> int:
+    """argparse type: accept only integers >= 1."""
+    ivalue = int(value)
+    if ivalue < 1:
+        raise argparse.ArgumentTypeError(f"must be >= 1, got {ivalue}")
+    return ivalue
+
+
+def _nonneg_int(value: str) -> int:
+    """argparse type: accept only integers >= 0."""
+    ivalue = int(value)
+    if ivalue < 0:
+        raise argparse.ArgumentTypeError(f"must be >= 0, got {ivalue}")
+    return ivalue
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="log-analyzer",
@@ -1480,17 +1496,17 @@ def build_parser() -> argparse.ArgumentParser:
                    help=f"Min anomaly score to display (default: {ML_ANOMALY_THRESHOLD})")
     p.add_argument("--init-schema", action="store_true",
                    help="(Re)create the database schema and exit")
-    p.add_argument("--brute-force-threshold", type=int, default=BRUTE_FORCE_THRESHOLD,
+    p.add_argument("--brute-force-threshold", type=_positive_int, default=BRUTE_FORCE_THRESHOLD,
                    metavar="N")
-    p.add_argument("--brute-force-window",    type=int, default=BRUTE_FORCE_WINDOW,
+    p.add_argument("--brute-force-window",    type=_positive_int, default=BRUTE_FORCE_WINDOW,
                    metavar="MIN")
-    p.add_argument("--port-scan-threshold",   type=int, default=PORT_SCAN_THRESHOLD,
+    p.add_argument("--port-scan-threshold",   type=_positive_int, default=PORT_SCAN_THRESHOLD,
                    metavar="N")
-    p.add_argument("--port-scan-window",      type=int, default=PORT_SCAN_WINDOW,
+    p.add_argument("--port-scan-window",      type=_positive_int, default=PORT_SCAN_WINDOW,
                    metavar="MIN")
-    p.add_argument("--flood-404-threshold",   type=int, default=FLOOD_404_THRESHOLD,
+    p.add_argument("--flood-404-threshold",   type=_positive_int, default=FLOOD_404_THRESHOLD,
                    metavar="N")
-    p.add_argument("--flood-404-window",      type=int, default=FLOOD_404_WINDOW,
+    p.add_argument("--flood-404-window",      type=_positive_int, default=FLOOD_404_WINDOW,
                    metavar="MIN")
     p.add_argument("--allowlist", default="", metavar="CIDR,...",
                    help="Comma-separated IPs/CIDRs to exclude from all detection")
@@ -1523,7 +1539,7 @@ def build_parser() -> argparse.ArgumentParser:
     privacy.add_argument("--pseudonymize", action="store_true",
                          help="Replace source IPs with stable per-run HMAC pseudonyms "
                               "(mapping kept in memory only)")
-    privacy.add_argument("--retention-days", type=int, default=0, metavar="N",
+    privacy.add_argument("--retention-days", type=_nonneg_int, default=0, metavar="N",
                          help="Delete log_events/incidents older than N days after processing "
                               "(0 = keep forever)")
     return p
@@ -1553,8 +1569,8 @@ def main() -> None:  # noqa: C901
         return
 
     log_path = args.logfile
-    if not Path(log_path).exists():
-        console.print(f"[red][!] File not found: {log_path}[/red]", highlight=False)
+    if not Path(log_path).is_file():
+        console.print(f"[red][!] Not a readable file: {log_path}[/red]", highlight=False)
         sys.exit(1)
 
     # ── detect format ─────────────────────────────────────────────────────────

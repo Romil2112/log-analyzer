@@ -4,6 +4,11 @@ The operator supplies an arbitrary secret string via ``DB_ENCRYPTION_KEY``; we
 derive a stable 32-byte Fernet key from it with SHA-256. When the variable is
 unset, encryption is disabled gracefully and values pass through as plaintext,
 so the tool keeps working without a key configured.
+
+Fernet provides authenticated encryption (encrypt-then-HMAC-SHA256) with a fresh
+random 128-bit IV per token and never uses ECB, satisfying the at-rest
+confidentiality + integrity requirement. See decision_log.md D1 for why this is
+kept over a raw AES-GCM scheme (backward compatibility of already-encrypted rows).
 """
 from __future__ import annotations
 
