@@ -31,6 +31,7 @@ from sigma.processing.pipeline import ProcessingItem, ProcessingPipeline
 from sigma.processing.transformations import FieldMappingTransformation
 
 import sigma_export
+from export_util import unique_incident_types
 
 logger = logging.getLogger(__name__)
 
@@ -203,16 +204,12 @@ def export_siem(incidents: list[dict], out_dir: str) -> list[str]:
     """
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
-    seen, written = set(), []
-    for inc in incidents:
-        itype = inc.get("incident_type")
-        if itype in seen:
-            continue
+    written = []
+    for itype in unique_incident_types(incidents):
         queries = incident_to_queries(itype)
         if queries is None:
             logger.warning("skipping unknown incident type: %r", itype)
             continue
-        seen.add(itype)
         for target, query in queries.items():
             ext = _TARGETS[target]["ext"]
             label = _TARGETS[target]["label"]

@@ -12,6 +12,8 @@ from pathlib import Path
 
 import yaml
 
+from export_util import unique_incident_types
+
 # Stable per-incident-type Sigma rule definitions, enriched with the same
 # MITRE ATT&CK techniques the analyzer already maps.
 _SIGMA_RULES: dict[str, dict] = {
@@ -74,15 +76,11 @@ def export_sigma(incidents: list[dict], out_dir: str) -> list[str]:
     """Write one Sigma .yml per *observed* incident type. Returns file paths."""
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
-    seen, written = set(), []
-    for inc in incidents:
-        itype = inc.get("incident_type")
-        if itype in seen:
-            continue
+    written = []
+    for itype in unique_incident_types(incidents):
         rule = incident_to_sigma(itype)
         if rule is None:
             continue
-        seen.add(itype)
         path = out / f"{itype}.yml"
         path.write_text(yaml.safe_dump(rule, sort_keys=False))
         written.append(str(path))
