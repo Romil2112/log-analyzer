@@ -40,6 +40,8 @@ class ContractError(RuntimeError):
 
 
 def produced_event_types(parser_emits=None):
+    """Return the union of every event_type any parser can emit. Defaults to
+    PARSER_EMITS; pass parser_emits to check a different producer mapping."""
     out = set()
     for types in (parser_emits or PARSER_EMITS).values():
         out |= types

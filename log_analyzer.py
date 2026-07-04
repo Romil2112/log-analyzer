@@ -128,6 +128,8 @@ _SEV_HTML_BG: dict[str, tuple[str, str]] = {
 
 
 def get_severity(incident: dict) -> str:
+    """Classify an incident's severity from its type and event_count. Returns
+    one of "CRITICAL", "HIGH", "MEDIUM", or "LOW"."""
     for threshold, level in _SEVERITY_THRESHOLDS.get(incident["incident_type"], []):
         if incident["event_count"] >= threshold:
             return level
@@ -174,6 +176,8 @@ def _line_count(path: str) -> int:
 
 
 def parse_ssh_log(path: str, progress: Progress | None = None, task=None) -> list[dict]:
+    """Parse an SSH auth.log into failed_login, successful_login, and connection
+    event dicts. progress/task drive an optional Rich progress bar."""
     events = []
     with open(path, errors="replace") as fh:
         for raw in fh:
@@ -315,6 +319,8 @@ def parse_web_log(path: str, progress: Progress | None = None, task=None) -> lis
 
 
 def detect_log_format(path: str) -> str:
+    """Guess a log file's format from its extension and first line — returns
+    "windows", "web", or "ssh"."""
     ext = Path(path).suffix.lower()
     if ext == ".csv":
         return "windows"
@@ -343,6 +349,8 @@ def _first_time_window(
 
 
 def detect_brute_force(events: list[dict]) -> list[dict]:
+    """Flag brute-force attacks: many failed logins from one IP inside the sliding
+    window. Returns one brute_force incident per offending source IP."""
     by_ip: dict[str, list[datetime]] = defaultdict(list)
     for e in events:
         if e["event_type"] == "failed_login" and e.get("source_ip"):
@@ -384,6 +392,8 @@ def _port_scan_window(
 
 
 def detect_port_scan(events: list[dict]) -> list[dict]:
+    """Flag port scans: one IP hitting many distinct ports inside the window.
+    Returns one port_scan incident per offending source IP."""
     by_ip: dict[str, list[tuple[datetime, int]]] = defaultdict(list)
     for e in events:
         if e.get("source_ip") and e.get("port"):
@@ -504,6 +514,8 @@ class AnomalyDetector:
         return {ip: float(round(s, 4)) for ip, s in zip(ips, norm, strict=False)}
 
     def feature_rows(self, events: list[dict]) -> list[dict]:
+        """Return the per-IP feature vectors as dicts, each keyed by source_ip plus
+        the eight feature names."""
         ips, rows = self._build_feature_matrix(events)
         return [
             {"source_ip": ip, **dict(zip(self.FEATURES, row, strict=False))}
@@ -688,10 +700,12 @@ def print_enrichment_summary(incidents: list[dict]) -> None:
 # ── Database ──────────────────────────────────────────────────────────────────
 
 def get_connection(dsn: str):
+    """Open a psycopg2 PostgreSQL connection for the given DSN."""
     return psycopg2.connect(dsn)
 
 
 def init_schema(conn):
+    """Create the database schema by running schema.sql and committing."""
     schema_path = Path(__file__).parent / "schema.sql"
     with conn.cursor() as cur:
         cur.execute(schema_path.read_text())
@@ -788,6 +802,8 @@ def make_ip_pseudonymizer():
     cache: dict = {}
 
     def pseudonymize(ip):
+        """Map an IP to a stable per-run ip_<hmac> pseudonym. Falsy input (an empty
+        IP) passes through unchanged."""
         if not ip:
             return ip
         if ip not in cache:
@@ -1487,6 +1503,8 @@ def generate_report(
     anomaly_scores: dict[str, float] | None = None,
     feature_rows:   list[dict] | None = None,
 ) -> None:
+    """Render the standalone Chart.js HTML incident report and write it to
+    output_path. Pass anomaly_scores/feature_rows to include the ML section."""
     bf_incidents, ps_incidents, f4_incidents = _split_incidents_by_type(incidents)
     ml_enabled   = anomaly_scores is not None
     scores       = anomaly_scores or {}
@@ -1529,6 +1547,8 @@ FLOOD_404_WINDOW    = 5
 
 
 def detect_404_flood(events: list[dict]) -> list[dict]:
+    """Flag 404 floods: many HTTP 404s from one IP inside the window (web
+    scanning). Returns one flood_404 incident per offending source IP."""
     by_ip: dict[str, list[datetime]] = defaultdict(list)
     for e in events:
         if e["event_type"] == "http_404" and e.get("source_ip"):
@@ -1557,6 +1577,7 @@ def detect_404_flood(events: list[dict]) -> list[dict]:
 # ── Severity scoring (public) ─────────────────────────────────────────────────
 
 def score_severity(incident: dict) -> str:
+    """Public alias for get_severity() — return an incident's severity level."""
     return get_severity(incident)
 
 
@@ -1564,6 +1585,8 @@ def score_severity(incident: dict) -> str:
 
 
 def build_allowlist(entries: list[str]) -> list:
+    """Parse IP/CIDR strings into ipaddress network objects, silently skipping
+    any that don't parse."""
     networks = []
     for entry in entries:
         try:
@@ -1582,6 +1605,8 @@ def _is_allowed(ip: str, allowlist: list) -> bool:
 
 
 def filter_allowlist(events: list[dict], allowlist: list) -> list[dict]:
+    """Return a new event list with any event whose source IP falls inside an
+    allowlisted network dropped. allowlist comes from build_allowlist()."""
     return [e for e in events if not (e.get("source_ip") and _is_allowed(e["source_ip"], allowlist))]
 
 
@@ -1604,6 +1629,7 @@ def _nonneg_int(value: str) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Build and return the argparse parser for the log-analyzer CLI."""
     p = argparse.ArgumentParser(
         prog="log-analyzer",
         description=(
@@ -1960,6 +1986,7 @@ def _print_ai_summary(
 
 
 def main() -> None:
+    """Run the CLI end to end: parse, detect, enrich, store, and report."""
     args = build_parser().parse_args()
     _configure_thresholds(args)
 

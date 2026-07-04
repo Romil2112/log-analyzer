@@ -4,6 +4,9 @@ from anthropic import Anthropic
 
 
 def ai_summary(incidents, anomaly_scores):
+    """Generate a 3-sentence SOC executive summary of the incidents via the Claude
+    API. Returns None if ANTHROPIC_API_KEY is unset or the response is empty.
+    anomaly_scores is accepted for caller parity but isn't used in the prompt."""
     key = os.environ.get("ANTHROPIC_API_KEY")
     if not key:
         return None

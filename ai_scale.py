@@ -57,14 +57,17 @@ class BatchMetrics:
 
     @property
     def cost_usd(self):
+        """Estimated USD token cost for this batch."""
         return estimate_cost(self.input_tokens, self.output_tokens)
 
     @property
     def p50_ms(self):
+        """Median per-call latency in milliseconds (0.0 if no successes)."""
         return statistics.median(self.latencies_ms) if self.latencies_ms else 0.0
 
     @property
     def p95_ms(self):
+        """95th-percentile per-call latency in milliseconds (0.0 if no successes)."""
         if not self.latencies_ms:
             return 0.0
         s = sorted(self.latencies_ms)
@@ -72,9 +75,11 @@ class BatchMetrics:
 
     @property
     def throughput_per_s(self):
+        """Successful summaries per wall-clock second (0.0 if no elapsed time)."""
         return (self.succeeded / (self.wall_ms / 1000)) if self.wall_ms else 0.0
 
     def as_dict(self):
+        """Return the metrics as a rounded, JSON-serializable dict."""
         return {
             "total": self.total, "succeeded": self.succeeded, "failed": self.failed,
             "retries": self.retries, "input_tokens": self.input_tokens,

@@ -35,11 +35,17 @@ class LatencyStub:
         self.messages = self
 
     def create(self, *, model, max_tokens, messages):
+        """Sleep for the configured latency, then return a canned stub message. The
+        model/max_tokens/messages args are ignored — they only exist to match the
+        Anthropic client's create() signature."""
         time.sleep(self.latency)
         return _Msg()
 
 
 def run(n, latency, concurrency):
+    """Benchmark serial vs. concurrent summarization of n stub prompts and print
+    the speedup plus per-run metrics. latency is the simulated per-call I/O delay
+    in seconds; concurrency is the worker count for the concurrent run."""
     prompts = [f"incident batch {i}" for i in range(n)]
     serial_results, serial = summarize_batch(prompts, client=LatencyStub(latency), max_concurrency=1)
     conc_results, conc = summarize_batch(prompts, client=LatencyStub(latency), max_concurrency=concurrency)

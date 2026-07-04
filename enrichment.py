@@ -67,9 +67,12 @@ class GeoIP:
 
     @property
     def enabled(self) -> bool:
+        """True if a GeoIP database reader was opened."""
         return self._reader is not None
 
     def country(self, ip: str) -> str:
+        """Return the two-letter ISO country code for an IP, or "Unknown" if GeoIP
+        is disabled or the lookup fails."""
         if self._reader is None:
             return "Unknown"
         try:
@@ -78,6 +81,7 @@ class GeoIP:
             return "Unknown"
 
     def close(self):
+        """Close the underlying GeoIP database reader if one is open."""
         if self._reader is not None:
             self._reader.close()
 

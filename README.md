@@ -85,6 +85,48 @@ A CLI security tool that parses SSH `auth.log` and Windows Event Log CSV files, 
 > `python generate_test_logs.py --scale` (gitignored, generated on demand). The 12
 > `test_*.log` files committed to the repo are ready-to-use fixtures for the test suite.
 
+## Architecture
+
+It's a straight pipeline. Logs come in, get auto-detected and parsed into one common
+event shape, and the rule and ML detectors run over those events. Incidents are then
+enriched (threat-intel + GeoIP), mapped to MITRE ATT&CK, and run through the privacy
+transforms before anything leaves memory. Whatever's left gets written out — HTML report,
+PostgreSQL, Sigma/SIEM files, a push to SOC-Dashboard, and an optional Claude summary.
+
+```mermaid
+flowchart LR
+    subgraph Ingest
+        A[SSH auth.log] --> P
+        B[Windows Event CSV] --> P
+        C[Apache/Nginx access log] --> P
+        P[detect_log_format + parsers] --> E[Common event dicts]
+    end
+    E --> R[Rule detectors<br/>brute-force · port-scan · 404-flood]
+    E --> M[ML anomaly layer<br/>Isolation Forest]
+    R --> I[Incidents]
+    M --> I
+    I --> EN[Enrichment<br/>threat-intel + GeoIP]
+    EN --> MI[MITRE ATT&CK mapping]
+    MI --> PR[Privacy transforms<br/>scrub · redact · pseudonymize]
+    PR --> OUT{Outputs}
+    OUT --> H[HTML report]
+    OUT --> DB[(PostgreSQL)]
+    OUT --> SG[Sigma / SIEM export]
+    OUT --> SOC[SOC-Dashboard push]
+    OUT --> AI[Claude AI summary]
+```
+
+Plaintext view of the same flow:
+
+```
+logs ─▶ parse (auto-detect) ─▶ events
+                                 ├─▶ rule detectors ─┐
+                                 └─▶ ML anomaly ─────┴─▶ incidents
+                                       ─▶ enrich (TI+GeoIP) ─▶ MITRE map
+                                       ─▶ privacy transforms
+                                       ─▶ { HTML · PostgreSQL · Sigma/SIEM · SOC push · AI summary }
+```
+
 ## Quick Start
 
 ### Install
@@ -210,6 +252,18 @@ docker compose up
 | `--retention-days N` | `0` | Delete events/incidents older than N days after processing (0 = keep forever) |
 | `--init-schema` | — | Create database schema and exit |
 
+## Environment Variables
+
+All optional. Unset any of them and the tool falls back to a sensible default — plaintext storage, country `Unknown`, no AI summary, and so on.
+
+| Variable | Used by | Default | Purpose |
+|---|---|---|---|
+| `LOG_ANALYZER_DSN` | PostgreSQL storage | `postgresql://postgres:postgres@localhost:5432/log_analyzer` | Connection string for `--init-schema` and DB storage (override with `--dsn`) |
+| `DB_ENCRYPTION_KEY` | encryption at rest | unset (plaintext) | Fernet key; when set, sensitive fields are encrypted before storage. Generate with `python -c "import secrets;print(secrets.token_hex(32))"` |
+| `ANTHROPIC_API_KEY` | `--ai-summary`, `ai_scale.py` | unset | Anthropic API key for Claude executive summaries |
+| `GEOIP_DB_PATH` | GeoIP enrichment | unset (country = `Unknown`) | Path to a MaxMind GeoLite2-Country `.mmdb` file |
+| `SOC_ALERTS_API_KEY` | `--push-soc` | unset (warns) | `X-API-Key` sent to the SOC-Dashboard ingest endpoint (override with `--soc-api-key`) |
+
 ## HTML Report
 
 ![Summary cards and charts](docs/1.png)
@@ -266,6 +320,27 @@ log-analyzer/
 ```bash
 python -m pytest tests/ -v
 ```
+
+Run with coverage (the suite is kept at ≥85% line / ≥80% branch, every source module ≥85%):
+
+```bash
+python -m pytest --cov=. --cov-branch --cov-report=term-missing
+```
+
+## Contributing
+
+Contributions are welcome. A few things that keep the codebase consistent:
+
+- Code is [ruff](https://docs.astral.sh/ruff/)-clean under the rules in `pyproject.toml`
+  (E/W/F/I/N/UP/B) — run `ruff check .` before you open a PR.
+- Annotate public functions with type hints. The code is written to stay `mypy`-friendly
+  (`ignore_missing_imports` covers the optional third-party stubs).
+- Public functions, classes, and modules get Google-style docstrings, with
+  `Args:` / `Returns:` / `Raises:` where it isn't obvious.
+- Add or update tests for anything that changes behaviour, and keep coverage above the bar
+  noted under *Running tests*. Parsers and detectors are wired together by the
+  `contracts.py` check, so a new event type needs a parser that actually produces it.
+- CI runs the whole pytest suite on every push — a PR has to be green to merge.
 
 ## Privacy & Legal Compliance
 
