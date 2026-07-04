@@ -96,6 +96,16 @@ def looks_valid(text):
     return bool(text) and len(text.strip()) >= 20
 
 
+def _parse_ai_response(msg, latency_ms, retries):
+    """Extract text + token usage from a successful API response into a result dict."""
+    usage = getattr(msg, "usage", None)
+    it = int(getattr(usage, "input_tokens", 0) or 0)
+    ot = int(getattr(usage, "output_tokens", 0) or 0)
+    text = msg.content[0].text if getattr(msg, "content", None) else ""
+    return dict(ok=True, text=text, latency_ms=latency_ms,
+                input_tokens=it, output_tokens=ot, retries=retries, error=None)
+
+
 def _summarize_one(client, prompt, *, model, max_tokens, max_retries, backoff_base, sleep):
     retries = 0
     while True:
@@ -106,12 +116,7 @@ def _summarize_one(client, prompt, *, model, max_tokens, max_retries, backoff_ba
                 messages=[{"role": "user", "content": prompt}],
             )
             dt = (time.perf_counter() - t0) * 1000
-            usage = getattr(msg, "usage", None)
-            it = int(getattr(usage, "input_tokens", 0) or 0)
-            ot = int(getattr(usage, "output_tokens", 0) or 0)
-            text = msg.content[0].text if getattr(msg, "content", None) else ""
-            return dict(ok=True, text=text, latency_ms=dt,
-                        input_tokens=it, output_tokens=ot, retries=retries, error=None)
+            return _parse_ai_response(msg, dt, retries)
         except Exception as exc:  # noqa: BLE001 - classified by _is_retryable
             if retries >= max_retries or not _is_retryable(exc):
                 return dict(ok=False, text=None, latency_ms=0.0, input_tokens=0,

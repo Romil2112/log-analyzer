@@ -99,6 +99,98 @@ def windows_csv(path: str = "test_events.csv") -> None:
 
 # ── 10 000-event SSH scale log ────────────────────────────────────────────────
 
+_SCALE_USERNAMES = ["root", "admin", "ubuntu", "pi", "deploy", "git", "postgres",
+                    "oracle", "user", "test", "dev", "ops", "service", "backup"]
+_SCALE_LEGIT_USERS = ["alice", "bob", "charlie", "diana", "evan"]
+_SCALE_BF_IPS = ["185.220.101.10", "45.33.32.156", "198.199.82.244"]
+_SCALE_SCAN_IPS = ["203.0.113.42", "198.51.100.100"]
+_SCALE_NOISE_IPS = [f"10.0.{i}.{j}" for i, j in [(0, 200), (0, 201), (1, 100),
+                    (1, 101), (1, 102), (2, 50), (2, 51), (3, 10), (3, 11),
+                    (4, 200), (4, 201), (5, 99), (5, 100), (6, 50), (6, 51)]]
+
+
+def _ssh_line(t: datetime, body: str) -> tuple[datetime, str]:
+    """Build a (timestamp, formatted-SSH-line) tuple with a random pid."""
+    ts = t.strftime("%b %d %H:%M:%S")
+    return (t, f"{ts} server sshd[{random.randint(1000, 9999)}]: {body}")
+
+
+def _scale_brute_force_lines() -> list[tuple[datetime, str]]:
+    """Brute-force attackers: high-volume sub-10-min bursts across the span."""
+    lines = []
+    for attacker_ip in _SCALE_BF_IPS:
+        for burst_offset in range(0, 120, 20):
+            t = BASE + timedelta(minutes=burst_offset)
+            for _ in range(random.randint(8, 18)):
+                t += timedelta(seconds=random.randint(2, 45))
+                user = random.choice(_SCALE_USERNAMES)
+                port = random.randint(40000, 65000)
+                lines.append(_ssh_line(
+                    t, f"Failed password for {user} from {attacker_ip} port {port} ssh2"))
+    return lines
+
+
+def _scale_scanner_lines() -> list[tuple[datetime, str]]:
+    """Port scanners: 30 deterministic unique ports in a tight window."""
+    lines = []
+    for scanner_ip in _SCALE_SCAN_IPS:
+        t = BASE + timedelta(minutes=random.randint(5, 30))
+        for port_offset in range(30):
+            t += timedelta(seconds=random.randint(1, 10))
+            src_port = 20000 + port_offset * 73
+            lines.append(_ssh_line(
+                t, f"Connection from {scanner_ip} port {src_port} on 0.0.0.0 port 22"))
+    return lines
+
+
+def _scale_stuffer_lines() -> list[tuple[datetime, str]]:
+    """Slow credential stuffer: stays below the burst threshold (ML-only)."""
+    lines = []
+    t = BASE
+    for _ in range(30):
+        t += timedelta(minutes=random.randint(4, 9))
+        user = random.choice(_SCALE_USERNAMES)
+        port = random.randint(40000, 65000)
+        lines.append(_ssh_line(
+            t, f"Failed password for invalid user {user} from 91.108.4.200 port {port} ssh2"))
+    return lines
+
+
+def _scale_noise_lines() -> list[tuple[datetime, str]]:
+    """Background IPs generating occasional failed logins."""
+    lines = []
+    for noise_ip in _SCALE_NOISE_IPS:
+        for _ in range(random.randint(1, 4)):
+            t = BASE + timedelta(minutes=random.randint(0, 120))
+            lines.append(_ssh_line(
+                t, f"Failed password for {random.choice(_SCALE_USERNAMES)} "
+                   f"from {noise_ip} port {random.randint(40000, 65000)} ssh2"))
+    return lines
+
+
+def _scale_legit_lines() -> list[tuple[datetime, str]]:
+    """Legitimate users with accepted logins from a trusted source."""
+    lines = []
+    for user in _SCALE_LEGIT_USERS:
+        for _ in range(random.randint(10, 25)):
+            t = BASE + timedelta(minutes=random.randint(0, 118))
+            lines.append(_ssh_line(
+                t, f"Accepted password for {user} from 172.16.0.10 "
+                   f"port {random.randint(40000, 65000)} ssh2"))
+    return lines
+
+
+def _scale_pad_lines(needed: int) -> list[tuple[datetime, str]]:
+    """Filler failed-login lines to reach the requested total."""
+    lines = []
+    for _ in range(max(needed, 0)):
+        t = BASE + timedelta(minutes=random.randint(0, 120), seconds=random.randint(0, 59))
+        lines.append(_ssh_line(
+            t, f"Failed password for {random.choice(_SCALE_USERNAMES)} "
+               f"from 10.99.99.99 port {random.randint(40000, 65000)} ssh2"))
+    return lines
+
+
 def ssh_log_scale(path: str = "test_auth_10k.log", total: int = 10_000) -> None:
     """
     Generates a realistic 10 000-line SSH auth.log with:
@@ -110,107 +202,144 @@ def ssh_log_scale(path: str = "test_auth_10k.log", total: int = 10_000) -> None:
     """
     random.seed(42)
     lines: list[tuple[datetime, str]] = []
+    lines += _scale_brute_force_lines()
+    lines += _scale_scanner_lines()
+    lines += _scale_stuffer_lines()
+    lines += _scale_noise_lines()
+    lines += _scale_legit_lines()
+    lines += _scale_pad_lines(total - len(lines))
 
-    usernames  = ["root", "admin", "ubuntu", "pi", "deploy", "git", "postgres",
-                  "oracle", "user", "test", "dev", "ops", "service", "backup"]
-    legit_users = ["alice", "bob", "charlie", "diana", "evan"]
-
-    # ── Brute-force attackers ─────────────────────────────────────────────────
-    bf_ips = ["185.220.101.10", "45.33.32.156", "198.199.82.244"]
-    for attacker_ip in bf_ips:
-        # Multiple burst windows spread across the log's time span
-        for burst_offset in range(0, 120, 20):
-            t = BASE + timedelta(minutes=burst_offset)
-            for attempt in range(random.randint(8, 18)):
-                t += timedelta(seconds=random.randint(2, 45))
-                ts   = t.strftime("%b %d %H:%M:%S")
-                user = random.choice(usernames)
-                port = random.randint(40000, 65000)
-                lines.append((t, (
-                    f"{ts} server sshd[{random.randint(1000,9999)}]: "
-                    f"Failed password for {user} from {attacker_ip} port {port} ssh2"
-                )))
-
-    # ── Port scanners ─────────────────────────────────────────────────────────
-    scan_ips = ["203.0.113.42", "198.51.100.100"]
-    for scanner_ip in scan_ips:
-        t = BASE + timedelta(minutes=random.randint(5, 30))
-        for port_offset in range(30):
-            t  += timedelta(seconds=random.randint(1, 10))
-            ts  = t.strftime("%b %d %H:%M:%S")
-            src_port = 20000 + port_offset * 73          # deterministic unique ports
-            lines.append((t, (
-                f"{ts} server sshd[{random.randint(1000,9999)}]: "
-                f"Connection from {scanner_ip} port {src_port} on 0.0.0.0 port 22"
-            )))
-
-    # ── Slow credential stuffer (ML-only, under threshold rate) ──────────────
-    stuffer_ip = "91.108.4.200"
-    t = BASE
-    for attempt in range(30):
-        t  += timedelta(minutes=random.randint(4, 9))  # stays below burst threshold
-        ts  = t.strftime("%b %d %H:%M:%S")
-        user = random.choice(usernames)
-        port = random.randint(40000, 65000)
-        lines.append((t, (
-            f"{ts} server sshd[{random.randint(1000,9999)}]: "
-            f"Failed password for invalid user {user} "
-            f"from {stuffer_ip} port {port} ssh2"
-        )))
-
-    # ── Background noise IPs (occasional failures) ────────────────────────────
-    noise_ips = [f"10.0.{i}.{j}" for i, j in [(0, 200), (0, 201), (1, 100),
-                 (1, 101), (1, 102), (2, 50), (2, 51), (3, 10), (3, 11),
-                 (4, 200), (4, 201), (5, 99), (5, 100), (6, 50), (6, 51)]]
-    for noise_ip in noise_ips:
-        for _ in range(random.randint(1, 4)):
-            t  = BASE + timedelta(minutes=random.randint(0, 120))
-            ts = t.strftime("%b %d %H:%M:%S")
-            lines.append((t, (
-                f"{ts} server sshd[{random.randint(1000,9999)}]: "
-                f"Failed password for {random.choice(usernames)} "
-                f"from {noise_ip} port {random.randint(40000,65000)} ssh2"
-            )))
-
-    # ── Legitimate logins ─────────────────────────────────────────────────────
-    legit_src = "172.16.0.10"
-    for i, user in enumerate(legit_users):
-        for session in range(random.randint(10, 25)):
-            t  = BASE + timedelta(minutes=random.randint(0, 118))
-            ts = t.strftime("%b %d %H:%M:%S")
-            lines.append((t, (
-                f"{ts} server sshd[{random.randint(1000,9999)}]: "
-                f"Accepted password for {user} from {legit_src} "
-                f"port {random.randint(40000,65000)} ssh2"
-            )))
-
-    # ── Pad to target total ───────────────────────────────────────────────────
-    pad_ip = "10.99.99.99"
-    while len(lines) < total:
-        t  = BASE + timedelta(minutes=random.randint(0, 120),
-                              seconds=random.randint(0, 59))
-        ts = t.strftime("%b %d %H:%M:%S")
-        lines.append((t, (
-            f"{ts} server sshd[{random.randint(1000,9999)}]: "
-            f"Failed password for {random.choice(usernames)} "
-            f"from {pad_ip} port {random.randint(40000,65000)} ssh2"
-        )))
-
-    # Sort chronologically (realistic log ordering)
     lines.sort(key=lambda x: x[0])
     lines = lines[:total]
 
     with open(path, "w") as fh:
         fh.write("\n".join(line for _, line in lines) + "\n")
     print(f"Written: {path}  ({len(lines):,} lines)")
-    print(f"  Contains: {len(bf_ips)} brute-force IPs, "
-          f"{len(scan_ips)} port-scanner IPs, "
+    print(f"  Contains: {len(_SCALE_BF_IPS)} brute-force IPs, "
+          f"{len(_SCALE_SCAN_IPS)} port-scanner IPs, "
           f"1 slow credential-stuffer (ML-only), "
-          f"{len(noise_ips)} background IPs, "
-          f"{len(legit_users)} legitimate users")
+          f"{len(_SCALE_NOISE_IPS)} background IPs, "
+          f"{len(_SCALE_LEGIT_USERS)} legitimate users")
+
+
+# ── Generic scenario-phase builders (shared by the fixtures below) ────────────
+
+def _multi_burst_bf_lines(ips, usernames, span_min, step_min, attempts, gap):
+    """Brute force emitted as repeated short bursts across a time span."""
+    lines = []
+    for ip in ips:
+        for burst_offset in range(0, span_min, step_min):
+            t = BASE + timedelta(minutes=burst_offset)
+            for _ in range(random.randint(*attempts)):
+                t += timedelta(seconds=random.randint(*gap))
+                user = random.choice(usernames)
+                port = random.randint(40000, 65000)
+                lines.append(_ssh_line(
+                    t, f"Failed password for {user} from {ip} port {port} ssh2"))
+    return lines
+
+
+def _sustained_bf_lines(ips, usernames, start, count, gap):
+    """Brute force emitted as one sustained run of ``count`` attempts per IP."""
+    lines = []
+    for ip in ips:
+        t = BASE + timedelta(minutes=random.randint(*start))
+        for _ in range(count):
+            t += timedelta(seconds=random.randint(*gap))
+            user = random.choice(usernames)
+            port = random.randint(40000, 65000)
+            lines.append(_ssh_line(
+                t, f"Failed password for {user} from {ip} port {port} ssh2"))
+    return lines
+
+
+def _scan_ports_lines(ips, start, count, base_port, stride, gap):
+    """Port scan: ``count`` deterministic unique ports per IP in a tight window.
+
+    ``start`` may be an int (fixed minute offset) or a ``(lo, hi)`` tuple.
+    """
+    lines = []
+    for ip in ips:
+        offset = random.randint(*start) if isinstance(start, tuple) else start
+        t = BASE + timedelta(minutes=offset)
+        for i in range(count):
+            t += timedelta(seconds=random.randint(*gap))
+            src_port = base_port + i * stride
+            lines.append(_ssh_line(
+                t, f"Connection from {ip} port {src_port} on 0.0.0.0 port 22"))
+    return lines
+
+
+def _slow_stuffer_lines(ip, usernames, count):
+    """Slow credential stuffer against invalid users (below burst threshold)."""
+    lines = []
+    t = BASE
+    for _ in range(count):
+        t += timedelta(minutes=random.randint(3, 8), seconds=random.randint(0, 59))
+        user = random.choice(usernames)
+        lines.append(_ssh_line(
+            t, f"Failed password for invalid user {user} from {ip} "
+               f"port {random.randint(40000, 65000)} ssh2"))
+    return lines
+
+
+def _noise_burst_lines(ips, usernames, count, span_min):
+    """Occasional failed logins from background IPs (each below threshold)."""
+    lines = []
+    for ip in ips:
+        for _ in range(random.randint(*count)):
+            t = BASE + timedelta(minutes=random.randint(0, span_min))
+            lines.append(_ssh_line(
+                t, f"Failed password for {random.choice(usernames)} "
+                   f"from {ip} port {random.randint(40000, 65000)} ssh2"))
+    return lines
+
+
+def _legit_login_lines(users, src, count, span_min):
+    """Accepted logins from legitimate users on a trusted source IP."""
+    lines = []
+    for user in users:
+        for _ in range(random.randint(*count)):
+            t = BASE + timedelta(minutes=random.randint(0, span_min))
+            lines.append(_ssh_line(
+                t, f"Accepted password for {user} from {src} "
+                   f"port {random.randint(40000, 65000)} ssh2"))
+    return lines
+
+
+def _pad_pool_lines(pad_ips, usernames, span_min, needed):
+    """Filler failed-login lines from a pool of pad IPs to reach the total."""
+    lines = []
+    for _ in range(max(needed, 0)):
+        t = BASE + timedelta(minutes=random.randint(0, span_min), seconds=random.randint(0, 59))
+        lines.append(_ssh_line(
+            t, f"Failed password for {random.choice(usernames)} "
+               f"from {random.choice(pad_ips)} port {random.randint(40000, 65000)} ssh2"))
+    return lines
 
 
 # ── 50 000-event high-volume SSH log ─────────────────────────────────────────
+
+_HV_USERNAMES = [
+    "root", "admin", "ubuntu", "pi", "deploy", "git", "postgres",
+    "oracle", "user", "test", "dev", "ops", "service", "backup",
+    "nagios", "zabbix", "ansible", "puppet", "chef", "jenkins",
+]
+_HV_LEGIT_USERS = ["alice", "bob", "charlie", "diana", "evan",
+                   "frank", "grace", "helen", "ivan", "judy"]
+_HV_BF_IPS = [
+    "185.220.101.10", "45.33.32.156", "198.199.82.244", "91.92.249.100",
+    "194.165.16.77",  "179.43.175.5", "77.247.110.14",  "104.244.74.3",
+    "5.188.206.26",   "80.94.95.107",
+]
+_HV_SCAN_IPS = ["203.0.113.42", "198.51.100.100",
+                "222.186.30.112", "117.21.226.74", "45.155.205.20"]
+_HV_NOISE_IPS = [f"10.{a}.{b}.1" for a, b in [
+    (0,200),(0,201),(1,100),(1,101),(1,102),(2,50),(2,51),(3,10),(3,11),
+    (4,200),(4,201),(5,99),(5,100),(6,50),(6,51),
+    (7,10),(8,200),(9,100),(10,50),(11,75),
+]]
+
 
 def high_volume_log(path: str = "test_highvol.log", total: int = 50_000) -> None:
     """
@@ -222,89 +351,12 @@ def high_volume_log(path: str = "test_highvol.log", total: int = 50_000) -> None
     """
     random.seed(99)
     lines: list[tuple[datetime, str]] = []
-
-    usernames = [
-        "root", "admin", "ubuntu", "pi", "deploy", "git", "postgres",
-        "oracle", "user", "test", "dev", "ops", "service", "backup",
-        "nagios", "zabbix", "ansible", "puppet", "chef", "jenkins",
-    ]
-    legit_users = ["alice", "bob", "charlie", "diana", "evan",
-                   "frank", "grace", "helen", "ivan", "judy"]
-
-    # ── Brute-force attackers (10 IPs) ────────────────────────────────────────
-    bf_ips = [
-        "185.220.101.10", "45.33.32.156", "198.199.82.244", "91.92.249.100",
-        "194.165.16.77",  "179.43.175.5", "77.247.110.14",  "104.244.74.3",
-        "5.188.206.26",   "80.94.95.107",
-    ]
-    for attacker_ip in bf_ips:
-        for burst_offset in range(0, 240, 15):
-            t = BASE + timedelta(minutes=burst_offset)
-            for _ in range(random.randint(15, 35)):
-                t += timedelta(seconds=random.randint(1, 15))
-                ts   = t.strftime("%b %d %H:%M:%S")
-                user = random.choice(usernames)
-                port = random.randint(40000, 65000)
-                lines.append((t, (
-                    f"{ts} server sshd[{random.randint(1000,9999)}]: "
-                    f"Failed password for {user} from {attacker_ip} port {port} ssh2"
-                )))
-
-    # ── Port scanners (5 IPs) ─────────────────────────────────────────────────
-    scan_ips = [
-        "203.0.113.42", "198.51.100.100",
-        "222.186.30.112", "117.21.226.74", "45.155.205.20",
-    ]
-    for scanner_ip in scan_ips:
-        t = BASE + timedelta(minutes=random.randint(5, 60))
-        for port_offset in range(50):
-            t  += timedelta(seconds=random.randint(1, 6))
-            ts  = t.strftime("%b %d %H:%M:%S")
-            src_port = 10000 + port_offset * 97
-            lines.append((t, (
-                f"{ts} server sshd[{random.randint(1000,9999)}]: "
-                f"Connection from {scanner_ip} port {src_port} on 0.0.0.0 port 22"
-            )))
-
-    # ── Background noise IPs (20 IPs) ─────────────────────────────────────────
-    noise_ips = [f"10.{a}.{b}.1" for a, b in [
-        (0,200),(0,201),(1,100),(1,101),(1,102),(2,50),(2,51),(3,10),(3,11),
-        (4,200),(4,201),(5,99),(5,100),(6,50),(6,51),
-        (7,10),(8,200),(9,100),(10,50),(11,75),
-    ]]
-    for noise_ip in noise_ips:
-        for _ in range(random.randint(1, 6)):
-            t  = BASE + timedelta(minutes=random.randint(0, 240))
-            ts = t.strftime("%b %d %H:%M:%S")
-            lines.append((t, (
-                f"{ts} server sshd[{random.randint(1000,9999)}]: "
-                f"Failed password for {random.choice(usernames)} "
-                f"from {noise_ip} port {random.randint(40000,65000)} ssh2"
-            )))
-
-    # ── Legitimate logins (10 users) ──────────────────────────────────────────
-    legit_src = "172.16.0.10"
-    for user in legit_users:
-        for _ in range(random.randint(20, 40)):
-            t  = BASE + timedelta(minutes=random.randint(0, 230))
-            ts = t.strftime("%b %d %H:%M:%S")
-            lines.append((t, (
-                f"{ts} server sshd[{random.randint(1000,9999)}]: "
-                f"Accepted password for {user} from {legit_src} "
-                f"port {random.randint(40000,65000)} ssh2"
-            )))
-
-    # ── Pad to target total ───────────────────────────────────────────────────
+    lines += _multi_burst_bf_lines(_HV_BF_IPS, _HV_USERNAMES, 240, 15, (15, 35), (1, 15))
+    lines += _scan_ports_lines(_HV_SCAN_IPS, (5, 60), 50, 10000, 97, (1, 6))
+    lines += _noise_burst_lines(_HV_NOISE_IPS, _HV_USERNAMES, (1, 6), 240)
+    lines += _legit_login_lines(_HV_LEGIT_USERS, "172.16.0.10", (20, 40), 230)
     pad_ips = [f"172.20.{i}.1" for i in range(50)]
-    while len(lines) < total:
-        t  = BASE + timedelta(minutes=random.randint(0, 240),
-                              seconds=random.randint(0, 59))
-        ts = t.strftime("%b %d %H:%M:%S")
-        lines.append((t, (
-            f"{ts} server sshd[{random.randint(1000,9999)}]: "
-            f"Failed password for {random.choice(usernames)} "
-            f"from {random.choice(pad_ips)} port {random.randint(40000,65000)} ssh2"
-        )))
+    lines += _pad_pool_lines(pad_ips, _HV_USERNAMES, 240, total - len(lines))
 
     lines.sort(key=lambda x: x[0])
     lines = lines[:total]
@@ -312,10 +364,10 @@ def high_volume_log(path: str = "test_highvol.log", total: int = 50_000) -> None
     with open(path, "w") as fh:
         fh.write("\n".join(line for _, line in lines) + "\n")
     print(f"Written: {path}  ({len(lines):,} lines)")
-    print(f"  Contains: {len(bf_ips)} brute-force IPs, "
-          f"{len(scan_ips)} port-scanner IPs, "
-          f"{len(noise_ips)} background IPs, "
-          f"{len(legit_users)} legitimate users")
+    print(f"  Contains: {len(_HV_BF_IPS)} brute-force IPs, "
+          f"{len(_HV_SCAN_IPS)} port-scanner IPs, "
+          f"{len(_HV_NOISE_IPS)} background IPs, "
+          f"{len(_HV_LEGIT_USERS)} legitimate users")
 
 
 # ── Mixed-attack SSH log ──────────────────────────────────────────────────────
@@ -328,80 +380,26 @@ def mixed_attack_log(path: str = "test_mixed.log", total: int = 10_000) -> None:
     (SSH format cannot carry http_404 events).
     """
     random.seed(77)
-    lines: list[tuple[datetime, str]] = []
-
     usernames = [
         "root", "admin", "ubuntu", "pi", "deploy", "git", "postgres",
         "oracle", "user", "test", "dev", "ops", "service", "backup",
     ]
-
-    # ── 3 brute-force IPs ────────────────────────────────────────────────────
-    bf_ips = ["45.155.205.20", "80.94.95.107", "194.165.16.77"]
-    for bf_ip in bf_ips:
-        t = BASE + timedelta(minutes=random.randint(0, 10))
-        for _ in range(60):
-            t  += timedelta(seconds=random.randint(2, 20))
-            ts  = t.strftime("%b %d %H:%M:%S")
-            user = random.choice(usernames)
-            port = random.randint(40000, 65000)
-            lines.append((t, (
-                f"{ts} server sshd[{random.randint(1000,9999)}]: "
-                f"Failed password for {user} from {bf_ip} port {port} ssh2"
-            )))
-
-    # ── 2 port-scan IPs ──────────────────────────────────────────────────────
+    bf_ips   = ["45.155.205.20", "80.94.95.107", "194.165.16.77"]
     scan_ips = ["198.211.10.50", "203.0.113.77"]
-    for scan_ip in scan_ips:
-        t = BASE + timedelta(minutes=15)
-        for port_idx in range(35):
-            t  += timedelta(seconds=random.randint(1, 8))
-            ts  = t.strftime("%b %d %H:%M:%S")
-            src_port = 30000 + port_idx * 131
-            lines.append((t, (
-                f"{ts} server sshd[{random.randint(1000,9999)}]: "
-                f"Connection from {scan_ip} port {src_port} on 0.0.0.0 port 22"
-            )))
-
-    # ── 1 slow credential stuffer (ML-only) ──────────────────────────────────
-    slow_ip = "176.10.99.200"
-    t = BASE
-    for _ in range(80):
-        t  += timedelta(minutes=random.randint(3, 8), seconds=random.randint(0, 59))
-        ts  = t.strftime("%b %d %H:%M:%S")
-        user = random.choice(usernames)
-        lines.append((t, (
-            f"{ts} server sshd[{random.randint(1000,9999)}]: "
-            f"Failed password for invalid user {user} from {slow_ip} port "
-            f"{random.randint(40000,65000)} ssh2"
-        )))
-
-    # ── 25 background IPs ────────────────────────────────────────────────────
-    bg_ips = [f"10.{a}.{b}.1" for a, b in [
+    slow_ip  = "176.10.99.200"
+    bg_ips   = [f"10.{a}.{b}.1" for a, b in [
         (1,1),(1,2),(1,3),(1,4),(1,5),(2,1),(2,2),(2,3),(2,4),(2,5),
         (3,1),(3,2),(3,3),(3,4),(3,5),(4,1),(4,2),(4,3),(4,4),(4,5),
         (5,1),(5,2),(5,3),(5,4),(5,5),
     ]]
-    for bg_ip in bg_ips:
-        for _ in range(random.randint(1, 5)):
-            t  = BASE + timedelta(minutes=random.randint(0, 120))
-            ts = t.strftime("%b %d %H:%M:%S")
-            lines.append((t, (
-                f"{ts} server sshd[{random.randint(1000,9999)}]: "
-                f"Failed password for {random.choice(usernames)} "
-                f"from {bg_ip} port {random.randint(40000,65000)} ssh2"
-            )))
-
-    # ── Pad to total ──────────────────────────────────────────────────────────
     pad_ips = [f"172.20.{i}.1" for i in range(30)]
-    while len(lines) < total:
-        t  = BASE + timedelta(minutes=random.randint(0, 120),
-                              seconds=random.randint(0, 59))
-        ts = t.strftime("%b %d %H:%M:%S")
-        lines.append((t, (
-            f"{ts} server sshd[{random.randint(1000,9999)}]: "
-            f"Failed password for {random.choice(usernames)} "
-            f"from {random.choice(pad_ips)} port {random.randint(40000,65000)} ssh2"
-        )))
+
+    lines: list[tuple[datetime, str]] = []
+    lines += _sustained_bf_lines(bf_ips, usernames, (0, 10), 60, (2, 20))
+    lines += _scan_ports_lines(scan_ips, 15, 35, 30000, 131, (1, 8))
+    lines += _slow_stuffer_lines(slow_ip, usernames, 80)
+    lines += _noise_burst_lines(bg_ips, usernames, (1, 5), 120)
+    lines += _pad_pool_lines(pad_ips, usernames, 120, total - len(lines))
 
     lines.sort(key=lambda x: x[0])
     lines = lines[:total]
@@ -416,6 +414,20 @@ def mixed_attack_log(path: str = "test_mixed.log", total: int = 10_000) -> None:
 
 # ── Slow brute-force log (ML-detectable, rule-invisible) ─────────────────────
 
+def _slow_brute_stuffer_lines(ip, usernames):
+    """~400 events at 4 failures per 12 min — just under the rule threshold."""
+    lines = []
+    t = BASE
+    while t < BASE + timedelta(hours=20):
+        for _ in range(4):
+            t += timedelta(seconds=random.randint(60, 150))
+            lines.append(_ssh_line(
+                t, f"Failed password for {random.choice(usernames)} "
+                   f"from {ip} port {random.randint(40000, 65000)} ssh2"))
+        t += timedelta(minutes=12)
+    return lines
+
+
 def slow_brute_force_log(path: str = "test_slow_brute.log", total: int = 5_000) -> None:
     """
     4 failed logins per 12 min from one IP — just under the 5-per-10-min rule threshold.
@@ -423,50 +435,19 @@ def slow_brute_force_log(path: str = "test_slow_brute.log", total: int = 5_000) 
     Remainder filled with 30 background IPs making random noise.
     """
     random.seed(13)
-    lines: list[tuple[datetime, str]] = []
     usernames = ["root", "admin", "ubuntu", "deploy", "git"]
-
     stuffer_ip = "185.100.87.202"
-    t = BASE
-    # Generate ~400 stuffer events spread over 20 hours
-    while t < BASE + timedelta(hours=20):
-        for _ in range(4):
-            t += timedelta(seconds=random.randint(60, 150))
-            ts = t.strftime("%b %d %H:%M:%S")
-            lines.append((t, (
-                f"{ts} server sshd[{random.randint(1000,9999)}]: "
-                f"Failed password for {random.choice(usernames)} "
-                f"from {stuffer_ip} port {random.randint(40000,65000)} ssh2"
-            )))
-        t += timedelta(minutes=12)
-
-    # 30 background IPs with realistic noise
     bg_ips = [f"10.20.{i}.{j}" for i, j in [
         (1,1),(1,2),(1,3),(2,1),(2,2),(2,3),(3,1),(3,2),(3,3),(4,1),
         (4,2),(4,3),(5,1),(5,2),(5,3),(6,1),(6,2),(6,3),(7,1),(7,2),
         (7,3),(8,1),(8,2),(8,3),(9,1),(9,2),(9,3),(10,1),(10,2),(10,3),
     ]]
-    for bg_ip in bg_ips:
-        for _ in range(random.randint(2, 8)):
-            t = BASE + timedelta(minutes=random.randint(0, 1200))
-            ts = t.strftime("%b %d %H:%M:%S")
-            lines.append((t, (
-                f"{ts} server sshd[{random.randint(1000,9999)}]: "
-                f"Failed password for {random.choice(usernames)} "
-                f"from {bg_ip} port {random.randint(40000,65000)} ssh2"
-            )))
-
-    # Pad distributing across many IPs so no single IP dominates
     pad_ips = [f"172.21.{i}.{j}" for i in range(10) for j in range(10)]
-    while len(lines) < total:
-        t = BASE + timedelta(minutes=random.randint(0, 1200),
-                             seconds=random.randint(0, 59))
-        ts = t.strftime("%b %d %H:%M:%S")
-        lines.append((t, (
-            f"{ts} server sshd[{random.randint(1000,9999)}]: "
-            f"Failed password for {random.choice(usernames)} "
-            f"from {random.choice(pad_ips)} port {random.randint(40000,65000)} ssh2"
-        )))
+
+    lines: list[tuple[datetime, str]] = []
+    lines += _slow_brute_stuffer_lines(stuffer_ip, usernames)
+    lines += _noise_burst_lines(bg_ips, usernames, (2, 8), 1200)
+    lines += _pad_pool_lines(pad_ips, usernames, 1200, total - len(lines))
 
     lines.sort(key=lambda x: x[0])
     lines = lines[:total]
@@ -611,45 +592,30 @@ def malformed_log(path: str = "test_malformed.log", total: int = 2_000) -> None:
 
 # ── Large port-scan log ───────────────────────────────────────────────────────
 
+def _fast_scan_lines(ip, count):
+    """A single IP hitting ``count`` guaranteed-unique ports ~0.1-0.24s apart."""
+    lines = []
+    t = BASE
+    for i in range(count):
+        t += timedelta(milliseconds=random.randint(100, 240))
+        src_port = 10000 + i
+        lines.append(_ssh_line(
+            t, f"Connection from {ip} port {src_port} on 0.0.0.0 port 22"))
+    return lines
+
+
 def large_port_scan_log(path: str = "test_large_scan.log", total: int = 5_000) -> None:
     """500 unique ports from one IP in 2 minutes (CRITICAL), plus 20 background IPs."""
     random.seed(31)
-    lines: list[tuple[datetime, str]] = []
     usernames = ["root", "admin", "ubuntu", "deploy"]
-
     scanner_ip = "203.0.113.200"
-    t = BASE
-    for i in range(500):
-        # ~0.24 s apart → 500 events ≈ 120 s = 2 minutes
-        t += timedelta(milliseconds=random.randint(100, 240))
-        ts = t.strftime("%b %d %H:%M:%S")
-        src_port = 10000 + i   # guaranteed unique
-        lines.append((t, (
-            f"{ts} server sshd[{random.randint(1000,9999)}]: "
-            f"Connection from {scanner_ip} port {src_port} on 0.0.0.0 port 22"
-        )))
-
     bg_ips = [f"10.30.{i}.1" for i in range(20)]
-    for bg_ip in bg_ips:
-        for _ in range(random.randint(2, 10)):
-            t2 = BASE + timedelta(minutes=random.randint(5, 120))
-            ts = t2.strftime("%b %d %H:%M:%S")
-            lines.append((t2, (
-                f"{ts} server sshd[{random.randint(1000,9999)}]: "
-                f"Failed password for {random.choice(usernames)} "
-                f"from {bg_ip} port {random.randint(40000,65000)} ssh2"
-            )))
-
     pad_ips = [f"172.22.{i}.1" for i in range(30)]
-    while len(lines) < total:
-        t2 = BASE + timedelta(minutes=random.randint(0, 120),
-                              seconds=random.randint(0, 59))
-        ts = t2.strftime("%b %d %H:%M:%S")
-        lines.append((t2, (
-            f"{ts} server sshd[{random.randint(1000,9999)}]: "
-            f"Failed password for {random.choice(usernames)} "
-            f"from {random.choice(pad_ips)} port {random.randint(40000,65000)} ssh2"
-        )))
+
+    lines: list[tuple[datetime, str]] = []
+    lines += _fast_scan_lines(scanner_ip, 500)
+    lines += _noise_burst_lines(bg_ips, usernames, (2, 10), 120)
+    lines += _pad_pool_lines(pad_ips, usernames, 120, total - len(lines))
 
     lines.sort(key=lambda x: x[0])
     lines = lines[:total]
@@ -714,6 +680,26 @@ def unicode_log(path: str = "test_unicode.log", total: int = 2_000) -> None:
 
 # ── Coordinated attack log ────────────────────────────────────────────────────
 
+def _coordinated_ips() -> list[str]:
+    """Build the 50 coordinated-attacker IPs (10 per /24 across 5 subnets)."""
+    subnets = [(45, 33, 32), (185, 220, 101), (198, 199, 82), (91, 92, 249), (194, 165, 16)]
+    return [f"{a}.{b}.{c}.{i}" for a, b, c in subnets for i in range(1, 11)]
+
+
+def _coordinated_lines(coord_ips, usernames):
+    """Distributed attack: each IP hits every username a few times, below threshold."""
+    lines = []
+    for coord_ip in coord_ips:
+        for username in usernames:
+            for _ in range(3):   # 15 events/IP — below threshold
+                t = BASE + timedelta(minutes=random.randint(0, 120),
+                                     seconds=random.randint(0, 59))
+                lines.append(_ssh_line(
+                    t, f"Failed password for {username} from {coord_ip} "
+                       f"port {random.randint(40000, 65000)} ssh2"))
+    return lines
+
+
 def coordinated_attack_log(path: str = "test_coordinated.log", total: int = 20_000) -> None:
     """
     50 IPs all attacking the same 5 usernames in coordinated fashion.
@@ -721,56 +707,15 @@ def coordinated_attack_log(path: str = "test_coordinated.log", total: int = 20_0
     attack detectable only via ML (shared target-username pattern).
     """
     random.seed(88)
-    lines: list[tuple[datetime, str]] = []
     usernames = ["root", "admin", "ubuntu", "pi", "deploy"]
-
-    coord_ips = [
-        f"{a}.{b}.{c}.{d}" for a, b, c, d in [
-            (45,33,32,i) for i in range(1, 11)
-        ] + [
-            (185,220,101,i) for i in range(1, 11)
-        ] + [
-            (198,199,82,i) for i in range(1, 11)
-        ] + [
-            (91,92,249,i) for i in range(1, 11)
-        ] + [
-            (194,165,16,i) for i in range(1, 11)
-        ]
-    ]   # 50 IPs total
-
-    for coord_ip in coord_ips:
-        for username in usernames:
-            for _ in range(3):   # 15 events/IP — below threshold
-                t = BASE + timedelta(minutes=random.randint(0, 120),
-                                     seconds=random.randint(0, 59))
-                ts = t.strftime("%b %d %H:%M:%S")
-                lines.append((t, (
-                    f"{ts} server sshd[{random.randint(1000,9999)}]: "
-                    f"Failed password for {username} from {coord_ip} port "
-                    f"{random.randint(40000,65000)} ssh2"
-                )))
-
+    coord_ips = _coordinated_ips()   # 50 IPs total
     noise_ips = [f"10.50.{i}.1" for i in range(20)]
-    for noise_ip in noise_ips:
-        for _ in range(random.randint(2, 6)):
-            t = BASE + timedelta(minutes=random.randint(0, 120))
-            ts = t.strftime("%b %d %H:%M:%S")
-            lines.append((t, (
-                f"{ts} server sshd[{random.randint(1000,9999)}]: "
-                f"Failed password for {random.choice(usernames)} "
-                f"from {noise_ip} port {random.randint(40000,65000)} ssh2"
-            )))
+    pad_ips   = [f"172.23.{i}.1" for i in range(40)]
 
-    pad_ips = [f"172.23.{i}.1" for i in range(40)]
-    while len(lines) < total:
-        t = BASE + timedelta(minutes=random.randint(0, 120),
-                             seconds=random.randint(0, 59))
-        ts = t.strftime("%b %d %H:%M:%S")
-        lines.append((t, (
-            f"{ts} server sshd[{random.randint(1000,9999)}]: "
-            f"Failed password for {random.choice(usernames)} "
-            f"from {random.choice(pad_ips)} port {random.randint(40000,65000)} ssh2"
-        )))
+    lines: list[tuple[datetime, str]] = []
+    lines += _coordinated_lines(coord_ips, usernames)
+    lines += _noise_burst_lines(noise_ips, usernames, (2, 6), 120)
+    lines += _pad_pool_lines(pad_ips, usernames, 120, total - len(lines))
 
     lines.sort(key=lambda x: x[0])
     lines = lines[:total]
@@ -784,7 +729,8 @@ def coordinated_attack_log(path: str = "test_coordinated.log", total: int = 20_0
 
 # ── Entry point ───────────────────────────────────────────────────────────────
 
-def main() -> None:
+def _build_fixture_parser() -> argparse.ArgumentParser:
+    """Build the CLI parser for the fixture generator."""
     p = argparse.ArgumentParser(description="Generate test log files for log_analyzer.py")
     p.add_argument("--scale",       action="store_true", help="Generate 10k SSH log")
     p.add_argument("--only-scale",  action="store_true", help="Generate only the 10k log")
@@ -800,36 +746,41 @@ def main() -> None:
     p.add_argument("--unicode",     action="store_true", help="Generate unicode username log")
     p.add_argument("--coordinated", action="store_true", help="Generate coordinated attack log")
     p.add_argument("--all",         action="store_true", help="Generate every fixture")
-    args = p.parse_args()
+    return p
 
+
+# (arg-attribute name, generator) — run when its flag or --all is set.
+_OPTIONAL_FIXTURES = [
+    ("high_volume", high_volume_log),
+    ("mixed",       mixed_attack_log),
+    ("slow_brute",  slow_brute_force_log),
+    ("ipv6",        ipv6_log),
+    ("empty",       empty_log),
+    ("single",      single_event_log),
+    ("malformed",   malformed_log),
+    ("large_scan",  large_port_scan_log),
+    ("unicode",     unicode_log),
+    ("coordinated", coordinated_attack_log),
+]
+
+
+def _dispatch_optional_fixtures(args, run_all: bool) -> None:
+    """Run each optional fixture generator whose flag (or --all) is set."""
+    for flag, generate in _OPTIONAL_FIXTURES:
+        if run_all or getattr(args, flag):
+            generate()
+
+
+def main() -> None:
+    args = _build_fixture_parser().parse_args()
     run_all = args.all
 
     if not args.only_scale:
         ssh_log()
         windows_csv()
-
-    if args.scale or args.only_scale or run_all:
+    if run_all or args.scale or args.only_scale:
         ssh_log_scale(total=args.size)
-    if args.high_volume or run_all:
-        high_volume_log()
-    if args.mixed or run_all:
-        mixed_attack_log()
-    if args.slow_brute or run_all:
-        slow_brute_force_log()
-    if args.ipv6 or run_all:
-        ipv6_log()
-    if args.empty or run_all:
-        empty_log()
-    if args.single or run_all:
-        single_event_log()
-    if args.malformed or run_all:
-        malformed_log()
-    if args.large_scan or run_all:
-        large_port_scan_log()
-    if args.unicode or run_all:
-        unicode_log()
-    if args.coordinated or run_all:
-        coordinated_attack_log()
+    _dispatch_optional_fixtures(args, run_all)
 
 
 if __name__ == "__main__":
