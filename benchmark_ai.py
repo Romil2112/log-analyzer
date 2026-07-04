@@ -9,7 +9,7 @@ token-cost / latency instrumentation. Use --help for options.
 import argparse
 import time
 
-from ai_scale import summarize_batch, BatchMetrics  # noqa: F401
+from ai_scale import BatchMetrics, summarize_batch  # noqa: F401
 
 
 class _Usage:

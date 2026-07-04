@@ -9,8 +9,8 @@ Covers:
 - build_allowlist + filter_allowlist
 """
 
-import sys
 import os
+import sys
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -475,7 +475,6 @@ class TestAllowlist:
         # Exact count depends on implementation, but must not raise
         assert isinstance(al, list)
         # Valid entry should still be present
-        import ipaddress
         valid_networks = [str(n) for n in al]
         assert any("127.0.0.1" in s for s in valid_networks)
 

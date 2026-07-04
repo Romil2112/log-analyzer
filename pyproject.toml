@@ -1,0 +1,22 @@
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+extend-exclude = [".venv", "eval/corpus"]
+
+[tool.ruff.lint]
+# PEP 8 (E/W), pyflakes (F), isort (I), pep8-naming (N), pyupgrade (UP), bugbear (B).
+select = ["E", "W", "F", "I", "N", "UP", "B"]
+ignore = [
+    "E501",  # line length is handled case-by-case; long f-string report lines are intentional
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["N802", "N806"]  # test helpers use non-PEP8 names freely
+
+[tool.mypy]
+python_version = "3.10"
+# Unstubbed C-extension / third-party deps (psycopg2, dateutil, sklearn, anthropic, rich).
+ignore_missing_imports = true
+warn_unused_ignores = false
+# Full --strict is applied on the CLI; this section documents the baseline config.
+exclude = ['\.venv', 'eval/corpus']

@@ -29,6 +29,9 @@ _TITLE = {
 }
 
 
+__all__ = ["incident_to_alert", "push_incidents"]
+
+
 def incident_to_alert(incident: dict) -> dict:
     """Map a log-analyzer incident to a SOC-Dashboard alert payload."""
     itype = incident.get("incident_type", "incident")

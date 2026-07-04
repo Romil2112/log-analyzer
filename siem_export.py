@@ -23,13 +23,12 @@ import logging
 import uuid
 from pathlib import Path
 
+from sigma.backends.elasticsearch.elasticsearch_esql import ESQLBackend
+from sigma.backends.kusto import KustoBackend
+from sigma.backends.splunk import SplunkBackend
 from sigma.collection import SigmaCollection
 from sigma.processing.pipeline import ProcessingItem, ProcessingPipeline
 from sigma.processing.transformations import FieldMappingTransformation
-
-from sigma.backends.splunk import SplunkBackend
-from sigma.backends.elasticsearch.elasticsearch_esql import ESQLBackend
-from sigma.backends.kusto import KustoBackend
 
 import sigma_export
 
@@ -158,6 +157,9 @@ def _sentinel_aggregation(spec: dict, fields: dict, count_tpl: dict) -> str:
         f"\n| summarize {alias} = {agg} by bin(TimeGenerated, {window}), {group_field}"
         f"\n| where {alias} >= {spec['gte']}"
     )
+
+
+__all__ = ["incident_to_queries", "export_siem"]
 
 
 def incident_to_queries(incident_type: str) -> dict[str, str] | None:

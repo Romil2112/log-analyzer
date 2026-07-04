@@ -15,12 +15,13 @@ from __future__ import annotations
 import base64
 import hashlib
 import os
-from typing import Optional
 
 from cryptography.fernet import Fernet, InvalidToken
 
+__all__ = ["get_fernet", "encrypt_field", "decrypt_field"]
 
-def get_fernet() -> Optional[Fernet]:
+
+def get_fernet() -> Fernet | None:
     """Build a Fernet from ``DB_ENCRYPTION_KEY``, or return None if it is unset."""
     key = os.environ.get("DB_ENCRYPTION_KEY")
     if not key:
@@ -29,7 +30,7 @@ def get_fernet() -> Optional[Fernet]:
     return Fernet(base64.urlsafe_b64encode(digest))
 
 
-def encrypt_field(fernet: Optional[Fernet], value):
+def encrypt_field(fernet: Fernet | None, value):
     """Encrypt a value for storage.
 
     ``None`` passes through unchanged, and when ``fernet`` is None (encryption
@@ -42,7 +43,7 @@ def encrypt_field(fernet: Optional[Fernet], value):
     return fernet.encrypt(value.encode("utf-8")).decode("ascii")
 
 
-def decrypt_field(fernet: Optional[Fernet], value):
+def decrypt_field(fernet: Fernet | None, value):
     """Decrypt a stored value.
 
     ``None`` passes through. When encryption is disabled, or the value predates

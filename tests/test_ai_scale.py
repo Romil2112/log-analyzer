@@ -3,12 +3,12 @@
 A stub client stands in for the Anthropic SDK so these run with no API key,
 no network, and no heavy deps.
 """
-import time
 import threading
+import time
+
 import pytest
 
-import ai_scale
-from ai_scale import summarize_batch, estimate_cost, looks_valid, build_incident_prompt
+from ai_scale import build_incident_prompt, estimate_cost, looks_valid, summarize_batch
 
 
 # --- stub Anthropic client --------------------------------------------------

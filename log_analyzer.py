@@ -10,6 +10,7 @@ import argparse
 import csv
 import hashlib
 import hmac
+import ipaddress as _ipaddress
 import json
 import os
 import re
@@ -174,7 +175,7 @@ def _line_count(path: str) -> int:
 
 def parse_ssh_log(path: str, progress: Progress | None = None, task=None) -> list[dict]:
     events = []
-    with open(path, "r", errors="replace") as fh:
+    with open(path, errors="replace") as fh:
         for raw in fh:
             raw = raw.rstrip("\n")
             for pattern, etype in (
@@ -292,7 +293,7 @@ def parse_web_log(path: str, progress: Progress | None = None, task=None) -> lis
     """Parse Apache/Nginx combined/common access logs. HTTP 404s become
     ``http_404`` events, which feed the 404-flood / scanning detector."""
     events = []
-    with open(path, "r", errors="replace") as fh:
+    with open(path, errors="replace") as fh:
         for raw in fh:
             raw = raw.rstrip("\n")
             m = _WEB_LINE.search(raw)
@@ -317,7 +318,7 @@ def detect_log_format(path: str) -> str:
     ext = Path(path).suffix.lower()
     if ext == ".csv":
         return "windows"
-    with open(path, "r", errors="replace") as fh:
+    with open(path, errors="replace") as fh:
         first = fh.readline()
     if _WEB_LINE.search(first):
         return "web"
@@ -493,18 +494,21 @@ class AnomalyDetector:
         ips, rows = self._build_feature_matrix(events)
         if len(ips) < self.MIN_IPS:
             return {}
-        X        = np.array(rows, dtype=float)
-        X_scaled = StandardScaler().fit_transform(X)
-        clf      = IsolationForest(n_estimators=200, contamination="auto", random_state=42)
-        clf.fit(X_scaled)
-        raw      = clf.score_samples(X_scaled)
-        lo, hi   = raw.min(), raw.max()
-        norm     = 1.0 - (raw - lo) / (hi - lo) if hi > lo else np.zeros(len(raw))
-        return {ip: float(round(s, 4)) for ip, s in zip(ips, norm)}
+        features        = np.array(rows, dtype=float)
+        features_scaled = StandardScaler().fit_transform(features)
+        clf             = IsolationForest(n_estimators=200, contamination="auto", random_state=42)
+        clf.fit(features_scaled)
+        raw    = clf.score_samples(features_scaled)
+        lo, hi = raw.min(), raw.max()
+        norm   = 1.0 - (raw - lo) / (hi - lo) if hi > lo else np.zeros(len(raw))
+        return {ip: float(round(s, 4)) for ip, s in zip(ips, norm, strict=False)}
 
     def feature_rows(self, events: list[dict]) -> list[dict]:
         ips, rows = self._build_feature_matrix(events)
-        return [{"source_ip": ip, **dict(zip(self.FEATURES, row))} for ip, row in zip(ips, rows)]
+        return [
+            {"source_ip": ip, **dict(zip(self.FEATURES, row, strict=False))}
+            for ip, row in zip(ips, rows, strict=False)
+        ]
 
 
 # ── Rich terminal display ─────────────────────────────────────────────────────
@@ -628,7 +632,7 @@ def print_mitre_summary(incidents: list[dict]) -> None:
         return
 
     lines = []
-    for inc_type, tech in MITRE_TECHNIQUES.items():
+    for tech in MITRE_TECHNIQUES.values():
         count = seen.get(tech["id"], 0)
         if count:
             lines.append(
@@ -1302,9 +1306,12 @@ def _duration(first: datetime, last: datetime) -> str:
 
 
 def _score_color(score: float) -> str:
-    if score >= 0.8:  return "#ef4444"
-    if score >= 0.65: return "#f97316"
-    if score >= 0.5:  return "#eab308"
+    if score >= 0.8:
+        return "#ef4444"
+    if score >= 0.65:
+        return "#f97316"
+    if score >= 0.5:
+        return "#eab308"
     return "#3b82f6"
 
 
@@ -1554,8 +1561,6 @@ def score_severity(incident: dict) -> str:
 
 
 # ── Allowlist helpers ─────────────────────────────────────────────────────────
-
-import ipaddress as _ipaddress
 
 
 def build_allowlist(entries: list[str]) -> list:

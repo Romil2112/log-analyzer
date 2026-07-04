@@ -20,6 +20,9 @@ except ImportError:  # pragma: no cover - optional dependency
 _DEFAULT_TI_FILE = Path(__file__).parent / "threat_intel.txt"
 
 
+__all__ = ["load_threat_intel", "is_known_bad", "GeoIP", "enrich_incidents"]
+
+
 def load_threat_intel(path: str | os.PathLike | None = None) -> list:
     """Load known-bad CIDRs from a file (one CIDR/IP per line, '#' comments)."""
     p = Path(path) if path else _DEFAULT_TI_FILE

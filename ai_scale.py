@@ -8,8 +8,8 @@ The Anthropic client is dependency-injected, so every code path here is unit
 -testable with a stub — no API key or network required. In production, build the
 real client with `build_client()`.
 """
-import time
 import statistics
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 
@@ -23,6 +23,12 @@ _RETRYABLE_NAMES = {
     "InternalServerError", "OverloadedError",
 }
 _RETRYABLE_STATUS = {429, 500, 502, 503, 529}
+
+
+__all__ = [
+    "estimate_cost", "BatchMetrics", "build_incident_prompt",
+    "looks_valid", "summarize_batch", "build_client",
+]
 
 
 def estimate_cost(input_tokens, output_tokens, price=PRICE_PER_MTOK):
@@ -162,6 +168,7 @@ def summarize_batch(prompts, *, client, model=MODEL, max_tokens=200,
 def build_client(api_key=None):
     """Construct a real Anthropic client (lazy import to keep this module light)."""
     import os
+
     from anthropic import Anthropic
     key = api_key or os.environ.get("ANTHROPIC_API_KEY")
     if not key:

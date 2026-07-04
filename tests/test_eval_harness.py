@@ -21,9 +21,10 @@ ROOT = os.path.join(os.path.dirname(__file__), "..")
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "eval"))
 
-import log_analyzer as la  # noqa: E402
 import eval_harness as eh  # noqa: E402
 from generate_labeled_corpus import build  # noqa: E402
+
+import log_analyzer as la  # noqa: E402
 
 # Known IPs from the builder.
 STUFFER = "91.108.4.200"
@@ -38,7 +39,7 @@ def corpus(tmp_path_factory):
     d = tmp_path_factory.mktemp("labeled")
     lines, labels = build()
     log_path = d / "c.log"
-    log_path.write_text("\n".join(l for _, l in lines) + "\n", encoding="utf-8")
+    log_path.write_text("\n".join(line for _, line in lines) + "\n", encoding="utf-8")
     labels_doc = {
         "unit": "source_ip",
         "benign_default": True,

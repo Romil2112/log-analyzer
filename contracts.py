@@ -29,6 +29,12 @@ DETECTOR_REQUIRES = {
 }
 
 
+__all__ = [
+    "ContractError", "produced_event_types",
+    "check_event_contract", "assert_event_contract",
+]
+
+
 class ContractError(RuntimeError):
     """Raised when a detector requires an event type no parser produces."""
 

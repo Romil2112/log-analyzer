@@ -57,6 +57,9 @@ _SIGMA_RULES: dict[str, dict] = {
 }
 
 
+__all__ = ["incident_to_sigma", "export_sigma"]
+
+
 def incident_to_sigma(incident_type: str) -> dict | None:
     """Return the Sigma rule dict for an incident type (or None if unknown)."""
     rule = _SIGMA_RULES.get(incident_type)

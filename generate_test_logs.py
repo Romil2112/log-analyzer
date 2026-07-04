@@ -511,7 +511,7 @@ def ipv6_log(path: str = "test_ipv6.log") -> None:
 # ── Empty log ─────────────────────────────────────────────────────────────────
 
 def empty_log(path: str = "test_empty.log") -> None:
-    with open(path, "w") as fh:
+    with open(path, "w"):
         pass
     print(f"Written: {path}  (0 lines)")
 

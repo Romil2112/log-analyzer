@@ -1,5 +1,7 @@
 import os
+
 from anthropic import Anthropic
+
 
 def ai_summary(incidents, anomaly_scores):
     key = os.environ.get("ANTHROPIC_API_KEY")

@@ -8,7 +8,10 @@ import pytest
 
 import contracts
 from contracts import (
-    check_event_contract, assert_event_contract, produced_event_types, ContractError,
+    ContractError,
+    assert_event_contract,
+    check_event_contract,
+    produced_event_types,
 )
 
 
