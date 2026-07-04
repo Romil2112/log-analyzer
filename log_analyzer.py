@@ -454,10 +454,22 @@ class AnomalyDetector:
 
     @staticmethod
     def _burst_score(times: list[datetime], total: int) -> float:
+        # `times` is sorted ascending, so the busiest 60s window is found with a
+        # forward two-pointer sweep in O(n) instead of the O(n^2) rescan-per-event
+        # this used to do (which blew up to tens of millions of comparisons when a
+        # single IP dominated a large log).
         if total <= 1:
             return 1.0
         w    = timedelta(seconds=60)
-        best = max(sum(1 for t2 in times[i:] if t2 - t <= w) for i, t in enumerate(times))
+        n    = len(times)
+        best = 0
+        j    = 0
+        for i in range(n):
+            if j < i:
+                j = i
+            while j < n and times[j] - times[i] <= w:
+                j += 1
+            best = max(best, j - i)
         return best / total
 
     @staticmethod
