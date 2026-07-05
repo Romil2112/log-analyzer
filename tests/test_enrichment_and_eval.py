@@ -55,7 +55,7 @@ class _FakeReader:
     def country(self, ip):
         if ip == "boom":
             raise ValueError("lookup failed")
-        iso = None if ip == "0.0.0.0" else "US"
+        iso = None if ip == "0.0.0.0" else "US"  # nosec B104 — test fixture IP, not a socket bind
         return SimpleNamespace(country=SimpleNamespace(iso_code=iso))
 
     def close(self):
@@ -81,7 +81,7 @@ def test_geoip_enabled_with_fake_reader(tmp_path, monkeypatch):
     geo = enrichment.GeoIP(db_path=str(db))
     assert geo.enabled is True
     assert geo.country("8.8.8.8") == "US"
-    assert geo.country("0.0.0.0") == "Unknown"   # iso_code None -> Unknown
+    assert geo.country("0.0.0.0") == "Unknown"   # nosec B104 — test fixture IP, not a socket bind
     assert geo.country("boom") == "Unknown"      # exception -> Unknown
     geo.close()
     assert geo._reader.closed is True

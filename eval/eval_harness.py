@@ -119,6 +119,32 @@ def fp_suppress_reason(ip: str, evidence: dict, allowlist: set[str]) -> str | No
 
 # ── Prediction sets ───────────────────────────────────────────────────────────
 
+def _apply_fp_reduction(bf: set[str], rule_flagged: set[str], labels_doc: dict,
+                        events: list[dict], detail: dict) -> set[str]:
+    """Drop brute-force flags that look like false positives; record why in detail.
+
+    Only brute-force flags are eligible — port scans have no benign look-alike here.
+    """
+    allowlist = set(labels_doc.get("allowlist", []))
+    evidence = _per_ip_evidence(events)
+    reduced = set(rule_flagged)
+    for ip in bf:
+        reason = fp_suppress_reason(ip, evidence, allowlist)
+        if reason:
+            reduced.discard(ip)
+            detail["suppressed"][ip] = reason
+    return reduced
+
+
+def _apply_ml_layer(events: list[dict], detail: dict) -> set[str]:
+    """Score every IP with the anomaly detector; return those over threshold."""
+    scores = la.AnomalyDetector().fit_score(events)
+    ml = {ip for ip, s in scores.items() if s >= la.ML_ANOMALY_THRESHOLD}
+    detail["ml_flagged"] = sorted(ml)
+    detail["ml_scores"] = {ip: scores[ip] for ip in sorted(scores)}
+    return ml
+
+
 def predict(events: list[dict], labels_doc: dict, config: str) -> tuple[set[str], dict]:
     """Return (predicted_malicious_ips, detail) for a configuration."""
     if config not in CONFIGS:
@@ -134,37 +160,37 @@ def predict(events: list[dict], labels_doc: dict, config: str) -> tuple[set[str]
     if config == "rules":
         return set(rule_flagged), detail
 
-    # false-positive reduction: only brute-force flags are eligible for
-    # suppression (port scans have no benign look-alike here).
-    allowlist = set(labels_doc.get("allowlist", []))
-    evidence = _per_ip_evidence(events)
-    reduced = set(rule_flagged)
-    for ip in bf:
-        reason = fp_suppress_reason(ip, evidence, allowlist)
-        if reason:
-            reduced.discard(ip)
-            detail["suppressed"][ip] = reason
-
+    reduced = _apply_fp_reduction(bf, rule_flagged, labels_doc, events, detail)
     if config == "rules+fp_reduction":
         return reduced, detail
 
     # full system: add the ML anomaly layer (catches slow, rule-invisible IPs)
-    scores = la.AnomalyDetector().fit_score(events)
-    ml = {ip for ip, s in scores.items() if s >= la.ML_ANOMALY_THRESHOLD}
-    detail["ml_flagged"] = sorted(ml)
-    detail["ml_scores"] = {ip: scores[ip] for ip in sorted(scores)}
-    return reduced | ml, detail
+    return reduced | _apply_ml_layer(events, detail), detail
 
 
 # ── Scoring ───────────────────────────────────────────────────────────────────
 
+def _confusion(gt: dict[str, bool], predicted: set[str]) -> tuple[list, list, list, list]:
+    """Split scored IPs into (tp, fp, tn, fn), each sorted."""
+    malicious = {ip for ip, m in gt.items() if m}
+    benign = set(gt) - malicious
+    tp = sorted(malicious & predicted)
+    fn = sorted(malicious - predicted)
+    fp = sorted(benign & predicted)
+    tn = sorted(benign - predicted)
+    return tp, fp, tn, fn
+
+
+def _rate(hits: int, misses: int) -> float:
+    """hits / (hits + misses), or 1.0 when there's nothing to score."""
+    total = hits + misses
+    return hits / total if total else 1.0
+
+
 def score(gt: dict[str, bool], predicted: set[str]) -> dict:
-    tp = sorted(ip for ip, m in gt.items() if m and ip in predicted)
-    fn = sorted(ip for ip, m in gt.items() if m and ip not in predicted)
-    fp = sorted(ip for ip, m in gt.items() if not m and ip in predicted)
-    tn = sorted(ip for ip, m in gt.items() if not m and ip not in predicted)
-    p = len(tp) / (len(tp) + len(fp)) if (tp or fp) else 1.0
-    r = len(tp) / (len(tp) + len(fn)) if (tp or fn) else 1.0
+    tp, fp, tn, fn = _confusion(gt, predicted)
+    p = _rate(len(tp), len(fp))
+    r = _rate(len(tp), len(fn))
     f1 = 2 * p * r / (p + r) if (p + r) else 0.0
     acc = (len(tp) + len(tn)) / len(gt) if gt else 1.0
     return {"tp": tp, "fp": fp, "tn": tn, "fn": fn,
@@ -194,7 +220,7 @@ def _bar(title: str) -> None:
     print("─" * len(title))
 
 
-def report(result: dict, only: str | None = None) -> None:
+def _report_header(result: dict) -> None:
     print("═" * 68)
     print(f"  LABELED EVALUATION  —  {Path(result['log']).name}")
     print("═" * 68)
@@ -203,13 +229,8 @@ def report(result: dict, only: str | None = None) -> None:
           f"({result['n_malicious']} malicious / "
           f"{result['n_ips'] - result['n_malicious']} benign)")
 
-    rows = []
-    for cfg, data in result["configs"].items():
-        if only and cfg != only:
-            continue
-        m = data["metrics"]
-        rows.append((cfg, m))
 
+def _report_matrix(rows: list) -> None:
     _bar("CONFUSION MATRIX & METRICS (per source IP)")
     print(f"  {'configuration':<22}{'TP':>4}{'FP':>4}{'FN':>4}{'TN':>4}"
           f"{'precision':>11}{'recall':>9}{'F1':>8}")
@@ -218,35 +239,49 @@ def report(result: dict, only: str | None = None) -> None:
               f"{len(m['fn']):>4}{len(m['tn']):>4}"
               f"{m['precision']:>11.3f}{m['recall']:>9.3f}{m['f1']:>8.3f}")
 
+
+def _report_suppressed(cfg: str, detail: dict) -> None:
+    if not detail.get("suppressed"):
+        return
+    _bar(f"FALSE-POSITIVE LEVERS APPLIED ({cfg})")
+    for ip, reason in detail["suppressed"].items():
+        print(f"  - {ip:<18} suppressed: {reason}")
+
+
+def _report_errors(cfg: str, kind: str, ips: list, note: str) -> None:
+    """Print a false-positive or false-negative block."""
+    _bar(f"{kind} ({cfg}): {len(ips)}")
+    for ip in ips:
+        print(f"  {note.format(ip=ip)}")
+    if not ips:
+        print("  (none)")
+
+
+def _report_net_effect(result: dict) -> None:
+    base = result["configs"]["rules"]["metrics"]
+    full = result["configs"]["full"]["metrics"]
+    _bar("NET EFFECT: rules  →  full system")
+    print(f"  precision : {base['precision']:.3f}  →  {full['precision']:.3f}")
+    print(f"  recall    : {base['recall']:.3f}  →  {full['recall']:.3f}")
+    print(f"  F1        : {base['f1']:.3f}  →  {full['f1']:.3f}")
+
+
+def report(result: dict, only: str | None = None) -> None:
+    _report_header(result)
+    rows = [(cfg, data["metrics"]) for cfg, data in result["configs"].items()
+            if not only or cfg == only]
+    _report_matrix(rows)
+
     # Detail for the last (most complete) shown config.
-    cfg, data = (rows[-1][0], result["configs"][rows[-1][0]])
+    cfg = rows[-1][0]
+    data = result["configs"][cfg]
     m = data["metrics"]
-    detail = data["detail"]
-
-    if detail.get("suppressed"):
-        _bar(f"FALSE-POSITIVE LEVERS APPLIED ({cfg})")
-        for ip, reason in detail["suppressed"].items():
-            print(f"  - {ip:<18} suppressed: {reason}")
-
-    _bar(f"FALSE POSITIVES ({cfg}): {len(m['fp'])}")
-    for ip in m["fp"]:
-        print(f"  ! {ip}  (benign flagged as malicious)")
-    if not m["fp"]:
-        print("  (none)")
-
-    _bar(f"FALSE NEGATIVES ({cfg}): {len(m['fn'])}")
-    for ip in m["fn"]:
-        print(f"  ? {ip}  (malicious, missed)")
-    if not m["fn"]:
-        print("  (none)")
+    _report_suppressed(cfg, data["detail"])
+    _report_errors(cfg, "FALSE POSITIVES", m["fp"], "! {ip}  (benign flagged as malicious)")
+    _report_errors(cfg, "FALSE NEGATIVES", m["fn"], "? {ip}  (malicious, missed)")
 
     if len(result["configs"]) > 1 and not only:
-        base = result["configs"]["rules"]["metrics"]
-        full = result["configs"]["full"]["metrics"]
-        _bar("NET EFFECT: rules  →  full system")
-        print(f"  precision : {base['precision']:.3f}  →  {full['precision']:.3f}")
-        print(f"  recall    : {base['recall']:.3f}  →  {full['recall']:.3f}")
-        print(f"  F1        : {base['f1']:.3f}  →  {full['f1']:.3f}")
+        _report_net_effect(result)
     print()
 
 
