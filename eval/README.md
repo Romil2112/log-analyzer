@@ -86,10 +86,16 @@ Two honest findings this surfaces on real data:
   (mostly-benign traffic) versus when it doesn't (saturated attack) is the
   takeaway.
 
-> Bug this harness caught: `detect_port_scan` double-flags brute-forcers,
-> because SSH clients use random ephemeral **source** ports, so many failed
-> logins look like many "unique ports." Harmless for per-IP malicious/benign
-> scoring, but it means port-scan is not an independent signal on SSH auth logs.
+> **Bug this harness caught and fixed.** `detect_port_scan` used to double-flag
+> brute-forcers: SSH clients use random ephemeral **source** ports, and the parser
+> stored that source port in the same `port` field, so a brute-forcer's many failed
+> logins looked like many "unique ports." The fix is one predicate in
+> `detect_port_scan`: count only `event_type == "connection"` events, since an auth
+> event's port is the client's source port, not a scanned destination. Measured
+> result across these corpora: port_scan false positives dropped 6 → 0 (synthetic 2,
+> real Loghub 4), port_scan F1 rose 0.40 → 1.00, both genuine scanners were
+> preserved, the per-IP metrics above are unchanged, and all 193 tests still pass.
+> Fixed in commit `1662e4d`.
 
 ## Label file format
 
