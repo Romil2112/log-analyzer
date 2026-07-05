@@ -396,7 +396,11 @@ def detect_port_scan(events: list[dict]) -> list[dict]:
     Returns one port_scan incident per offending source IP."""
     by_ip: dict[str, list[tuple[datetime, int]]] = defaultdict(list)
     for e in events:
-        if e.get("source_ip") and e.get("port"):
+        # A port scan is evidenced by connection attempts. An auth event's `port`
+        # is the client's ephemeral SOURCE port, not a scanned destination, so a
+        # brute-forcer cycling through random source ports would otherwise look
+        # like a scanner. Count connection events only.
+        if e.get("event_type") == "connection" and e.get("source_ip") and e.get("port"):
             by_ip[e["source_ip"]].append((e["event_time"], e["port"]))
 
     incidents = []
