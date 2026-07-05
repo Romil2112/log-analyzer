@@ -1,0 +1,5 @@
+# Test dependencies. Install with: pip install -r requirements-dev.txt
+-r requirements.txt
+pytest==9.1.1
+pytest-cov==7.1.0
+hypothesis==6.156.1
