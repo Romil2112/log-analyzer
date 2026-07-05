@@ -1,4 +1,4 @@
-![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Open Source](https://img.shields.io/badge/Open%20Source-Free%20to%20Use-success) ![Tests](https://img.shields.io/badge/pytest-146%20passing-brightgreen?logo=pytest&logoColor=white)
+![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Open Source](https://img.shields.io/badge/Open%20Source-Free%20to%20Use-success) ![Tests](https://img.shields.io/badge/pytest-193%20passing-brightgreen?logo=pytest&logoColor=white)
 
 # log-analyzer
 
@@ -21,7 +21,7 @@ A CLI security tool that parses SSH `auth.log` and Windows Event Log CSV files, 
 - **Docker support** — `docker compose up` spins up Postgres + analyzer together
 - **Fail-loud event contract** — a startup/CI check (`contracts.py`) asserts every detector's required event types are produced by some parser, so an "orphaned detector" can't silently run and find nothing
 - **Privacy controls** — optional field-level encryption at rest (`DB_ENCRYPTION_KEY`), username scrubbing (`--scrub-usernames`), raw-line redaction (`--no-raw-lines`), IP pseudonymization (`--pseudonymize`), and data retention (`--retention-days`)
-- **GitHub Actions CI** — runs all 146 pytest tests and uploads a sample report on every push
+- **GitHub Actions CI** — runs all 193 pytest tests and uploads a sample report on every push
 
 ## Prerequisites
 
@@ -310,7 +310,7 @@ log-analyzer/
 │   ├── test_soc_push.py   # SOC-Dashboard push tests
 │   ├── test_ai_scale.py   # concurrent AI summarization tests
 │   ├── test_contract.py   # producer/consumer event-contract tests
-│   └── test_privacy.py    # encryption, scrubbing, pseudonymization, retention (146 total)
+│   └── test_privacy.py    # encryption, scrubbing, pseudonymization, retention (193 total)
 └── .github/workflows/
     └── ci.yml             # GitHub Actions: test + report artifact
 ```
