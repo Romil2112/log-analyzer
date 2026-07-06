@@ -1,0 +1,87 @@
+{
+  "name": "log_analyzer_multi_source",
+  "description": "Parent fan-out: run the log_analyzer_soc_pipeline (v4) as a sub-workflow for several log sources in parallel, then join. One trigger, one nested execution per log source in the Orkes UI.",
+  "version": 1,
+  "schemaVersion": 2,
+  "ownerEmail": "shahromil71321@gmail.com",
+  "timeoutSeconds": 0,
+  "inputParameters": [
+    "soc_url",
+    "soc_api_key",
+    "log_ssh",
+    "log_web",
+    "log_mixed"
+  ],
+  "tasks": [
+    {
+      "name": "source_fork",
+      "taskReferenceName": "source_fork_ref",
+      "type": "FORK_JOIN",
+      "forkTasks": [
+        [
+          {
+            "name": "log_analyzer_soc_pipeline",
+            "taskReferenceName": "ssh_ref",
+            "type": "SUB_WORKFLOW",
+            "subWorkflowParam": {
+              "name": "log_analyzer_soc_pipeline",
+              "version": 4
+            },
+            "inputParameters": {
+              "log_path": "${workflow.input.log_ssh}",
+              "soc_url": "${workflow.input.soc_url}",
+              "soc_api_key": "${workflow.input.soc_api_key}"
+            }
+          }
+        ],
+        [
+          {
+            "name": "log_analyzer_soc_pipeline",
+            "taskReferenceName": "web_ref",
+            "type": "SUB_WORKFLOW",
+            "subWorkflowParam": {
+              "name": "log_analyzer_soc_pipeline",
+              "version": 4
+            },
+            "inputParameters": {
+              "log_path": "${workflow.input.log_web}",
+              "soc_url": "${workflow.input.soc_url}",
+              "soc_api_key": "${workflow.input.soc_api_key}"
+            }
+          }
+        ],
+        [
+          {
+            "name": "log_analyzer_soc_pipeline",
+            "taskReferenceName": "mixed_ref",
+            "type": "SUB_WORKFLOW",
+            "subWorkflowParam": {
+              "name": "log_analyzer_soc_pipeline",
+              "version": 4
+            },
+            "inputParameters": {
+              "log_path": "${workflow.input.log_mixed}",
+              "soc_url": "${workflow.input.soc_url}",
+              "soc_api_key": "${workflow.input.soc_api_key}"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "source_join",
+      "taskReferenceName": "source_join_ref",
+      "type": "JOIN",
+      "joinOn": [
+        "ssh_ref",
+        "web_ref",
+        "mixed_ref"
+      ]
+    }
+  ],
+  "outputParameters": {
+    "ssh": "${ssh_ref.output.counts}",
+    "web": "${web_ref.output.counts}",
+    "mixed": "${mixed_ref.output.counts}"
+  }
+}

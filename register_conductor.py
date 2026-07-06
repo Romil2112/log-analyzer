@@ -20,9 +20,14 @@ from conductor.client.orkes.orkes_metadata_client import OrkesMetadataClient
 from conductor.client.http.models.task_def import TaskDef
 from conductor.client.http.models.workflow_def import WorkflowDef
 from conductor.client.http.models.workflow_task import WorkflowTask
+from conductor.client.http.models.sub_workflow_params import SubWorkflowParams
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-WORKFLOW_JSON = os.path.join(HERE, "conductor_workflow.json")
+# Register both the core pipeline and the multi-source fan-out parent (each its own file).
+WORKFLOW_JSONS = [
+    os.path.join(HERE, "conductor_workflow.json"),
+    os.path.join(HERE, "conductor_multi_source.json"),
+]
 
 OWNER_EMAIL = "shahromil71321@gmail.com"
 
@@ -62,6 +67,9 @@ def _workflow_task(t: dict) -> WorkflowTask:
         wt.fork_tasks = [[_workflow_task(x) for x in branch] for branch in t["forkTasks"]]
     if t.get("joinOn"):
         wt.join_on = t["joinOn"]
+    if t.get("subWorkflowParam"):
+        swp = t["subWorkflowParam"]
+        wt.sub_workflow_param = SubWorkflowParams(name=swp["name"], version=swp.get("version"))
     return wt
 
 
@@ -107,9 +115,10 @@ def main() -> None:
         )
         print(f"  registered task def: {td['name']}")
 
-    wf = _workflow_def_from_json(WORKFLOW_JSON)
-    metadata.register_workflow_def(wf, overwrite=True)
-    print(f"registered workflow: {wf.name} (v{wf.version})")
+    for path in WORKFLOW_JSONS:
+        wf = _workflow_def_from_json(path)
+        metadata.register_workflow_def(wf, overwrite=True)
+        print(f"registered workflow: {wf.name} (v{wf.version})")
     print("\nDone. Start workers with:  python3 start_workers.py")
 
 

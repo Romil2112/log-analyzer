@@ -86,6 +86,33 @@ per-IP anomaly score together:
 `enrich_geoip` also returns aggregate stats (`enriched`, `known_bad_count`, `countries`,
 `scored`) so its Orkes task panel shows a rollup rather than just the incident list.
 
+## Fan-out across log sources
+
+`log_analyzer_multi_source` (v1) is a parent workflow that runs the v4 pipeline as a
+sub-workflow once per log source, in parallel, then joins. One manual trigger fans out to
+three independent executions — an SSH log, a web log, and a mixed log — so all three
+detector types (brute-force, port-scan, 404-flood) are exercised across the sources, and
+each source's incidents are pushed to the SOC-Dashboard by its own sub-workflow.
+
+![Multi-source fan-out parent execution](docs/multisource_fanout.png)
+
+Each branch is a Conductor `SUB_WORKFLOW` task pointing at `log_analyzer_soc_pipeline`
+version 4; the `JOIN` waits for all three before the parent completes. No new workers are
+needed — the sub-workflows reuse the v4 workers. Register it alongside the pipeline with
+`register_conductor.py`, then trigger it with three `log_*` inputs plus `soc_url` /
+`soc_api_key`.
+
+### Scheduling (not built)
+
+Orkes can also run a workflow on a cron-style schedule via its Scheduler, which would give a
+history of runs over time. This is intentionally **not** wired up here: a recurring schedule
+fires unattended, and since each firing runs the full pipeline it would make real Claude API
+calls and push alerts to the SOC on a timer whether or not anyone is watching — recurring
+cost with little value for a one-shot live demo. If it were added, it would use the SDK's
+`OrkesSchedulerClient` (a `save_schedule` call with a cron expression targeting
+`log_analyzer_multi_source`) and be torn down with `delete_schedule(name)` (or paused) so
+nothing runs unattended. The manual fan-out above is the substantive, on-demand half.
+
 ## Files
 
 | File | Purpose |
@@ -93,7 +120,8 @@ per-IP anomaly score together:
 | `conductor_workers.py` | `@worker_task` adapters wrapping existing pipeline functions (no detection logic changed): `analyze_log` (v1), plus `detect_brute_force` / `detect_port_scan` / `detect_404_flood` / `ml_score` / `join_incidents` (v2 fork/join), plus `generate_claude_summary` and `push_to_dashboard` (shared). |
 | `start_workers.py` | Launches the workers (thread-per-worker; see the macOS note below). |
 | `register_conductor.py` | One-time registration of the task defs + workflow on the server. |
-| `conductor_workflow.json` | The workflow definition (also importable via the Orkes UI). |
+| `conductor_workflow.json` | The core pipeline workflow definition (v4; also importable via the Orkes UI). |
+| `conductor_multi_source.json` | The `log_analyzer_multi_source` parent fan-out workflow (SUB_WORKFLOW per log source). |
 | `requirements-conductor.txt` | The `conductor-python` SDK dependency. |
 
 ## Worker stages
