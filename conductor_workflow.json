@@ -1,7 +1,7 @@
 {
   "name": "log_analyzer_soc_pipeline",
-  "description": "v3: fork the three detectors + ML scoring in parallel, join + tag (severity/MITRE), enrich (threat-intel + GeoIP) as its own stage, summarize via Claude, and push to SOC-Dashboard",
-  "version": 3,
+  "description": "v4: fork the three detectors + ML scoring in parallel, join + tag (severity/MITRE), enrich (threat-intel + GeoIP + per-incident anomaly score + flat mitre_id) as its own stage, summarize via Claude, and push to SOC-Dashboard",
+  "version": 4,
   "schemaVersion": 2,
   "ownerEmail": "shahromil71321@gmail.com",
   "timeoutSeconds": 0,
@@ -90,7 +90,8 @@
       "taskReferenceName": "enrich_ref",
       "type": "SIMPLE",
       "inputParameters": {
-        "incidents": "${join_ref.output.incidents}"
+        "incidents": "${join_ref.output.incidents}",
+        "anomaly_scores": "${join_ref.output.anomaly_scores}"
       }
     },
     {

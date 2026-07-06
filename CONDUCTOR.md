@@ -7,7 +7,7 @@ Conductor for tasks.
 
 ```
         ┌──────────────── Orkes Conductor (cloud control plane + UI) ────────────────┐
-        │  workflow: log_analyzer_soc_pipeline  (v3, fork/join + enrich stage)        │
+        │  workflow: log_analyzer_soc_pipeline  (v4, fork/join + rich enrich)         │
         │                                                                             │
         │            ┌─ detect_brute_force ─┐                                         │
         │   (FORK) ──┼─ detect_port_scan  ──┼── (JOIN) ─► join_incidents              │
@@ -32,8 +32,11 @@ detectors and the ML scorer into four parallel tasks and joins them — a real D
 independently retryable, observable stages. **v3** pulls threat-intel + GeoIP enrichment
 out of the join into its own `enrich_geoip` stage, so `join_incidents` only merges and
 tags severity/MITRE (cheap, local), and the enrichment lookups are separately timed and
-retryable. Each fork branch re-parses the log locally so only small incident lists (never
-the raw events) cross a task boundary.
+retryable. **v4** enriches each incident dict in place inside `enrich_geoip` — merging the
+per-IP anomaly score and a flat `mitre_id` so one incident carries severity, MITRE, GeoIP,
+threat-intel, and anomaly score together — and returns aggregate stats (known-bad count,
+countries, scored) so the task panel shows substance. Each fork branch re-parses the log
+locally so only small incident lists (never the raw events) cross a task boundary.
 
 ## A live run
 
@@ -60,6 +63,28 @@ A representative excerpt from the run above:
 
 The stage is still optional: it returns `null` — without failing the workflow — when the
 key is unset *or* invalid, so the downstream SOC push always runs.
+
+By the time an incident reaches `push_to_dashboard` it carries every computed field in one
+place — as of v4, severity, MITRE (nested + flat `mitre_id`), GeoIP, threat-intel, and the
+per-IP anomaly score together:
+
+```json
+{
+  "incident_type": "brute_force",
+  "source_ip": "10.99.99.99",
+  "severity": "CRITICAL",
+  "mitre_id": "T1110.001",
+  "mitre": { "id": "T1110.001", "name": "Brute Force: Password Guessing", "tactic": "Credential Access" },
+  "country": "Unknown",
+  "known_bad": false,
+  "anomaly_score": 1.0,
+  "event_count": 783
+}
+```
+
+`anomaly_score` is `null` when the ML stage did not score that IP — honest, not an error.
+`enrich_geoip` also returns aggregate stats (`enriched`, `known_bad_count`, `countries`,
+`scored`) so its Orkes task panel shows a rollup rather than just the incident list.
 
 ## Files
 

@@ -195,23 +195,48 @@ def join_incidents(
 
 
 @worker_task(task_definition_name="enrich_geoip")
-def enrich_geoip(incidents: List[dict]) -> dict:
-    """v3 stage: attach threat-intel (``known_bad``) + GeoIP (``country``) to each incident.
+def enrich_geoip(incidents: List[dict], anomaly_scores: dict = None) -> dict:
+    """v3/v4 stage: attach threat-intel (``known_bad``) + GeoIP (``country``) to each
+    incident, and (v4) fold in the richer per-incident fields so one dict carries
+    severity + MITRE + geo + threat-intel + anomaly score together.
 
     Kept as its own task so the lookups are an independently timed, retryable stage in the
     Orkes view. The threat-intel CIDR list and the MaxMind GeoIP reader are both LOCAL
     (a file read + an .mmdb open -- no network calls); they are built and closed inside
     this worker, so only the small incident list crosses the task boundary. ``country`` is
-    ``"Unknown"`` when GEOIP_DB_PATH is unset, which keeps the stage working offline."""
+    ``"Unknown"`` when GEOIP_DB_PATH is unset, which keeps the stage working offline.
+
+    v4 additions per incident: ``anomaly_score`` (merged by source_ip from the ml_score
+    output, ``None`` when that IP has no score -- honest, not an error) and a flat
+    ``mitre_id`` for at-a-glance display alongside the existing nested ``mitre`` dict. The
+    task also returns small aggregate stats so the Orkes output panel shows substance."""
     if not incidents:
-        return {"incidents": []}
+        return {"incidents": [], "enriched": 0, "known_bad_count": 0, "countries": {}, "scored": 0}
+
     networks = enrichment.load_threat_intel()
     geo = enrichment.GeoIP()
     try:
-        enriched = enrichment.enrich_incidents(incidents, networks, geo)
+        enriched = enrichment.enrich_incidents(incidents, networks, geo)  # + country, known_bad
     finally:
         geo.close()
-    return _json_safe({"incidents": enriched})
+
+    scores = anomaly_scores or {}
+    countries: dict[str, int] = {}
+    for inc in enriched:
+        inc["anomaly_score"] = scores.get(inc.get("source_ip"))  # None if this IP wasn't scored
+        inc["mitre_id"] = (inc.get("mitre") or {}).get("id")
+        country = inc.get("country", "Unknown")
+        countries[country] = countries.get(country, 0) + 1
+
+    return _json_safe(
+        {
+            "incidents": enriched,
+            "enriched": len(enriched),
+            "known_bad_count": sum(1 for i in enriched if i.get("known_bad")),
+            "countries": countries,
+            "scored": sum(1 for i in enriched if i.get("anomaly_score") is not None),
+        }
+    )
 
 
 @worker_task(task_definition_name="generate_claude_summary")
