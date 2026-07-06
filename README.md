@@ -26,6 +26,7 @@ The rule engine's burst detector was the one hot spot. The burst detector starte
 - Sigma export (`--export-sigma`): vendor-neutral detection-as-code
 - Native SIEM compilation (`--export-siem`): Splunk SPL, Elastic ES|QL, and Sentinel KQL via pySigma backends with per-SIEM field-mapping pipelines
 - SOC-Dashboard handoff (`--push-soc`): POSTs each incident to the triage queue with `X-API-Key` auth
+- Optional orchestration (Orkes Conductor): run the detect, summarize, and push stages as durable, retryable, observable tasks — see [CONDUCTOR.md](CONDUCTOR.md)
 - Claude API summaries (`--ai-summary`): concurrent batched calls with token-cost and p50/p95 latency instrumentation, about 8x the throughput of sequential calls
 - Encryption at rest: Fernet field-level encryption of PII columns
 - Privacy controls: IP pseudonymization, username scrubbing, raw-line redaction, and retention purge

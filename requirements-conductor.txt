@@ -1,0 +1,5 @@
+# Extra dependency for the Orkes Conductor orchestration layer (conductor_workers.py,
+# start_workers.py, register_conductor.py). Kept separate from requirements.txt so the
+# core CLI + CI test suite don't take on the SDK. Install alongside requirements.txt:
+#     pip install -r requirements.txt -r requirements-conductor.txt
+conductor-python>=1.4.0

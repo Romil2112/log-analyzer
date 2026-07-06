@@ -2,6 +2,9 @@ __pycache__/
 *.py[cod]
 *.pyo
 .env
+.env.*
+.orkes_env
+*.credentials
 *.html
 test_auth.log
 test_events.csv

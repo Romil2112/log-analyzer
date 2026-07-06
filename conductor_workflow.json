@@ -1,0 +1,51 @@
+{
+  "name": "log_analyzer_soc_pipeline",
+  "description": "Ingest a log file, detect + enrich + ML-score incidents, summarize via Claude, and push to SOC-Dashboard",
+  "version": 1,
+  "schemaVersion": 2,
+  "ownerEmail": "shahromil71321@gmail.com",
+  "timeoutSeconds": 0,
+  "inputParameters": [
+    "log_path",
+    "soc_url",
+    "soc_api_key"
+  ],
+  "tasks": [
+    {
+      "name": "analyze_log",
+      "taskReferenceName": "analyze_ref",
+      "type": "SIMPLE",
+      "inputParameters": {
+        "log_path": "${workflow.input.log_path}",
+        "log_format": "auto",
+        "enrich_ip": true,
+        "run_ml": true
+      }
+    },
+    {
+      "name": "generate_claude_summary",
+      "taskReferenceName": "summary_ref",
+      "type": "SIMPLE",
+      "inputParameters": {
+        "incidents": "${analyze_ref.output.incidents}",
+        "anomaly_scores": "${analyze_ref.output.anomaly_scores}"
+      }
+    },
+    {
+      "name": "push_to_dashboard",
+      "taskReferenceName": "push_ref",
+      "type": "SIMPLE",
+      "inputParameters": {
+        "incidents": "${analyze_ref.output.incidents}",
+        "soc_url": "${workflow.input.soc_url}",
+        "soc_api_key": "${workflow.input.soc_api_key}"
+      }
+    }
+  ],
+  "outputParameters": {
+    "counts": "${analyze_ref.output.counts}",
+    "summary": "${summary_ref.output.summary}",
+    "pushed": "${push_ref.output.pushed}",
+    "push_errors": "${push_ref.output.errors}"
+  }
+}
