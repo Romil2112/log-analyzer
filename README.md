@@ -4,6 +4,12 @@
 
 log-analyzer is a command-line security tool. It reads SSH `auth.log`, Windows Event Log CSV exports, and Apache/Nginx access logs, runs both rule-based and machine-learning detection over them, and maps each finding to a MITRE ATT&CK technique. It writes a dark-themed HTML incident report, and can also store results in PostgreSQL, compile detections into Splunk, Elastic, and Sentinel queries, or push incidents to the companion [SOC-Dashboard](https://github.com/Romil2112/SOC-Dashboard). It is the detection stage of a two-part pipeline: log-analyzer finds the incidents, SOC-Dashboard is where an analyst triages them.
 
+## Screenshots
+
+The HTML incident report: attack overview, MITRE ATT&CK coverage, per-IP anomaly scores, and the detected incidents. It renders offline with no external assets.
+
+![HTML incident report](docs/report.png)
+
 ## How it works
 
 Logs arrive in one of three formats. `detect_log_format` picks the parser, and every parser emits the same event-dictionary shape, so the detectors downstream never depend on where an event came from. Two detectors run over those events: a rule engine using sliding time windows (brute force T1110.001, port scan T1046, 404-flood and web-scan T1595.002), and an Isolation Forest model that scores each source IP on eight behavioral features to catch the low-and-slow activity the rules miss. Incidents from both are enriched with threat-intel and GeoIP, mapped to ATT&CK, and run through the privacy transforms before anything leaves memory. The outputs then fan out: HTML report, PostgreSQL, Sigma/SIEM files, a SOC-Dashboard push, and an optional Claude summary.
