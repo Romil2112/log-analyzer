@@ -6,41 +6,66 @@ hosts the orchestration control plane + UI; the worker code runs on your machine
 Conductor for tasks.
 
 ```
-                 ┌─────────────── Orkes Conductor (cloud control plane + UI) ───────────────┐
-                 │   workflow: log_analyzer_soc_pipeline                                     │
-                 │   analyze_log ──► generate_claude_summary ──► push_to_dashboard           │
-                 └───────▲───────────────────▲──────────────────────────▲───────────────────┘
-                         │ poll/complete      │                          │
-                 ┌───────┴────────────────────┴──────────────────────────┴───────┐
-                 │  start_workers.py  (this repo, runs locally, polls Conductor)   │
-                 │  parse→detect→enrich→ML   Claude API      HTTP POST /api/alerts │
-                 └────────────────────────────────────────────────┬───────────────┘
-                                                                   ▼
-                                                        SOC-Dashboard /api/alerts
+        ┌──────────────── Orkes Conductor (cloud control plane + UI) ────────────────┐
+        │  workflow: log_analyzer_soc_pipeline  (v3, fork/join + enrich stage)        │
+        │                                                                             │
+        │            ┌─ detect_brute_force ─┐                                         │
+        │   (FORK) ──┼─ detect_port_scan  ──┼── (JOIN) ─► join_incidents              │
+        │            ├─ detect_404_flood  ──┤                 │                       │
+        │            └─ ml_score          ──┘                 ▼                       │
+        │                                          enrich_geoip (threat-intel+GeoIP)  │
+        │                                                     │                       │
+        │                                                     ▼                       │
+        │                              generate_claude_summary ─► push_to_dashboard   │
+        └───────▲────────────────────────────────────────────────────▲───────────────┘
+                │ poll/complete                                        │
+        ┌───────┴────────────────────────────────────────────────────┴───────┐
+        │  start_workers.py  (this repo, runs locally, polls Conductor)        │
+        └─────────────────────────────────────────────────┬───────────────────┘
+                                                           ▼
+                                                SOC-Dashboard /api/alerts
 ```
+
+Three versions are registered on the server. **v1** runs the whole detection pipeline
+inside a single `analyze_log` task (a straight three-node line). **v2** forks the three
+detectors and the ML scorer into four parallel tasks and joins them — a real DAG with
+independently retryable, observable stages. **v3** pulls threat-intel + GeoIP enrichment
+out of the join into its own `enrich_geoip` stage, so `join_incidents` only merges and
+tags severity/MITRE (cheap, local), and the enrichment lookups are separately timed and
+retryable. Each fork branch re-parses the log locally so only small incident lists (never
+the raw events) cross a task boundary.
 
 ## A live run
 
-Below is a real run of `log_analyzer_soc_pipeline` against a 10,000-event SSH log. All
-three tasks complete in under a second, the six detected incidents are pushed to the
-SOC-Dashboard, and they show up in the analyst's open-alert queue.
+Below is a real **v3** run of `log_analyzer_soc_pipeline` against a 10,000-event SSH log.
+The three detectors and the ML scorer run in parallel off the fork; the join merges and
+tags them into six incidents; `enrich_geoip` adds threat-intel + GeoIP as its own stage;
+Claude writes an executive summary; and the six incidents are pushed to the SOC-Dashboard —
+the whole DAG completing in about five seconds.
+
+![Conductor v3 fork/join + enrich execution](docs/conductor_dag.png)
+
+End to end, from the Conductor run to the incidents landing in the analyst's queue:
 
 ![Pipeline walkthrough: Conductor run to SOC triage](docs/pipeline_demo.gif)
 
-The Conductor execution itself — three durable tasks, each independently retried and
-timed:
+With `ANTHROPIC_API_KEY` set, `generate_claude_summary` returns a real executive summary.
+A representative excerpt from the run above:
 
-![Conductor workflow execution](docs/conductor_run.png)
+> Our organization detected five distinct attack sources conducting reconnaissance and
+> credential compromise attempts, with the most severe threat originating from 10.99.99.99,
+> which executed 783 brute-force login attempts (MITRE T1110.001 - Credential Stuffing)…
+> Recommended immediate actions: (1) block all identified IPs at the firewall and implement
+> rate-limiting on authentication endpoints, (2) enforce MFA across all accounts…
 
-The `generate_claude_summary` stage returns `null` when `ANTHROPIC_API_KEY` is unset; it
-is optional and the workflow still completes. Set the key to get a short executive summary
-alongside the incidents.
+The stage is still optional: it returns `null` — without failing the workflow — when the
+key is unset *or* invalid, so the downstream SOC push always runs.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `conductor_workers.py` | Three `@worker_task` adapters wrapping existing pipeline functions (no detection logic changed). |
+| `conductor_workers.py` | `@worker_task` adapters wrapping existing pipeline functions (no detection logic changed): `analyze_log` (v1), plus `detect_brute_force` / `detect_port_scan` / `detect_404_flood` / `ml_score` / `join_incidents` (v2 fork/join), plus `generate_claude_summary` and `push_to_dashboard` (shared). |
 | `start_workers.py` | Launches the workers (thread-per-worker; see the macOS note below). |
 | `register_conductor.py` | One-time registration of the task defs + workflow on the server. |
 | `conductor_workflow.json` | The workflow definition (also importable via the Orkes UI). |

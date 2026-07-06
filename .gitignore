@@ -4,6 +4,7 @@ __pycache__/
 .env
 .env.*
 .orkes_env
+.anthropic_env
 *.credentials
 *.html
 test_auth.log

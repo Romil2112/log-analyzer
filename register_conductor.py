@@ -26,26 +26,49 @@ WORKFLOW_JSON = os.path.join(HERE, "conductor_workflow.json")
 
 OWNER_EMAIL = "shahromil71321@gmail.com"
 
-# Task defs: analyze can be slow on big logs, so give it generous timeouts + retries.
+# Task defs: parsing/analysis can be slow on big logs, so give those generous timeouts.
+# analyze_log backs the v1 straight-line workflow; the detect_*/ml_score/join_incidents
+# tasks back the v2 fork/join workflow. Both versions coexist on the server.
 TASK_DEFS = [
     {"name": "analyze_log", "response_timeout_seconds": 600, "timeout_seconds": 900},
+    {"name": "detect_brute_force", "response_timeout_seconds": 600, "timeout_seconds": 900},
+    {"name": "detect_port_scan", "response_timeout_seconds": 600, "timeout_seconds": 900},
+    {"name": "detect_404_flood", "response_timeout_seconds": 600, "timeout_seconds": 900},
+    {"name": "ml_score", "response_timeout_seconds": 600, "timeout_seconds": 900},
+    {"name": "join_incidents", "response_timeout_seconds": 120, "timeout_seconds": 180},
+    # enrich_geoip does LOCAL threat-intel + MaxMind GeoIP lookups (no network); ms-scale
+    # for a handful of incidents. 60/120 matches the I/O-bound tier (like push_to_dashboard)
+    # with wide margin for a cold DB open, rather than reusing join_incidents' heavier 120/180.
+    {"name": "enrich_geoip", "response_timeout_seconds": 60, "timeout_seconds": 120},
     {"name": "generate_claude_summary", "response_timeout_seconds": 120, "timeout_seconds": 180},
     {"name": "push_to_dashboard", "response_timeout_seconds": 60, "timeout_seconds": 120},
 ]
 
 
+def _workflow_task(t: dict) -> WorkflowTask:
+    """Build a WorkflowTask from the JSON spec, handling FORK_JOIN/JOIN structure.
+
+    FORK_JOIN tasks carry ``forkTasks`` (a list of parallel branches, each a list of
+    tasks) and JOIN tasks carry ``joinOn`` (the branch reference names to wait on). The
+    SDK's WorkflowTask constructor signature varies across versions, so set those two
+    fields as attributes after construction rather than as kwargs."""
+    wt = WorkflowTask(
+        name=t["name"],
+        task_reference_name=t["taskReferenceName"],
+        type=t["type"],
+        input_parameters=t.get("inputParameters", {}),
+    )
+    if t.get("forkTasks"):
+        wt.fork_tasks = [[_workflow_task(x) for x in branch] for branch in t["forkTasks"]]
+    if t.get("joinOn"):
+        wt.join_on = t["joinOn"]
+    return wt
+
+
 def _workflow_def_from_json(path: str) -> WorkflowDef:
     with open(path) as fh:
         spec = json.load(fh)
-    tasks = [
-        WorkflowTask(
-            name=t["name"],
-            task_reference_name=t["taskReferenceName"],
-            type=t["type"],
-            input_parameters=t.get("inputParameters", {}),
-        )
-        for t in spec["tasks"]
-    ]
+    tasks = [_workflow_task(t) for t in spec["tasks"]]
     return WorkflowDef(
         name=spec["name"],
         description=spec.get("description"),

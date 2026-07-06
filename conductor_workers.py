@@ -61,6 +61,17 @@ def _json_safe(obj):
     return obj
 
 
+def _parse(log_path, log_format):
+    """Resolve the format and parse the log into events. Kept as a helper because each
+    forked detector task re-parses the log locally (raw events, which carry datetimes and
+    can number in the hundreds of thousands, must never cross a Conductor task boundary)."""
+    fmt = la.detect_log_format(log_path) if log_format == "auto" else log_format
+    parser = _PARSERS.get(fmt)
+    if parser is None:
+        raise ValueError(f"unsupported log_format {fmt!r} (expected ssh/web/windows/auto)")
+    return parser(log_path), fmt
+
+
 @worker_task(task_definition_name="analyze_log")
 def analyze_log(
     log_path: str,
@@ -115,6 +126,94 @@ def analyze_log(
     )
 
 
+# ── Fork/join variant (workflow v2) ───────────────────────────────────────────
+# v2 splits analyze_log into four parallel tasks (the three detectors + ML scoring)
+# that fan out from a FORK_JOIN, then a JOIN feeds join_incidents, which merges and
+# enriches. Each parallel task takes only the log_path (a string) and re-parses the
+# log locally, so raw events never cross a task boundary -- only small incident lists
+# and the anomaly-score dict do. The tradeoff is the log is parsed once per branch.
+
+
+@worker_task(task_definition_name="detect_brute_force")
+def detect_brute_force(log_path: str, log_format: str = "auto") -> dict:
+    """Fork branch: parse the log locally and run only the brute-force detector."""
+    events, fmt = _parse(log_path, log_format)
+    incidents = la.detect_brute_force(events)
+    return _json_safe({"incidents": incidents, "log_format": fmt, "count": len(incidents)})
+
+
+@worker_task(task_definition_name="detect_port_scan")
+def detect_port_scan(log_path: str, log_format: str = "auto") -> dict:
+    """Fork branch: parse the log locally and run only the port-scan detector."""
+    events, fmt = _parse(log_path, log_format)
+    incidents = la.detect_port_scan(events)
+    return _json_safe({"incidents": incidents, "log_format": fmt, "count": len(incidents)})
+
+
+@worker_task(task_definition_name="detect_404_flood")
+def detect_404_flood(log_path: str, log_format: str = "auto") -> dict:
+    """Fork branch: parse the log locally and run only the 404-flood / web-scan detector
+    (returns an empty list for non-web logs, which is expected)."""
+    events, fmt = _parse(log_path, log_format)
+    incidents = la.detect_404_flood(events)
+    return _json_safe({"incidents": incidents, "log_format": fmt, "count": len(incidents)})
+
+
+@worker_task(task_definition_name="ml_score")
+def ml_score(log_path: str, log_format: str = "auto") -> dict:
+    """Fork branch: parse the log locally and run the IsolationForest anomaly scorer.
+    Returns per-source-IP scores (``{}`` if sklearn/data insufficient) plus the event count
+    so the workflow output can still report total events."""
+    events, _ = _parse(log_path, log_format)
+    scores = la.AnomalyDetector().fit_score(events) if events else {}
+    return {"anomaly_scores": scores, "events": len(events)}
+
+
+@worker_task(task_definition_name="join_incidents")
+def join_incidents(
+    brute: List[dict],
+    port: List[dict],
+    flood: List[dict],
+    anomaly_scores: dict = None,
+    events: int = 0,
+) -> dict:
+    """Join task: merge the three detectors' incident lists and attach severity + MITRE
+    (``la.enrich_incidents`` -- cheap, local, no external calls). Threat-intel + GeoIP
+    enrichment is a separate downstream task (``enrich_geoip``) as of workflow v3.
+    ``la.enrich_incidents`` keys off incident_type / event_count only -- never the
+    ISO-string timestamps -- so running it after the fork boundary is lossless."""
+    incidents: list[dict] = list(brute or []) + list(port or []) + list(flood or [])
+    incidents = la.enrich_incidents(incidents)  # severity + MITRE
+
+    counts: dict[str, int] = {"events": events, "incidents": len(incidents)}
+    for inc in incidents:
+        counts[inc["incident_type"]] = counts.get(inc["incident_type"], 0) + 1
+
+    return _json_safe(
+        {"incidents": incidents, "anomaly_scores": anomaly_scores or {}, "counts": counts}
+    )
+
+
+@worker_task(task_definition_name="enrich_geoip")
+def enrich_geoip(incidents: List[dict]) -> dict:
+    """v3 stage: attach threat-intel (``known_bad``) + GeoIP (``country``) to each incident.
+
+    Kept as its own task so the lookups are an independently timed, retryable stage in the
+    Orkes view. The threat-intel CIDR list and the MaxMind GeoIP reader are both LOCAL
+    (a file read + an .mmdb open -- no network calls); they are built and closed inside
+    this worker, so only the small incident list crosses the task boundary. ``country`` is
+    ``"Unknown"`` when GEOIP_DB_PATH is unset, which keeps the stage working offline."""
+    if not incidents:
+        return {"incidents": []}
+    networks = enrichment.load_threat_intel()
+    geo = enrichment.GeoIP()
+    try:
+        enriched = enrichment.enrich_incidents(incidents, networks, geo)
+    finally:
+        geo.close()
+    return _json_safe({"incidents": enriched})
+
+
 @worker_task(task_definition_name="generate_claude_summary")
 def generate_claude_summary(incidents: List[dict], anomaly_scores: dict = None) -> dict:
     """Stage 2: a 3-sentence SOC executive summary via the Claude API.
@@ -124,7 +223,13 @@ def generate_claude_summary(incidents: List[dict], anomaly_scores: dict = None) 
     """
     if not incidents:
         return {"summary": None, "note": "no incidents to summarize"}
-    summary = ai_summary(incidents, anomaly_scores or {})
+    try:
+        summary = ai_summary(incidents, anomaly_scores or {})
+    except Exception as exc:  # noqa: BLE001 -- summary is optional; never fail the pipeline for it
+        # An unset key already returns None inside ai_summary. An *invalid* key or a
+        # transient API/network error should degrade the same way rather than failing
+        # the whole workflow and blocking the downstream SOC push.
+        return {"summary": None, "note": f"summary skipped: {type(exc).__name__}"}
     return {
         "summary": summary,
         "note": None if summary else "ANTHROPIC_API_KEY unset or empty response",
