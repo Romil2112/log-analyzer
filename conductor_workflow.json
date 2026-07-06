@@ -1,7 +1,7 @@
 {
   "name": "log_analyzer_soc_pipeline",
-  "description": "v4: fork the three detectors + ML scoring in parallel, join + tag (severity/MITRE), enrich (threat-intel + GeoIP + per-incident anomaly score + flat mitre_id) as its own stage, summarize via Claude, and push to SOC-Dashboard",
-  "version": 4,
+  "description": "v5: fork the three detectors + ML scoring in parallel, join + tag (severity/MITRE), enrich (threat-intel + GeoIP + per-incident anomaly score + flat mitre_id), summarize via Claude, and push to SOC-Dashboard with run provenance (workflow id + task timings)",
+  "version": 5,
   "schemaVersion": 2,
   "ownerEmail": "shahromil71321@gmail.com",
   "timeoutSeconds": 0,
@@ -110,7 +110,8 @@
       "inputParameters": {
         "incidents": "${enrich_ref.output.incidents}",
         "soc_url": "${workflow.input.soc_url}",
-        "soc_api_key": "${workflow.input.soc_api_key}"
+        "soc_api_key": "${workflow.input.soc_api_key}",
+        "workflow_id": "${workflow.workflowId}"
       }
     }
   ],

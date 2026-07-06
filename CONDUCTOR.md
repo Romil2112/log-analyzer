@@ -7,7 +7,7 @@ Conductor for tasks.
 
 ```
         ┌──────────────── Orkes Conductor (cloud control plane + UI) ────────────────┐
-        │  workflow: log_analyzer_soc_pipeline  (v4, fork/join + rich enrich)         │
+        │  workflow: log_analyzer_soc_pipeline  (v5, fork/join + enrich + provenance) │
         │                                                                             │
         │            ┌─ detect_brute_force ─┐                                         │
         │   (FORK) ──┼─ detect_port_scan  ──┼── (JOIN) ─► join_incidents              │
@@ -35,8 +35,12 @@ tags severity/MITRE (cheap, local), and the enrichment lookups are separately ti
 retryable. **v4** enriches each incident dict in place inside `enrich_geoip` — merging the
 per-IP anomaly score and a flat `mitre_id` so one incident carries severity, MITRE, GeoIP,
 threat-intel, and anomaly score together — and returns aggregate stats (known-bad count,
-countries, scored) so the task panel shows substance. Each fork branch re-parses the log
-locally so only small incident lists (never the raw events) cross a task boundary.
+countries, scored) so the task panel shows substance. **v5** attaches run provenance to
+every pushed alert — the workflow id (wired from `${workflow.workflowId}`) plus a
+best-effort per-task timing blob that `push_to_dashboard` reads back from Conductor — so
+the SOC-Dashboard can trace each alert to the run that produced it and how long each stage
+took. Each fork branch re-parses the log locally so only small incident lists (never the
+raw events) cross a task boundary.
 
 ## A live run
 

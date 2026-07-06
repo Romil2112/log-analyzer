@@ -261,14 +261,44 @@ def generate_claude_summary(incidents: List[dict], anomaly_scores: dict = None) 
     }
 
 
+def _collect_task_timings(workflow_id: str) -> dict:
+    """Best-effort: read this workflow's completed task durations from Conductor.
+
+    push_to_dashboard is the last task, so every upstream task is already COMPLETED by
+    the time this runs. Any failure (network, auth, SDK) degrades to ``None`` -- provenance
+    is a nice-to-have and must never block the SOC push (same discipline as the summary
+    stage). The Conductor client is imported lazily so this coupling only loads when used."""
+    try:
+        from conductor.client.configuration.configuration import Configuration
+        from conductor.client.orkes.orkes_workflow_client import OrkesWorkflowClient
+
+        w = OrkesWorkflowClient(Configuration()).get_workflow(workflow_id, include_tasks=True)
+        seconds = {
+            t.reference_task_name: round((t.end_time - t.start_time) / 1000.0, 3)
+            for t in w.tasks
+            if t.start_time and t.end_time
+        }
+        return {"workflow_id": workflow_id, "task_seconds": seconds}
+    except Exception:  # noqa: BLE001 -- provenance is optional; never fail the push for it
+        return None
+
+
 @worker_task(task_definition_name="push_to_dashboard")
-def push_to_dashboard(incidents: List[dict], soc_url: str, soc_api_key: str = "") -> dict:
+def push_to_dashboard(
+    incidents: List[dict], soc_url: str, soc_api_key: str = "", workflow_id: str = ""
+) -> dict:
     """Stage 3: POST each incident to SOC-Dashboard's ``/api/alerts`` ingest endpoint.
 
     ``soc_url`` example: ``http://localhost:8000/api/alerts``. ``soc_api_key`` must
-    match SOC-Dashboard's ``ALERTS_API_KEY`` or every POST 401s.
+    match SOC-Dashboard's ``ALERTS_API_KEY`` or every POST 401s. ``workflow_id`` (wired
+    from ``${workflow.workflowId}``) is stored on each alert as provenance, along with a
+    best-effort per-task timing blob, so the dashboard can trace an alert to its run.
     """
     if not incidents:
         return {"pushed": 0, "errors": [], "total": 0}
-    ok, errors = push_incidents(incidents, soc_url, api_key=soc_api_key or None)
-    return {"pushed": ok, "errors": errors, "total": len(incidents)}
+    run_metadata = _collect_task_timings(workflow_id) if workflow_id else None
+    ok, errors = push_incidents(
+        incidents, soc_url, api_key=soc_api_key or None,
+        workflow_run_id=workflow_id or None, run_metadata=run_metadata,
+    )
+    return {"pushed": ok, "errors": errors, "total": len(incidents), "workflow_run_id": workflow_id or None}
