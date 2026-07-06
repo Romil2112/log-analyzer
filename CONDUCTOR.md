@@ -19,6 +19,23 @@ Conductor for tasks.
                                                         SOC-Dashboard /api/alerts
 ```
 
+## A live run
+
+Below is a real run of `log_analyzer_soc_pipeline` against a 10,000-event SSH log. All
+three tasks complete in under a second, the six detected incidents are pushed to the
+SOC-Dashboard, and they show up in the analyst's open-alert queue.
+
+![Pipeline walkthrough: Conductor run to SOC triage](docs/pipeline_demo.gif)
+
+The Conductor execution itself — three durable tasks, each independently retried and
+timed:
+
+![Conductor workflow execution](docs/conductor_run.png)
+
+The `generate_claude_summary` stage returns `null` when `ANTHROPIC_API_KEY` is unset; it
+is optional and the workflow still completes. Set the key to get a short executive summary
+alongside the incidents.
+
 ## Files
 
 | File | Purpose |

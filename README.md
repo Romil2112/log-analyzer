@@ -10,6 +10,12 @@ The HTML incident report: attack overview, MITRE ATT&CK coverage, per-IP anomaly
 
 ![HTML incident report](docs/report.png)
 
+Detection to triage, orchestrated end to end with Orkes Conductor: a 10,000-event log runs
+through the three-task workflow and the detected incidents land in the SOC-Dashboard queue.
+More detail in [CONDUCTOR.md](CONDUCTOR.md).
+
+![Conductor pipeline walkthrough](docs/pipeline_demo.gif)
+
 ## How it works
 
 Logs arrive in one of three formats. `detect_log_format` picks the parser, and every parser emits the same event-dictionary shape, so the detectors downstream never depend on where an event came from. Two detectors run over those events: a rule engine using sliding time windows (brute force T1110.001, port scan T1046, 404-flood and web-scan T1595.002), and an Isolation Forest model that scores each source IP on eight behavioral features to catch the low-and-slow activity the rules miss. Incidents from both are enriched with threat-intel and GeoIP, mapped to ATT&CK, and run through the privacy transforms before anything leaves memory. The outputs then fan out: HTML report, PostgreSQL, Sigma/SIEM files, a SOC-Dashboard push, and an optional Claude summary.
