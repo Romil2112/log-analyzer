@@ -1,4 +1,4 @@
-![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Open Source](https://img.shields.io/badge/Open%20Source-Free%20to%20Use-success) ![Tests](https://img.shields.io/badge/pytest-193%20passing-brightgreen?logo=pytest&logoColor=white)
+![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Open Source](https://img.shields.io/badge/Open%20Source-Free%20to%20Use-success) ![Tests](https://img.shields.io/badge/pytest-195%20passing-brightgreen?logo=pytest&logoColor=white)
 
 # log-analyzer
 
@@ -37,7 +37,8 @@ The rule engine's burst detector was the one hot spot. The burst detector starte
 - Encryption at rest: Fernet field-level encryption of PII columns
 - Privacy controls: IP pseudonymization, username scrubbing, raw-line redaction, and retention purge
 - Fail-loud event contract: a startup check that every detector's required event types are produced by some parser
-- 193 pytest tests at 91% line / 88% branch coverage, run on GitHub Actions
+- Measured detection quality: a labeled-corpus [evaluation harness](eval/) reports precision / recall / F1 on synthetic and real Loghub data
+- 195 pytest tests at 90% line / 88% branch coverage, run on GitHub Actions
 
 ## Quick Start
 
@@ -131,7 +132,7 @@ flowchart LR
 
 ## Tests
 
-193 pytest tests cover parsing, both detectors, enrichment, MITRE mapping, the privacy transforms, Sigma and SIEM export, the SOC push, and the concurrent Claude layer, at 91% line and 88% branch coverage. Twelve adversarial fixture logs exercise slow brute force, coordinated multi-IP attacks, IPv6, unicode, malformed lines, and high volume. Run the suite with:
+195 pytest tests cover parsing, both detectors, enrichment, MITRE mapping, the privacy transforms, Sigma and SIEM export, the SOC push, and the concurrent Claude layer, at 90% line and 88% branch coverage. Twelve adversarial fixture logs exercise slow brute force, coordinated multi-IP attacks, IPv6, unicode, malformed lines, and high volume. Run the suite with:
 
 ```bash
 python -m pytest tests/ -v
@@ -142,6 +143,34 @@ With coverage (kept at ≥85% line / ≥80% branch, every source module ≥85%):
 ```bash
 python -m pytest --cov=. --cov-branch --cov-report=term-missing
 ```
+
+## Evaluation
+
+Passing tests show the code runs; they do not show the detectors classify well. The [`eval/`](eval/) harness answers that separately, scoring the pipeline against **ground-truth labels** (per source IP, the unit the detectors emit) and reporting precision, recall, F1, and the explicit false-positive and false-negative lists. It runs in three configurations so the contribution of each layer is measurable: `rules`, `rules+fp_reduction`, and `full` (rules + FP suppression + the Isolation Forest anomaly layer).
+
+**Synthetic corpus** — 24 IPs (6 malicious / 18 benign), ground truth known by construction, with two deliberate false-positive traps (a fat-fingered legit user and an internal monitoring account):
+
+| config | precision | recall | F1 |
+|--------|-----------|--------|----|
+| rules | 0.714 | 0.833 | 0.769 |
+| rules+fp_reduction | **1.000** | 0.833 | 0.909 |
+| full | 0.857 | **1.000** | 0.923 |
+
+The FP-reduction levers remove both traps (precision 0.71 → 1.00); the anomaly layer then recovers the slow credential-stuffer the rules structurally miss (recall 0.83 → 1.00) at the cost of one honest false positive on a high-volume gateway. That trade-off is real, and it is the point — a 1.0/1.0 would mean the corpus was rigged.
+
+**Real data** — Loghub "LabSZ" OpenSSH capture (`logpai/loghub`), an internet-facing server under continuous brute-force, 24 IPs (23 malicious / 1 benign), labeled by dataset domain knowledge independent of the detector threshold:
+
+| config | precision | recall | F1 |
+|--------|-----------|--------|----|
+| rules | 1.000 | 0.391 | 0.562 |
+| full | 1.000 | 0.391 | 0.562 |
+
+Two findings the harness makes honest instead of hand-waved:
+
+- The fixed count threshold has perfect precision but **39% recall** — it catches the 9 high-volume attackers and misses 14 low-and-slow ones. That is the quantified cost of a threshold.
+- The **ML layer adds nothing here**, unlike on the synthetic corpus. When ~96% of the traffic is already attacking, "anomalous versus the crowd" breaks down — Isolation Forest assumes attackers are rare outliers, and on a saturated log they are the baseline. Knowing when unsupervised anomaly detection helps (mostly-benign traffic) versus when it doesn't (saturated attack) is the takeaway.
+
+**A false positive this harness caught, and the fix.** The evaluation surfaced a real defect: `detect_port_scan` was double-flagging brute-forcers. SSH clients use a random ephemeral *source* port per attempt, which the parser stored in the same `port` field, so one attacker's many failed logins looked like many distinct "ports." The fix is a single predicate — count only `event_type == "connection"` events, since an auth event's port is the client's source port, not a scanned destination. Measured result: port_scan false positives dropped 6 → 0 (synthetic 2, real Loghub 4), port_scan F1 rose 0.40 → 1.00, both genuine scanners were preserved, and the per-IP metrics above were unchanged. Two regression tests in `tests/test_detection.py` now lock it out. Full method, corpus provenance, and how to label your own data are in [`eval/README.md`](eval/README.md).
 
 ## Privacy & Legal Compliance
 

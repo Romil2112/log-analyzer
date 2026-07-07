@@ -94,8 +94,12 @@ Two honest findings this surfaces on real data:
 > event's port is the client's source port, not a scanned destination. Measured
 > result across these corpora: port_scan false positives dropped 6 → 0 (synthetic 2,
 > real Loghub 4), port_scan F1 rose 0.40 → 1.00, both genuine scanners were
-> preserved, the per-IP metrics above are unchanged, and all 193 tests still pass.
-> Fixed in commit `1662e4d`.
+> preserved, and the per-IP metrics above are unchanged. Fixed in commit
+> `1662e4d`; the false positive is now locked out by two regression tests in
+> `tests/test_detection.py` (`test_brute_forcer_ephemeral_ports_not_flagged`
+> asserts a brute-forcer's ephemeral source ports raise no port_scan, and
+> `test_scanner_still_flagged_alongside_brute_forcer` proves a real scanner in
+> the same log is still caught). All 195 tests pass.
 
 ## Label file format
 

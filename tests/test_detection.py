@@ -261,6 +261,43 @@ class TestDetectPortScan:
         ips = {inc["source_ip"] for inc in incidents}
         assert ips == {"3.3.3.3", "4.4.4.4"}
 
+    def test_brute_forcer_ephemeral_ports_not_flagged(self):
+        """Regression: a brute-forcer is not misread as a port scan.
+
+        SSH clients use a random ephemeral SOURCE port per attempt, which the
+        parser records in the same ``port`` field. A brute-forcer therefore
+        appears to touch many distinct ports. Because those are ``failed_login``
+        events (not ``connection`` events), ``detect_port_scan`` must ignore
+        them -- otherwise every brute-force IP double-flags as a port scan.
+        This is the false positive the eval harness caught (see eval/README.md).
+        """
+        # 30 failed logins from one IP, each on a distinct ephemeral source
+        # port -- well over the 20-port threshold if ports were counted.
+        events = [
+            make_event("failed_login", "6.6.6.6", minutes_offset=i * 0.1, port=40000 + i)
+            for i in range(30)
+        ]
+        incidents = self._run(events, threshold=20, window=5)
+        assert incidents == []
+
+    def test_scanner_still_flagged_alongside_brute_forcer(self):
+        """The fix must not suppress a genuine scanner sharing the log.
+
+        A real port scan (many ``connection`` events to distinct ports) is still
+        detected even when a separate brute-forcer's ephemeral source ports are
+        present -- confirming the connection-only filter is not over-correcting.
+        """
+        brute = [
+            make_event("failed_login", "6.6.6.6", minutes_offset=i * 0.1, port=40000 + i)
+            for i in range(30)
+        ]
+        scanner = [
+            make_event("connection", "7.7.7.7", minutes_offset=i * 0.1, port=1000 + i)
+            for i in range(25)
+        ]
+        incidents = self._run(brute + scanner, threshold=20, window=5)
+        assert {inc["source_ip"] for inc in incidents} == {"7.7.7.7"}
+
 
 # ===========================================================================
 # detect_404_flood
