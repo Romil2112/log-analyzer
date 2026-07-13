@@ -16,7 +16,7 @@ import os
 import re
 import secrets
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -582,10 +582,7 @@ def print_incident_table(incidents: list[dict]) -> None:
     for inc in sorted(incidents, key=lambda x: -x["event_count"]):
         sev   = inc.get("severity", "LOW")
         mitre = inc.get("mitre", {})
-        secs  = int((inc["last_seen"] - inc["first_seen"]).total_seconds())
-        dur   = (f"{secs // 3600}h {(secs % 3600) // 60}m"
-                 if secs >= 3600 else f"{secs // 60}m {secs % 60}s"
-                 if secs >= 60 else f"{secs}s")
+        dur   = _duration(inc["first_seen"], inc["last_seen"])
 
         tbl.add_row(
             inc["incident_type"].replace("_", " ").title(),
@@ -645,12 +642,11 @@ def print_ml_table(
 
 def _count_mitre_ids(incidents: list[dict]) -> dict[str, int]:
     """Count incidents grouped by their MITRE technique id (ignoring blanks)."""
-    counts: dict[str, int] = defaultdict(int)
-    for inc in incidents:
-        mid = inc.get("mitre", {}).get("id", "")
-        if mid:
-            counts[mid] += 1
-    return counts
+    return Counter(
+        inc["mitre"]["id"]
+        for inc in incidents
+        if inc.get("mitre", {}).get("id")
+    )
 
 
 def print_mitre_summary(incidents: list[dict]) -> None:
@@ -1349,19 +1345,16 @@ def _score_color(score: float) -> str:
 
 def _count_event_types(events: list[dict]) -> dict[str, int]:
     """Return a count of events keyed by ``event_type``."""
-    counts: dict[str, int] = defaultdict(int)
-    for e in events:
-        counts[e["event_type"]] += 1
-    return counts
+    return Counter(e["event_type"] for e in events)
 
 
 def _top_failed_login_ips(events: list[dict], limit: int = 10) -> list[tuple[str, int]]:
     """Return the ``limit`` source IPs with the most failed logins, descending."""
-    fails: dict[str, int] = defaultdict(int)
-    for e in events:
-        if e["event_type"] == "failed_login" and e.get("source_ip"):
-            fails[e["source_ip"]] += 1
-    return sorted(fails.items(), key=lambda x: -x[1])[:limit]
+    return Counter(
+        e["source_ip"]
+        for e in events
+        if e["event_type"] == "failed_login" and e.get("source_ip")
+    ).most_common(limit)
 
 
 def _timeline_hours(incidents: list[dict]) -> list[datetime]:
@@ -1588,13 +1581,6 @@ def detect_404_flood(events: list[dict]) -> list[dict]:
                 },
             })
     return incidents
-
-
-# ── Severity scoring (public) ─────────────────────────────────────────────────
-
-def score_severity(incident: dict) -> str:
-    """Public alias for get_severity() — return an incident's severity level."""
-    return get_severity(incident)
 
 
 # ── Allowlist helpers ─────────────────────────────────────────────────────────

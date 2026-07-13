@@ -5,7 +5,7 @@ Covers:
 - detect_brute_force
 - detect_port_scan
 - detect_404_flood
-- score_severity
+- get_severity
 - build_allowlist + filter_allowlist
 """
 
@@ -375,112 +375,112 @@ class TestDetect404Flood:
 
 
 # ===========================================================================
-# score_severity
+# get_severity
 # ===========================================================================
 
-class TestScoreSeverity:
+class TestGetSeverity:
 
     # ---- brute_force ----
 
     def test_brute_force_critical(self):
         inc = {"incident_type": "brute_force", "event_count": 100}
-        assert la.score_severity(inc) == "CRITICAL"
+        assert la.get_severity(inc) == "CRITICAL"
 
     def test_brute_force_critical_above(self):
         inc = {"incident_type": "brute_force", "event_count": 500}
-        assert la.score_severity(inc) == "CRITICAL"
+        assert la.get_severity(inc) == "CRITICAL"
 
     def test_brute_force_high(self):
         inc = {"incident_type": "brute_force", "event_count": 30}
-        assert la.score_severity(inc) == "HIGH"
+        assert la.get_severity(inc) == "HIGH"
 
     def test_brute_force_high_boundary(self):
         inc = {"incident_type": "brute_force", "event_count": 99}
-        assert la.score_severity(inc) == "HIGH"
+        assert la.get_severity(inc) == "HIGH"
 
     def test_brute_force_medium(self):
         inc = {"incident_type": "brute_force", "event_count": 10}
-        assert la.score_severity(inc) == "MEDIUM"
+        assert la.get_severity(inc) == "MEDIUM"
 
     def test_brute_force_medium_boundary(self):
         inc = {"incident_type": "brute_force", "event_count": 29}
-        assert la.score_severity(inc) == "MEDIUM"
+        assert la.get_severity(inc) == "MEDIUM"
 
     def test_brute_force_low(self):
         inc = {"incident_type": "brute_force", "event_count": 5}
-        assert la.score_severity(inc) == "LOW"
+        assert la.get_severity(inc) == "LOW"
 
     def test_brute_force_low_boundary(self):
         inc = {"incident_type": "brute_force", "event_count": 9}
-        assert la.score_severity(inc) == "LOW"
+        assert la.get_severity(inc) == "LOW"
 
     # ---- port_scan ----
 
     def test_port_scan_critical(self):
         inc = {"incident_type": "port_scan", "event_count": 500}
-        assert la.score_severity(inc) == "CRITICAL"
+        assert la.get_severity(inc) == "CRITICAL"
 
     def test_port_scan_critical_above(self):
         inc = {"incident_type": "port_scan", "event_count": 1000}
-        assert la.score_severity(inc) == "CRITICAL"
+        assert la.get_severity(inc) == "CRITICAL"
 
     def test_port_scan_high(self):
         inc = {"incident_type": "port_scan", "event_count": 100}
-        assert la.score_severity(inc) == "HIGH"
+        assert la.get_severity(inc) == "HIGH"
 
     def test_port_scan_high_boundary(self):
         inc = {"incident_type": "port_scan", "event_count": 499}
-        assert la.score_severity(inc) == "HIGH"
+        assert la.get_severity(inc) == "HIGH"
 
     def test_port_scan_medium(self):
         inc = {"incident_type": "port_scan", "event_count": 50}
-        assert la.score_severity(inc) == "MEDIUM"
+        assert la.get_severity(inc) == "MEDIUM"
 
     def test_port_scan_medium_boundary(self):
         inc = {"incident_type": "port_scan", "event_count": 99}
-        assert la.score_severity(inc) == "MEDIUM"
+        assert la.get_severity(inc) == "MEDIUM"
 
     def test_port_scan_low(self):
         inc = {"incident_type": "port_scan", "event_count": 20}
-        assert la.score_severity(inc) == "LOW"
+        assert la.get_severity(inc) == "LOW"
 
     def test_port_scan_low_boundary(self):
         inc = {"incident_type": "port_scan", "event_count": 49}
-        assert la.score_severity(inc) == "LOW"
+        assert la.get_severity(inc) == "LOW"
 
     # ---- flood_404 ----
 
     def test_flood_404_critical(self):
         inc = {"incident_type": "flood_404", "event_count": 200}
-        assert la.score_severity(inc) == "CRITICAL"
+        assert la.get_severity(inc) == "CRITICAL"
 
     def test_flood_404_critical_above(self):
         inc = {"incident_type": "flood_404", "event_count": 999}
-        assert la.score_severity(inc) == "CRITICAL"
+        assert la.get_severity(inc) == "CRITICAL"
 
     def test_flood_404_high(self):
         inc = {"incident_type": "flood_404", "event_count": 100}
-        assert la.score_severity(inc) == "HIGH"
+        assert la.get_severity(inc) == "HIGH"
 
     def test_flood_404_high_boundary(self):
         inc = {"incident_type": "flood_404", "event_count": 199}
-        assert la.score_severity(inc) == "HIGH"
+        assert la.get_severity(inc) == "HIGH"
 
     def test_flood_404_medium(self):
         inc = {"incident_type": "flood_404", "event_count": 50}
-        assert la.score_severity(inc) == "MEDIUM"
+        assert la.get_severity(inc) == "MEDIUM"
 
     def test_flood_404_medium_boundary(self):
         inc = {"incident_type": "flood_404", "event_count": 99}
-        assert la.score_severity(inc) == "MEDIUM"
+        assert la.get_severity(inc) == "MEDIUM"
 
     def test_flood_404_low(self):
         inc = {"incident_type": "flood_404", "event_count": 30}
-        assert la.score_severity(inc) == "LOW"
+        assert la.get_severity(inc) == "LOW"
 
     def test_flood_404_low_boundary(self):
         inc = {"incident_type": "flood_404", "event_count": 49}
-        assert la.score_severity(inc) == "LOW"
+        assert la.get_severity(inc) == "LOW"
 
 
 # ===========================================================================
@@ -758,7 +758,7 @@ class TestLargePortScan:
     def test_large_port_scan_severity_critical(self):
         """500 unique-port incident scores CRITICAL."""
         inc = {"incident_type": "port_scan", "event_count": 500}
-        assert la.score_severity(inc) == "CRITICAL"
+        assert la.get_severity(inc) == "CRITICAL"
 
     def test_large_port_scan_log_file(self):
         """test_large_scan.log produces a CRITICAL port-scan incident."""
@@ -1110,25 +1110,25 @@ class TestAISummary:
 
 
 # ===========================================================================
-# score_severity extended edge cases
+# get_severity extended edge cases
 # ===========================================================================
 
-class TestScoreSeverityExtended:
+class TestGetSeverityExtended:
 
     def test_brute_force_200_is_critical(self):
-        assert la.score_severity({"incident_type": "brute_force", "event_count": 200}) == "CRITICAL"
+        assert la.get_severity({"incident_type": "brute_force", "event_count": 200}) == "CRITICAL"
 
     def test_brute_force_5_is_low(self):
-        assert la.score_severity({"incident_type": "brute_force", "event_count": 5}) == "LOW"
+        assert la.get_severity({"incident_type": "brute_force", "event_count": 5}) == "LOW"
 
     def test_port_scan_500_is_critical(self):
-        assert la.score_severity({"incident_type": "port_scan", "event_count": 500}) == "CRITICAL"
+        assert la.get_severity({"incident_type": "port_scan", "event_count": 500}) == "CRITICAL"
 
     def test_flood_404_250_is_critical(self):
-        assert la.score_severity({"incident_type": "flood_404", "event_count": 250}) == "CRITICAL"
+        assert la.get_severity({"incident_type": "flood_404", "event_count": 250}) == "CRITICAL"
 
     def test_unknown_type_returns_low(self):
-        assert la.score_severity({"incident_type": "unknown_type", "event_count": 9999}) == "LOW"
+        assert la.get_severity({"incident_type": "unknown_type", "event_count": 9999}) == "LOW"
 
 
 # ===========================================================================
