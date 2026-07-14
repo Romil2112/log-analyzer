@@ -16,6 +16,10 @@ More detail in [CONDUCTOR.md](CONDUCTOR.md).
 
 ![Conductor pipeline walkthrough](docs/pipeline_demo.gif)
 
+CLI walkthrough — parsing 10,000 SSH events, detecting brute-force and port-scan incidents, enriching with threat intel, scoring with Isolation Forest, and exporting native SIEM queries:
+
+![log-analyzer CLI demo](docs/log_analyzer_demo.gif)
+
 ## How it works
 
 Logs arrive in one of three formats. `detect_log_format` picks the parser, and every parser emits the same event-dictionary shape, so the detectors downstream never depend on where an event came from. Two detectors run over those events: a rule engine using sliding time windows (brute force T1110.001, port scan T1046, 404-flood and web-scan T1595.002), and an Isolation Forest model that scores each source IP on eight behavioral features to catch the low-and-slow activity the rules miss. Incidents from both are enriched with threat-intel and GeoIP, mapped to ATT&CK, and run through the privacy transforms before anything leaves memory. The outputs then fan out: HTML report, PostgreSQL, Sigma/SIEM files, a SOC-Dashboard push, and an optional Claude summary.
@@ -40,23 +44,59 @@ The rule engine's burst detector was the one hot spot. The burst detector starte
 - Measured detection quality: a labeled-corpus [evaluation harness](eval/) reports precision / recall / F1 on synthetic and real Loghub data
 - 195 pytest tests at 90% line / 88% branch coverage, run on GitHub Actions
 
-## Quick Start
+## Running the Project
 
-Prerequisites: Python 3.12+. PostgreSQL 14+ is optional (use `--no-db` to skip it). An Anthropic API key is optional and only needed for `--ai-summary`.
+**Prerequisites:** Python 3.12+. PostgreSQL 14+ is optional — all examples below use `--no-db`. An Anthropic API key is optional and only needed for `--ai-summary`.
 
-Install:
+**1. Set up a virtual environment**
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Run against a single log with no database, writing a report:
+**2. Analyze a log — no database required**
 
 ```bash
-python log_analyzer.py auth.log --no-db --report report.html
+python log_analyzer.py test_auth_10k.log --no-db --report report.html
+open report.html      # macOS — xdg-open on Linux, start on Windows
 ```
 
-Or bring up PostgreSQL and the analyzer together:
+Parses 10,000 SSH events, applies rule-based detection (brute force T1110.001, port scan T1046), scores each source IP with Isolation Forest, enriches with threat intel, maps to MITRE ATT&CK, and writes a self-contained HTML report. Smaller sample files `test_auth.log` and `test_mixed.log` are included for a quick run.
+
+**3. Export native SIEM queries**
+
+```bash
+python log_analyzer.py test_auth_10k.log --no-db \
+    --export-siem siem/
+# siem/ now contains *.spl (Splunk SPL), *.esql (Elastic ES|QL), *.kql (Sentinel KQL)
+```
+
+**4. Push incidents directly to SOC-Dashboard**
+
+```bash
+python log_analyzer.py test_auth_10k.log --no-db \
+    --push-soc http://localhost:8000/api/alerts \
+    --soc-api-key your-api-key
+```
+
+**5. Add an AI executive summary (optional)**
+
+```bash
+export ANTHROPIC_API_KEY="sk-ant-..."
+python log_analyzer.py test_auth_10k.log --no-db --ai-summary
+```
+
+**With PostgreSQL**
+
+```bash
+createdb log_analyzer
+python log_analyzer.py test_auth_10k.log --init-schema
+python log_analyzer.py test_auth_10k.log --report report.html
+```
+
+**With Docker Compose** (PostgreSQL + analyzer in one command)
 
 ```bash
 docker compose up
