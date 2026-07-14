@@ -16,7 +16,7 @@ More detail in [CONDUCTOR.md](CONDUCTOR.md).
 
 ![Conductor pipeline walkthrough](docs/pipeline_demo.gif)
 
-CLI walkthrough — parsing 10,000 SSH events, detecting brute-force and port-scan incidents, enriching with threat intel, scoring with Isolation Forest, and exporting native SIEM queries:
+CLI walkthrough — 10,000 SSH events → rule detection → MITRE ATT&CK mapping → IP threat-intel enrichment → Isolation Forest ML scoring → SIEM export → Claude AI executive summary:
 
 ![log-analyzer CLI demo](docs/log_analyzer_demo.gif)
 
