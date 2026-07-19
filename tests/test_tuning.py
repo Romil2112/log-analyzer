@@ -1,22 +1,15 @@
 """Tests for detection tuning features: allowlist YAML, config thresholds,
 suppress-repeats, evaluate mode, replay-compare, and detection versioning."""
-import csv
-import io
-import json
-import os
 import sys
-import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
-import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-import log_analyzer as la
-
+import log_analyzer as la  # noqa: E402
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 

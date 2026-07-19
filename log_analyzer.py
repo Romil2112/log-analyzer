@@ -168,7 +168,7 @@ _SSH_CONNECT = re.compile(
 # ── Parsing ───────────────────────────────────────────────────────────────────
 
 def _ssh_timestamp(month: str, day: str, time_str: str) -> datetime:
-    year = datetime.now().year
+    year = datetime.now(timezone.utc).year
     dt = dateparser.parse(f"{month} {day} {year} {time_str}")
     return dt.replace(tzinfo=timezone.utc)
 

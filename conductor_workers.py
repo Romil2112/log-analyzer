@@ -30,15 +30,14 @@ SDK ANNOTATION RULES (learned the hard way):
 import datetime as _dt
 import os
 import sys
-from typing import List
 
 # Make the sibling log-analyzer modules importable no matter the working directory.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from conductor.client.worker.worker_task import worker_task
 
-import log_analyzer as la
 import enrichment
+import log_analyzer as la
 from ai_summary import ai_summary
 from soc_push import push_incidents
 
@@ -171,9 +170,9 @@ def ml_score(log_path: str, log_format: str = "auto") -> dict:
 
 @worker_task(task_definition_name="join_incidents")
 def join_incidents(
-    brute: List[dict],
-    port: List[dict],
-    flood: List[dict],
+    brute: list[dict],
+    port: list[dict],
+    flood: list[dict],
     anomaly_scores: dict = None,
     events: int = 0,
 ) -> dict:
@@ -195,7 +194,7 @@ def join_incidents(
 
 
 @worker_task(task_definition_name="enrich_geoip")
-def enrich_geoip(incidents: List[dict], anomaly_scores: dict = None) -> dict:
+def enrich_geoip(incidents: list[dict], anomaly_scores: dict = None) -> dict:
     """v3/v4 stage: attach threat-intel (``known_bad``) + GeoIP (``country``) to each
     incident, and (v4) fold in the richer per-incident fields so one dict carries
     severity + MITRE + geo + threat-intel + anomaly score together.
@@ -240,7 +239,7 @@ def enrich_geoip(incidents: List[dict], anomaly_scores: dict = None) -> dict:
 
 
 @worker_task(task_definition_name="generate_claude_summary")
-def generate_claude_summary(incidents: List[dict], anomaly_scores: dict = None) -> dict:
+def generate_claude_summary(incidents: list[dict], anomaly_scores: dict = None) -> dict:
     """Stage 2: a 3-sentence SOC executive summary via the Claude API.
 
     Returns ``summary=None`` (no error) when ANTHROPIC_API_KEY is unset, so the
@@ -285,7 +284,7 @@ def _collect_task_timings(workflow_id: str) -> dict:
 
 @worker_task(task_definition_name="push_to_dashboard")
 def push_to_dashboard(
-    incidents: List[dict], soc_url: str, soc_api_key: str = "", workflow_id: str = ""
+    incidents: list[dict], soc_url: str, soc_api_key: str = "", workflow_id: str = ""
 ) -> dict:
     """Stage 3: POST each incident to SOC-Dashboard's ``/api/alerts`` ingest endpoint.
 

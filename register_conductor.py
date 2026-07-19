@@ -16,11 +16,11 @@ import os
 import sys
 
 from conductor.client.configuration.configuration import Configuration
-from conductor.client.orkes.orkes_metadata_client import OrkesMetadataClient
+from conductor.client.http.models.sub_workflow_params import SubWorkflowParams
 from conductor.client.http.models.task_def import TaskDef
 from conductor.client.http.models.workflow_def import WorkflowDef
 from conductor.client.http.models.workflow_task import WorkflowTask
-from conductor.client.http.models.sub_workflow_params import SubWorkflowParams
+from conductor.client.orkes.orkes_metadata_client import OrkesMetadataClient
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # Register both the core pipeline and the multi-source fan-out parent (each its own file).
