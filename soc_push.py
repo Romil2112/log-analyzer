@@ -33,14 +33,18 @@ __all__ = ["incident_to_alert", "push_incidents"]
 
 
 def incident_to_alert(
-    incident: dict, workflow_run_id: str | None = None, run_metadata: str | None = None
+    incident: dict,
+    workflow_run_id: str | None = None,
+    run_metadata: str | None = None,
+    detection_version: str | None = None,
 ) -> dict:
     """Map a log-analyzer incident to a SOC-Dashboard alert payload.
 
     ``workflow_run_id`` / ``run_metadata`` (a JSON-serialized task-timings blob) are
     optional provenance: when the push runs inside an Orkes Conductor workflow they link
     each alert back to the run that produced it. Both are omitted from the payload for a
-    plain ``--push-soc`` run (their absence leaves the SOC columns NULL)."""
+    plain ``--push-soc`` run (their absence leaves the SOC columns NULL).
+    ``detection_version`` is an additive field; SOC-Dashboard ignores it gracefully."""
     itype = incident.get("incident_type", "incident")
     ip    = incident.get("source_ip") or "unknown"
     mitre = incident.get("mitre", {}) or {}
@@ -60,6 +64,8 @@ def incident_to_alert(
         payload["workflow_run_id"] = workflow_run_id
     if run_metadata:
         payload["run_metadata"] = run_metadata
+    if detection_version:
+        payload["detection_version"] = detection_version
     return payload
 
 
@@ -70,6 +76,7 @@ def push_incidents(
     timeout: float = 10.0,
     workflow_run_id: str | None = None,
     run_metadata: dict | None = None,
+    detection_version: str | None = None,
 ) -> tuple[int, list[str]]:
     """POST each incident as an alert. Returns (success_count, error_messages).
 
@@ -103,7 +110,7 @@ def push_incidents(
     ok, errors = 0, []
     for inc in incidents:
         data = json.dumps(
-            incident_to_alert(inc, workflow_run_id, meta_json)
+            incident_to_alert(inc, workflow_run_id, meta_json, detection_version)
         ).encode("utf-8")
         req = urllib.request.Request(
             url, data=data, method="POST", headers=headers,

@@ -1,9 +1,39 @@
 # log-analyzer configuration file
 # Copy to config.yaml and adjust as needed.
 # CLI flags always override config file values.
+# Load with: python log_analyzer.py <logfile> --config config.yaml
 
 database:
   dsn: "postgresql://postgres:postgres@localhost:5432/log_analyzer"
+
+# Per-rule threshold overrides.
+# Defaults listed here match the hardcoded behavior (no behavior change
+# if this section is absent or the file is not loaded).
+# window_seconds must be a positive integer; the value is converted to
+# whole minutes internally (minimum 1 minute).
+# count must be a positive integer.
+thresholds:
+  brute_force:
+    count: 5             # failed logins to trigger alert (default: 5)
+    window_seconds: 600  # sliding window — 600s = 10 min (default)
+  port_scan:
+    count: 20            # unique ports to trigger alert (default: 20)
+    window_seconds: 300  # sliding window — 300s = 5 min (default)
+  flood_404:
+    count: 30            # 404 responses to trigger alert (default: 30)
+    window_seconds: 300  # sliding window — 300s = 5 min (default)
+
+# Example tighter thresholds (uncomment to use):
+# thresholds:
+#   brute_force:
+#     count: 3
+#     window_seconds: 300
+#   port_scan:
+#     count: 10
+#     window_seconds: 60
+#   flood_404:
+#     count: 20
+#     window_seconds: 60
 
 detection:
   brute_force:
@@ -16,7 +46,7 @@ detection:
     threshold: 30       # 404 responses to trigger alert
     window_minutes: 5   # sliding window size
 
-# IPs/CIDRs to exclude from all detection
+# IPs/CIDRs to exclude from all detection (comma-separated on CLI: --allowlist)
 allowlist:
   - "127.0.0.1"
   - "::1"

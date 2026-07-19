@@ -51,10 +51,11 @@ try:
 except ImportError:
     AI_SUMMARY_AVAILABLE = False
 
+import yaml
 import contracts
 import enrichment
 import soc_push
-from crypto import encrypt_field, get_fernet
+from crypto import decrypt_field, encrypt_field, get_fernet
 
 try:
     import sigma_export
@@ -77,6 +78,8 @@ BRUTE_FORCE_WINDOW    = 10
 PORT_SCAN_THRESHOLD   = 20
 PORT_SCAN_WINDOW      = 5
 ML_ANOMALY_THRESHOLD  = 0.5
+
+DETECTION_RULES_VERSION = "1.1.0"
 
 # ── MITRE ATT&CK technique definitions ───────────────────────────────────────
 
@@ -1313,6 +1316,7 @@ new Chart(document.getElementById('mlAnomalyChart'), {
   Free &amp; open-source (MIT) ·
   <a href="https://github.com/Romil2112/log-analyzer" style="color:#94a3b8;">log-analyzer on GitHub</a>
   · demonstration / trial project · authorized use only · provided as-is, no warranty.
+  Detection rules v{{ detection_version }}.
   Handle any data in this report confidentially.
 </footer>
 </body>
@@ -1541,6 +1545,7 @@ def generate_report(
         port_scan_incidents=_port_scan_rows(ps_incidents, scores),
         flood_404_count=len(f4_incidents),
         flood_404_incidents=_duration_incident_rows(f4_incidents, scores),
+        detection_version=DETECTION_RULES_VERSION,
         **_ml_chart_data(top_ml),
         **_volume_chart_data(type_counts, top_ips, hours, bf_incidents, ps_incidents),
     )
@@ -1610,6 +1615,434 @@ def filter_allowlist(events: list[dict], allowlist: list) -> list[dict]:
     """Return a new event list with any event whose source IP falls inside an
     allowlisted network dropped. allowlist comes from build_allowlist()."""
     return [e for e in events if not (e.get("source_ip") and _is_allowed(e["source_ip"], allowlist))]
+
+
+# ── YAML allowlist (--allowlist-file) ────────────────────────────────────────
+
+def load_allowlist_yaml(path: str) -> dict:
+    """Load an allowlist config from a YAML file.
+
+    Expected keys: ips (list of IP strings/CIDRs), usernames (list of str),
+    hostnames (list of str). Missing keys default to empty lists.
+    Raises SystemExit with a clear message on file/parse errors.
+    """
+    try:
+        with open(path) as fh:
+            raw = yaml.safe_load(fh) or {}
+    except FileNotFoundError:
+        console.print(f"[red][!] Allowlist file not found: {path}[/red]")
+        sys.exit(1)
+    except yaml.YAMLError as exc:
+        console.print(f"[red][!] Invalid allowlist YAML ({path}): {exc}[/red]")
+        sys.exit(1)
+    return {
+        "ips":       list(raw.get("ips", []) or []),
+        "usernames": list(raw.get("usernames", []) or []),
+        "hostnames": list(raw.get("hostnames", []) or []),
+    }
+
+
+def filter_events_allowlist_yaml(
+    events: list[dict],
+    allowlist_cfg: dict,
+) -> tuple[list[dict], int]:
+    """Filter events using the YAML allowlist.
+
+    Suppresses events whose source_ip is in the IP/CIDR allowlist,
+    whose username is in the username allowlist, or (if the event carries a
+    hostname field) whose hostname is in the hostname allowlist.
+
+    Returns (filtered_events, suppressed_count).
+    """
+    ip_networks = build_allowlist(allowlist_cfg.get("ips", []))
+    allowed_users = set(str(u) for u in allowlist_cfg.get("usernames", []))
+    allowed_hosts = set(str(h) for h in allowlist_cfg.get("hostnames", []))
+
+    filtered = []
+    suppressed = 0
+    for e in events:
+        ip = e.get("source_ip") or ""
+        if ip and ip_networks and _is_allowed(ip, ip_networks):
+            suppressed += 1
+            continue
+        if allowed_users and e.get("username") and e["username"] in allowed_users:
+            suppressed += 1
+            continue
+        if allowed_hosts and e.get("hostname") and e["hostname"] in allowed_hosts:
+            suppressed += 1
+            continue
+        filtered.append(e)
+    return filtered, suppressed
+
+
+# ── Config-file threshold loading (--config) ──────────────────────────────────
+
+def load_config_yaml(path: str) -> dict:
+    """Load a YAML config file. Returns the parsed dict.
+
+    Raises SystemExit with a clear message on file/parse errors.
+    """
+    try:
+        with open(path) as fh:
+            raw = yaml.safe_load(fh) or {}
+    except FileNotFoundError:
+        console.print(f"[red][!] Config file not found: {path}[/red]")
+        sys.exit(1)
+    except yaml.YAMLError as exc:
+        console.print(f"[red][!] Invalid config YAML ({path}): {exc}[/red]")
+        sys.exit(1)
+    return raw
+
+
+def _validate_threshold(name: str, value: object) -> int:
+    """Return value as a positive int or exit with a clear error."""
+    try:
+        v = int(value)
+    except (TypeError, ValueError):
+        console.print(
+            f"[red][!] Config error: thresholds.{name} must be a positive integer, "
+            f"got {value!r}[/red]"
+        )
+        sys.exit(1)
+    if v < 1:
+        console.print(
+            f"[red][!] Config error: thresholds.{name} must be >= 1, got {v}[/red]"
+        )
+        sys.exit(1)
+    return v
+
+
+def config_to_argparse_defaults(config: dict) -> dict:
+    """Convert the 'thresholds' section of a config dict to argparse set_defaults keys.
+
+    window_seconds is converted to whole minutes (minimum 1). Validates that all
+    values are positive integers; exits with a clear error on invalid config.
+    Returns an empty dict if no thresholds section is present.
+    """
+    thresholds = config.get("thresholds") or {}
+    defaults: dict[str, int] = {}
+
+    mapping = {
+        "brute_force": ("brute_force_threshold", "brute_force_window"),
+        "port_scan":   ("port_scan_threshold",   "port_scan_window"),
+        "flood_404":   ("flood_404_threshold",   "flood_404_window"),
+    }
+    for rule, (count_key, window_key) in mapping.items():
+        rule_cfg = thresholds.get(rule) or {}
+        if "count" in rule_cfg:
+            defaults[count_key] = _validate_threshold(f"{rule}.count", rule_cfg["count"])
+        if "window_seconds" in rule_cfg:
+            raw_s = _validate_threshold(f"{rule}.window_seconds", rule_cfg["window_seconds"])
+            defaults[window_key] = max(1, raw_s // 60)
+
+    return defaults
+
+
+# ── Duplicate-incident suppression (--suppress-repeats) ───────────────────────
+
+def suppress_recent_incidents(
+    conn,
+    incidents: list[dict],
+    window_minutes: int,
+    fernet=None,
+) -> tuple[list[dict], int]:
+    """Remove incidents already stored in the DB within the suppression window.
+
+    When field-level encryption is active, source_ip in the DB is ciphertext;
+    this function decrypts each recent row before comparing so the check is
+    correct regardless of encryption state.
+
+    Returns (remaining_incidents, suppressed_count).
+    """
+    if not incidents or window_minutes <= 0:
+        return incidents, 0
+
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=window_minutes)
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT incident_type, source_ip FROM incidents WHERE detected_at >= %s",
+            (cutoff,),
+        )
+        rows = cur.fetchall()
+
+    recent_keys: set[tuple[str, str]] = set()
+    for row in rows:
+        itype = row["incident_type"] if isinstance(row, dict) else row[0]
+        raw_ip = row["source_ip"] if isinstance(row, dict) else row[1]
+        ip = decrypt_field(fernet, raw_ip) if fernet else raw_ip
+        recent_keys.add((itype, ip))
+
+    remaining = []
+    suppressed = 0
+    for inc in incidents:
+        key = (inc["incident_type"], inc["source_ip"])
+        if key in recent_keys:
+            suppressed += 1
+        else:
+            remaining.append(inc)
+
+    return remaining, suppressed
+
+
+def _apply_suppress_repeats(
+    incidents: list[dict],
+    args: argparse.Namespace,
+    fernet: object | None,
+) -> tuple[list[dict], int]:
+    """Apply duplicate suppression against the DB if --suppress-repeats is set.
+
+    Returns (remaining_incidents, suppressed_count).
+    No-op when suppress_repeats == 0 or when --no-db is used.
+    """
+    if args.suppress_repeats <= 0 or args.no_db:
+        if args.suppress_repeats > 0 and args.no_db:
+            console.print(
+                "[yellow][!][/yellow] --suppress-repeats requires database access; "
+                "skipped because --no-db is set."
+            )
+        return incidents, 0
+    try:
+        conn = get_connection(args.dsn)
+        incidents, count = suppress_recent_incidents(
+            conn, incidents, args.suppress_repeats, fernet
+        )
+        conn.close()
+        return incidents, count
+    except psycopg2.OperationalError as exc:
+        console.print(
+            f"[yellow][!][/yellow] Could not apply suppress-repeats (DB error): {exc}"
+        )
+        return incidents, 0
+
+
+# ── Evaluation mode (--evaluate) ──────────────────────────────────────────────
+
+def load_ground_truth(path: str) -> list[dict]:
+    """Load a ground-truth CSV (timestamp, source_ip, label) for evaluation.
+
+    label must be 'malicious' or 'benign'. Returns a list of dicts.
+    Raises SystemExit on file/parse errors.
+    """
+    rows = []
+    try:
+        with open(path, newline="", errors="replace") as fh:
+            reader = csv.DictReader(fh)
+            for i, row in enumerate(reader, start=2):
+                ts_raw = (row.get("timestamp") or "").strip()
+                ip = (row.get("source_ip") or "").strip()
+                label = (row.get("label") or "").strip().lower()
+                if not ts_raw or not ip or label not in ("malicious", "benign"):
+                    console.print(
+                        f"[yellow][!][/yellow] Ground truth line {i} skipped "
+                        f"(missing/invalid field): {dict(row)!r}"
+                    )
+                    continue
+                try:
+                    ts = dateparser.parse(ts_raw)
+                    if ts.tzinfo is None:
+                        ts = ts.replace(tzinfo=timezone.utc)
+                except Exception:
+                    console.print(
+                        f"[yellow][!][/yellow] Ground truth line {i}: "
+                        f"unparseable timestamp {ts_raw!r}, skipping."
+                    )
+                    continue
+                rows.append({"timestamp": ts, "source_ip": ip, "label": label})
+    except FileNotFoundError:
+        console.print(f"[red][!] Ground truth file not found: {path}[/red]")
+        sys.exit(1)
+    except Exception as exc:
+        console.print(f"[red][!] Error reading ground truth file: {exc}[/red]")
+        sys.exit(1)
+    return rows
+
+
+def evaluate_detection(
+    incidents: list[dict],
+    ground_truth: list[dict],
+    tolerance_minutes: int = 5,
+) -> dict:
+    """Cross-reference detected incidents against ground truth.
+
+    Matching: for each ground-truth row, check whether any incident with the
+    same source_ip has first_seen within +/- tolerance_minutes of the ground-truth
+    timestamp. Returns a metrics dict.
+    """
+    tol = timedelta(minutes=tolerance_minutes)
+    detected_ips: dict[str, list[datetime]] = defaultdict(list)
+    for inc in incidents:
+        if inc.get("source_ip"):
+            detected_ips[inc["source_ip"]].append(inc["first_seen"])
+
+    tp_ips: list[str] = []
+    fp_ips: list[str] = []
+    fn_ips: list[str] = []
+    tn_ips: list[str] = []
+
+    for entry in ground_truth:
+        ip = entry["source_ip"]
+        label = entry["label"]
+        ts = entry["timestamp"]
+        times_for_ip = detected_ips.get(ip, [])
+        matched = any(
+            abs((t - ts).total_seconds()) <= tol.total_seconds()
+            for t in times_for_ip
+        )
+        if label == "malicious":
+            (tp_ips if matched else fn_ips).append(ip)
+        else:
+            (fp_ips if matched else tn_ips).append(ip)
+
+    tp = len(tp_ips)
+    fp = len(fp_ips)
+    fn = len(fn_ips)
+    tn = len(tn_ips)
+    precision = round(tp / (tp + fp), 4) if (tp + fp) > 0 else 0.0
+    recall    = round(tp / (tp + fn), 4) if (tp + fn) > 0 else 0.0
+    f1        = (
+        round(2 * precision * recall / (precision + recall), 4)
+        if (precision + recall) > 0
+        else 0.0
+    )
+    return {
+        "detection_version": DETECTION_RULES_VERSION,
+        "tolerance_minutes": tolerance_minutes,
+        "true_positives":    tp,
+        "false_positives":   fp,
+        "false_negatives":   fn,
+        "true_negatives":    tn,
+        "precision":         precision,
+        "recall":            recall,
+        "f1":                f1,
+        "fp_source_ips":     sorted(set(fp_ips)),
+        "fn_source_ips":     sorted(set(fn_ips)),
+    }
+
+
+def _print_eval_results(metrics: dict) -> None:
+    tbl = Table(
+        title="Evaluation Results",
+        box=box.ROUNDED,
+        border_style="dim cyan",
+        show_lines=True,
+        title_style="bold white",
+        header_style="bold dim",
+    )
+    tbl.add_column("Metric", style="bold white")
+    tbl.add_column("Value", justify="right")
+    tbl.add_row("True Positives",  str(metrics["true_positives"]))
+    tbl.add_row("False Positives", str(metrics["false_positives"]))
+    tbl.add_row("False Negatives", str(metrics["false_negatives"]))
+    tbl.add_row("True Negatives",  str(metrics["true_negatives"]))
+    tbl.add_row("Precision",       f"{metrics['precision']:.4f}")
+    tbl.add_row("Recall",          f"{metrics['recall']:.4f}")
+    tbl.add_row("F1 Score",        f"{metrics['f1']:.4f}")
+    console.print(tbl)
+    if metrics["fp_source_ips"]:
+        console.print(f"  [yellow]FP IPs:[/yellow] {', '.join(metrics['fp_source_ips'])}")
+    if metrics["fn_source_ips"]:
+        console.print(f"  [yellow]FN IPs:[/yellow] {', '.join(metrics['fn_source_ips'])}")
+
+
+# ── Replay / A-B comparison (--replay-compare) ────────────────────────────────
+
+def _incidents_key_set(incidents: list[dict]) -> set[tuple[str, str]]:
+    """Return a set of (incident_type, source_ip) tuples for comparison."""
+    return {(i["incident_type"], i["source_ip"]) for i in incidents}
+
+
+def _run_detection_with_config(events: list[dict], config: dict) -> list[dict]:
+    """Run rule-based detection using thresholds from a config dict.
+
+    Temporarily patches module globals, restores them after the run.
+    """
+    global BRUTE_FORCE_THRESHOLD, BRUTE_FORCE_WINDOW
+    global PORT_SCAN_THRESHOLD, PORT_SCAN_WINDOW
+    global FLOOD_404_THRESHOLD, FLOOD_404_WINDOW
+
+    saved = (
+        BRUTE_FORCE_THRESHOLD, BRUTE_FORCE_WINDOW,
+        PORT_SCAN_THRESHOLD, PORT_SCAN_WINDOW,
+        FLOOD_404_THRESHOLD, FLOOD_404_WINDOW,
+    )
+    try:
+        overrides = config_to_argparse_defaults(config)
+        if "brute_force_threshold" in overrides:
+            BRUTE_FORCE_THRESHOLD = overrides["brute_force_threshold"]
+        if "brute_force_window" in overrides:
+            BRUTE_FORCE_WINDOW = overrides["brute_force_window"]
+        if "port_scan_threshold" in overrides:
+            PORT_SCAN_THRESHOLD = overrides["port_scan_threshold"]
+        if "port_scan_window" in overrides:
+            PORT_SCAN_WINDOW = overrides["port_scan_window"]
+        if "flood_404_threshold" in overrides:
+            FLOOD_404_THRESHOLD = overrides["flood_404_threshold"]
+        if "flood_404_window" in overrides:
+            FLOOD_404_WINDOW = overrides["flood_404_window"]
+        bf    = detect_brute_force(events)
+        ps    = detect_port_scan(events)
+        flood = detect_404_flood(events)
+        return enrich_incidents(bf + ps + flood)
+    finally:
+        (
+            BRUTE_FORCE_THRESHOLD, BRUTE_FORCE_WINDOW,
+            PORT_SCAN_THRESHOLD, PORT_SCAN_WINDOW,
+            FLOOD_404_THRESHOLD, FLOOD_404_WINDOW,
+        ) = saved
+
+
+def run_replay_compare(
+    events: list[dict],
+    config_a_path: str,
+    config_b_path: str,
+) -> None:
+    """Run detection twice (with config A and config B) and print a diff summary.
+
+    Dry-run only: does NOT write to the database or call --push-soc.
+    """
+    config_a = load_config_yaml(config_a_path)
+    config_b = load_config_yaml(config_b_path)
+
+    console.print(f"[cyan][*][/cyan] Replay A: [bold]{config_a_path}[/bold]")
+    incidents_a = _run_detection_with_config(events, config_a)
+    console.print(f"[cyan][*][/cyan] Replay B: [bold]{config_b_path}[/bold]")
+    incidents_b = _run_detection_with_config(events, config_b)
+
+    keys_a = _incidents_key_set(incidents_a)
+    keys_b = _incidents_key_set(incidents_b)
+
+    only_a  = [i for i in incidents_a if (i["incident_type"], i["source_ip"]) not in keys_b]
+    only_b  = [i for i in incidents_b if (i["incident_type"], i["source_ip"]) not in keys_a]
+    in_both = [i for i in incidents_a if (i["incident_type"], i["source_ip"]) in keys_b]
+
+    tbl = Table(
+        title="Replay A/B Comparison",
+        box=box.ROUNDED,
+        border_style="dim magenta",
+        show_lines=True,
+        title_style="bold white",
+        header_style="bold dim",
+    )
+    tbl.add_column("Category",              style="bold white")
+    tbl.add_column("Count",                 justify="right")
+    tbl.add_column("Incidents (type / IP)", style="dim")
+
+    def _fmt(lst):
+        return "; ".join(
+            f"{i['incident_type']}@{i['source_ip']}" for i in lst[:5]
+        ) + ("…" if len(lst) > 5 else "")
+
+    tbl.add_row("Only in A",        str(len(only_a)),  _fmt(only_a))
+    tbl.add_row("Only in B",        str(len(only_b)),  _fmt(only_b))
+    tbl.add_row("In both",          str(len(in_both)), _fmt(in_both))
+    tbl.add_row(
+        "Net change (B − A)",
+        str(len(incidents_b) - len(incidents_a)),
+        f"A={len(incidents_a)}  B={len(incidents_b)}",
+    )
+    console.print()
+    console.print(tbl)
+    console.print("[dim][*] Replay is dry-run only — no DB writes, no SOC push.[/dim]")
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
@@ -1707,6 +2140,37 @@ def build_parser() -> argparse.ArgumentParser:
     privacy.add_argument("--retention-days", type=_nonneg_int, default=0, metavar="N",
                          help="Delete log_events/incidents older than N days after processing "
                               "(0 = keep forever)")
+
+    # ── detection tuning ──────────────────────────────────────────────────────
+    p.add_argument(
+        "--allowlist-file", metavar="FILE", default=None,
+        help="Path to a YAML allowlist file (ips/usernames/hostnames to exclude). "
+             "Keeps the existing --allowlist flag for backward-compatible CIDR,... strings.",
+    )
+    p.add_argument(
+        "--config", metavar="FILE", default=None,
+        help="Path to a YAML config file; the 'thresholds:' section overrides "
+             "hardcoded defaults (CLI flags still override config values).",
+    )
+    p.add_argument(
+        "--suppress-repeats", type=_nonneg_int, default=0, metavar="MINUTES",
+        help="Skip duplicate incidents (same type+IP) seen in the DB within the "
+             "last N minutes. 0 = disabled (default, current behavior preserved).",
+    )
+    p.add_argument(
+        "--evaluate", metavar="GROUND_TRUTH_CSV", default=None,
+        help="Evaluate detection quality against a labeled CSV "
+             "(columns: timestamp, source_ip, label). Writes evaluation_report.json.",
+    )
+    p.add_argument(
+        "--eval-tolerance", type=_positive_int, default=5, metavar="MINUTES",
+        help="Time-proximity window (+/- minutes) for ground-truth matching (default: 5).",
+    )
+    p.add_argument(
+        "--replay-compare", nargs=2, metavar=("CONFIG_A", "CONFIG_B"), default=None,
+        help="Run detection twice with two config files and diff the results. "
+             "Dry-run: no DB writes, no SOC push.",
+    )
     return p
 
 
@@ -1955,7 +2419,11 @@ def _push_to_soc(incidents: list[dict], args: argparse.Namespace) -> None:
     if not args.soc_api_key:
         console.print("[yellow][!][/yellow] No --soc-api-key/$SOC_ALERTS_API_KEY set; "
                       "a hardened dashboard will reject the push with 401.")
-    ok, errors = soc_push.push_incidents(incidents, args.push_soc, api_key=args.soc_api_key)
+    ok, errors = soc_push.push_incidents(
+        incidents, args.push_soc,
+        api_key=args.soc_api_key,
+        detection_version=DETECTION_RULES_VERSION,
+    )
     console.print(
         f"[green][+][/green] Pushed [bold]{ok}/{len(incidents)}[/bold] incident(s) to the SOC dashboard."
     )
@@ -1989,7 +2457,20 @@ def _print_ai_summary(
 
 def main() -> None:
     """Run the CLI end to end: parse, detect, enrich, store, and report."""
-    args = build_parser().parse_args()
+    parser = build_parser()
+    # Pre-parse to find --config so we can update argparse defaults before the
+    # full parse; this lets CLI flags override config values correctly.
+    _pre, _ = parser.parse_known_args()
+    if getattr(_pre, "config", None):
+        _cfg_data = load_config_yaml(_pre.config)
+        _cfg_defaults = config_to_argparse_defaults(_cfg_data)
+        if _cfg_defaults:
+            parser.set_defaults(**_cfg_defaults)
+            console.print(
+                f"[dim][*] Config loaded: {_pre.config} — "
+                f"{len(_cfg_defaults)} threshold override(s)[/dim]"
+            )
+    args = parser.parse_args()
     _configure_thresholds(args)
 
     if args.init_schema:
@@ -2015,7 +2496,28 @@ def main() -> None:
     )
     events = _apply_allowlist(events, args)
 
+    # YAML-based allowlist (--allowlist-file): supports IPs, usernames, hostnames.
+    _allowlist_yaml_suppressed = 0
+    if args.allowlist_file:
+        _allowlist_cfg = load_allowlist_yaml(args.allowlist_file)
+        events, _allowlist_yaml_suppressed = filter_events_allowlist_yaml(events, _allowlist_cfg)
+        console.print(
+            f"[dim][*] Allowlist file: {args.allowlist_file} — "
+            f"{_allowlist_yaml_suppressed} event(s) suppressed.[/dim]"
+        )
+
+    # --replay-compare: dry-run A/B diff, no DB/SOC write.
+    if args.replay_compare:
+        run_replay_compare(events, args.replay_compare[0], args.replay_compare[1])
+        return
+
     incidents = _run_rule_detection(events)
+    incidents, _suppressed_duplicate_count = _apply_suppress_repeats(incidents, args, fernet)
+    if _suppressed_duplicate_count > 0:
+        console.print(
+            f"[dim][*] Suppress-repeats: [bold]{_suppressed_duplicate_count}[/bold] "
+            f"duplicate incident(s) skipped (window: {args.suppress_repeats} min).[/dim]"
+        )
     _maybe_enrich(incidents, args)
 
     # Privacy transforms run after detection + enrichment (which need the real
@@ -2030,6 +2532,18 @@ def main() -> None:
     console.print(f"[cyan][*][/cyan] Generating HTML report -> [bold]{args.report}[/bold]...")
     generate_report(events, incidents, log_path, args.report, anomaly_scores, feat_rows)
     console.print(f"[green][+][/green] Report written: [bold]{args.report}[/bold]")
+
+    if args.evaluate:
+        console.print(
+            f"[cyan][*][/cyan] Evaluating detection against ground truth: {args.evaluate}"
+        )
+        _gt = load_ground_truth(args.evaluate)
+        _eval_metrics = evaluate_detection(incidents, _gt, args.eval_tolerance)
+        _print_eval_results(_eval_metrics)
+        _eval_out = "evaluation_report.json"
+        with open(_eval_out, "w", encoding="utf-8") as _ef:
+            json.dump(_eval_metrics, _ef, indent=2, default=str)
+        console.print(f"[green][+][/green] Evaluation report written: [bold]{_eval_out}[/bold]")
 
     _export_sigma(incidents, args)
     _export_siem(incidents, args)

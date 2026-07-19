@@ -212,6 +212,121 @@ Two findings the harness makes honest instead of hand-waved:
 
 **A false positive this harness caught, and the fix.** The evaluation surfaced a real defect: `detect_port_scan` was double-flagging brute-forcers. SSH clients use a random ephemeral *source* port per attempt, which the parser stored in the same `port` field, so one attacker's many failed logins looked like many distinct "ports." The fix is a single predicate — count only `event_type == "connection"` events, since an auth event's port is the client's source port, not a scanned destination. Measured result: port_scan false positives dropped 6 → 0 (synthetic 2, real Loghub 4), port_scan F1 rose 0.40 → 1.00, both genuine scanners were preserved, and the per-IP metrics above were unchanged. Two regression tests in `tests/test_detection.py` now lock it out. Full method, corpus provenance, and how to label your own data are in [`eval/README.md`](eval/README.md).
 
+## Skills Demonstrated
+
+| Skill | Details |
+|---|---|
+| Detection Engineering | Tunable thresholds, allowlisting (IP/CIDR/username/hostname), precision/recall evaluation against labeled data, A/B rule comparison, versioned detection rules |
+
+## Tuning & Allowlisting
+
+### Per-rule threshold overrides
+
+Load a YAML config file with `--config config.yaml` to override detection thresholds without editing code. CLI flags always win over config values.
+
+```yaml
+# config.yaml
+thresholds:
+  brute_force:
+    count: 3            # default: 5
+    window_seconds: 300 # default: 600 (10 min)
+  port_scan:
+    count: 10           # default: 20
+    window_seconds: 120 # default: 300 (5 min)
+  flood_404:
+    count: 20           # default: 30
+    window_seconds: 180 # default: 300 (5 min)
+```
+
+```bash
+python log_analyzer.py auth.log --config config.yaml
+```
+
+Copy `config.example.yaml` for the full template. All values must be positive integers; invalid config fails with a clear error message.
+
+### IP / username / hostname allowlisting
+
+The existing `--allowlist CIDR,...` flag accepts comma-separated CIDR ranges. For richer allowlisting (including username and hostname suppression), use `--allowlist-file`:
+
+```bash
+python log_analyzer.py auth.log --allowlist-file allowlist.yaml
+```
+
+```yaml
+# allowlist.yaml (see allowlist.example.yaml for the full template)
+ips:
+  - "127.0.0.1"
+  - "10.0.0.0/8"
+usernames:
+  - "monitoring-agent"
+hostnames:
+  - "internal-scanner.corp"
+```
+
+Allowlisted events are filtered **before** detection runs — they do not count toward thresholds. A summary is printed at the end of each run showing how many events were suppressed.
+
+### Repeat-incident suppression
+
+Prevent the same source IP from flooding the incident queue across repeated runs:
+
+```bash
+python log_analyzer.py auth.log --suppress-repeats 60  # suppress for 60 minutes
+```
+
+If an identical (incident_type, source_ip) pair was already stored in the database within the window, the duplicate is skipped. Requires database access (incompatible with `--no-db`). Default is 0 (disabled).
+
+## Evaluation Mode
+
+Measure detection quality against a labeled ground-truth file:
+
+```bash
+python log_analyzer.py auth.log --no-db --evaluate ground_truth.csv
+```
+
+**Ground truth CSV format:**
+```csv
+timestamp,source_ip,label
+2026-07-18T10:00:00Z,10.1.2.3,malicious
+2026-07-18T10:05:00Z,10.1.2.4,benign
+```
+
+Cross-references detected incidents against ground truth by source IP and time proximity (configurable with `--eval-tolerance MINUTES`, default ±5 minutes). Prints true/false positives/negatives, precision, recall, and F1 to the console, and writes `evaluation_report.json` with the full results including FP/FN IP lists for manual review.
+
+```bash
+python log_analyzer.py auth.log --no-db \
+    --evaluate ground_truth.csv \
+    --eval-tolerance 10
+```
+
+Evaluation mode has no effect on the default detection pipeline when the flag is not used.
+
+## Replay & A/B Comparison
+
+Compare two threshold configs against the same log without touching the database or SOC-Dashboard:
+
+```bash
+python log_analyzer.py auth.log --no-db \
+    --replay-compare config_tight.yaml config_relaxed.yaml
+```
+
+Runs detection twice in memory, then prints a diff: incidents only in A, only in B, in both, and the net change. Completely dry-run — no DB writes, no SOC push.
+
+## Detection Rule Versioning
+
+Every release that changes detection logic or thresholds bumps `DETECTION_RULES_VERSION` in `log_analyzer.py`. This version string appears in:
+
+- The HTML incident report footer
+- The `--push-soc` payload as an additive `detection_version` field (SOC-Dashboard ignores unknown fields gracefully)
+- `evaluation_report.json` from `--evaluate`
+
+See [CHANGELOG.md](CHANGELOG.md) for the full version history.
+
+| | |
+|---|---|
+| Current version | `1.1.0` |
+| Changed | 2026-07-18 |
+| What changed | Allowlisting, config thresholds, suppress-repeats, evaluate mode, replay A/B |
+
 ## Privacy & Legal Compliance
 
 log-analyzer processes security logs that routinely contain **personal data** — source IP

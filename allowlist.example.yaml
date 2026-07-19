@@ -1,0 +1,25 @@
+# log-analyzer allowlist configuration
+# Load with: python log_analyzer.py <logfile> --allowlist-file allowlist.yaml
+#
+# Events matching ANY of these entries are excluded from all detection.
+# Allowlisted events do not count toward thresholds.
+#
+# ips: exact IPs or CIDR ranges (uses Python ipaddress module, not string matching)
+# usernames: exact usernames to exclude from brute-force detection
+# hostnames: hostnames to exclude (applies when events carry a 'hostname' field)
+
+ips:
+  - "127.0.0.1"
+  - "::1"
+  # - "10.0.0.0/8"       # internal RFC-1918 range
+  # - "192.168.0.0/16"   # internal RFC-1918 range
+  # - "172.16.0.0/12"    # internal RFC-1918 range
+
+usernames:
+  - "monitoring-agent"
+  - "healthcheck"
+  # - "svc-backup"
+
+hostnames:
+  # - "internal-scanner.corp.example.com"
+  # - "vuln-scan-host"
