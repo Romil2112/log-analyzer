@@ -52,6 +52,7 @@ except ImportError:
     AI_SUMMARY_AVAILABLE = False
 
 import yaml
+
 import contracts
 import enrichment
 import soc_push
