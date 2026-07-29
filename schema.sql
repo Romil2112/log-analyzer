@@ -1,3 +1,7 @@
+-- pgvector extension: required for threat_ttp_embeddings (1B RAG) and future
+-- vector similarity features. Safe to run on an existing DB — no-op if present.
+CREATE EXTENSION IF NOT EXISTS vector;
+
 CREATE TABLE IF NOT EXISTS log_events (
     id SERIAL PRIMARY KEY,
     source_file TEXT NOT NULL,
@@ -28,3 +32,15 @@ CREATE INDEX IF NOT EXISTS idx_log_events_event_time ON log_events(event_time);
 CREATE INDEX IF NOT EXISTS idx_incidents_source_ip ON incidents(source_ip);
 CREATE INDEX IF NOT EXISTS idx_incidents_type ON incidents(incident_type);
 CREATE INDEX IF NOT EXISTS idx_incidents_severity ON incidents(severity);
+
+-- Threat intelligence TTP embeddings for RAG-augmented AI summaries.
+-- Populated via --threat-intel-stix; upserted on each run so data stays current.
+CREATE TABLE IF NOT EXISTS threat_ttp_embeddings (
+    technique_id TEXT PRIMARY KEY,
+    name         TEXT NOT NULL,
+    tactic       TEXT NOT NULL,
+    description  TEXT NOT NULL,
+    embedding    vector(384)
+);
+CREATE INDEX IF NOT EXISTS idx_ttp_embedding ON threat_ttp_embeddings USING ivfflat (embedding vector_cosine_ops)
+    WITH (lists = 50);

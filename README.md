@@ -1,4 +1,4 @@
-![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Open Source](https://img.shields.io/badge/Open%20Source-Free%20to%20Use-success) ![Tests](https://img.shields.io/badge/pytest-225%20passing-brightgreen?logo=pytest&logoColor=white)
+![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Open Source](https://img.shields.io/badge/Open%20Source-Free%20to%20Use-success) ![Tests](https://img.shields.io/badge/pytest-248%20passing-brightgreen?logo=pytest&logoColor=white)
 
 # log-analyzer
 
@@ -42,7 +42,7 @@ The rule engine's burst detector was the one hot spot. The burst detector starte
 - Privacy controls: IP pseudonymization, username scrubbing, raw-line redaction, and retention purge
 - Fail-loud event contract: a startup check that every detector's required event types are produced by some parser
 - Measured detection quality: a labeled-corpus [evaluation harness](eval/) reports precision / recall / F1 on synthetic and real Loghub data
-- 195 pytest tests at 90% line / 88% branch coverage, run on GitHub Actions
+- 248 pytest tests at 90% line / 88% branch coverage, run on GitHub Actions
 
 ## Running the Project
 
@@ -172,7 +172,7 @@ flowchart LR
 
 ## Tests
 
-195 pytest tests cover parsing, both detectors, enrichment, MITRE mapping, the privacy transforms, Sigma and SIEM export, the SOC push, and the concurrent Claude layer, at 90% line and 88% branch coverage. Twelve adversarial fixture logs exercise slow brute force, coordinated multi-IP attacks, IPv6, unicode, malformed lines, and high volume. Run the suite with:
+248 pytest tests cover parsing, both detectors, enrichment, MITRE mapping, the privacy transforms, Sigma and SIEM export, the SOC push, the concurrent Claude layer, Elasticsearch ingest, and MITRE ATT&CK STIX-based RAG retrieval, at 90% line and 88% branch coverage. Twelve adversarial fixture logs exercise slow brute force, coordinated multi-IP attacks, IPv6, unicode, malformed lines, and high volume. Run the suite with:
 
 ```bash
 python -m pytest tests/ -v

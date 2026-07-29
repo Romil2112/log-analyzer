@@ -2131,6 +2131,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--es-host", metavar="URL", default=None,
                    help="Elasticsearch base URL to index incidents into "
                         "(e.g. http://localhost:9200). Disabled when unset.")
+    p.add_argument("--threat-intel-stix", metavar="FILE", default=None,
+                   help="MITRE ATT&CK STIX bundle to embed and store in pgvector. "
+                        "When set alongside --ai-summary, retrieved TTPs are injected "
+                        "into the LLM prompt as threat context.")
 
     # ── privacy / data-protection controls ────────────────────────────────────
     privacy = p.add_argument_group("privacy controls")
@@ -2454,10 +2458,50 @@ def _push_to_soc(incidents: list[dict], args: argparse.Namespace) -> None:
         console.print(f"[yellow][!][/yellow] {len(errors)} push error(s); first: {errors[0]}")
 
 
+def _get_rag_context(incidents: list[dict], args: argparse.Namespace) -> str:
+    """Load STIX TTPs, embed and store them, then retrieve context for incidents.
+
+    Returns an empty string if --threat-intel-stix is not set, --no-db is active,
+    the file is missing, or any step fails — the pipeline continues either way.
+    """
+    if not args.threat_intel_stix:
+        return ""
+    if args.no_db:
+        console.print("[yellow][!][/yellow] --threat-intel-stix requires DB; skipping (--no-db active).")
+        return ""
+    try:
+        import threat_intel_rag as rag
+    except ImportError:
+        console.print("[yellow][!][/yellow] RAG unavailable — run: pip install fastembed stix2")
+        return ""
+    stix_path = args.threat_intel_stix
+    if not Path(stix_path).is_file():
+        console.print(f"[yellow][!][/yellow] STIX bundle not found: {stix_path}")
+        return ""
+    try:
+        conn = get_connection(args.dsn)
+    except Exception as exc:
+        console.print(f"[yellow][!][/yellow] RAG DB connection failed: {exc}")
+        return ""
+    console.print(f"[cyan][*][/cyan] Loading threat intel from [bold]{stix_path}[/bold]...")
+    ttps = rag.load_stix_ttps(stix_path)
+    stored = rag.embed_and_store(conn, ttps)
+    console.print(f"[dim][*] Threat intel: {stored} TTPs embedded/updated in pgvector.[/dim]")
+    incident_texts = [
+        f"{i.get('incident_type', '')} {i.get('source_ip', '')} "
+        f"{i.get('mitre', {}).get('name', '')}"
+        for i in incidents
+    ]
+    retrieved = rag.retrieve_context(conn, incident_texts)
+    conn.close()
+    return rag.format_context(retrieved)
+
+
 def _print_ai_summary(
     incidents: list[dict],
     anomaly_scores: dict[str, float] | None,
     args: argparse.Namespace,
+    rag_context: str = "",
 ) -> None:
     """Generate and print the Claude AI executive summary if ``--ai-summary``."""
     if not args.ai_summary:
@@ -2466,7 +2510,7 @@ def _print_ai_summary(
         console.print("[yellow][!][/yellow] AI summary unavailable — run: pip install anthropic")
         return
     console.print("[cyan][*][/cyan] Generating AI executive summary...")
-    summary = _ai_summary(incidents, anomaly_scores or {})
+    summary = _ai_summary(incidents, anomaly_scores or {}, context=rag_context)
     if summary:
         console.print(Panel(
             summary,
@@ -2572,7 +2616,8 @@ def main() -> None:
     _export_siem(incidents, args)
     _push_to_soc(incidents, args)
     _ingest_to_es(incidents, log_path, args)
-    _print_ai_summary(incidents, anomaly_scores, args)
+    rag_context = _get_rag_context(incidents, args)
+    _print_ai_summary(incidents, anomaly_scores, args, rag_context=rag_context)
 
 
 if __name__ == "__main__":

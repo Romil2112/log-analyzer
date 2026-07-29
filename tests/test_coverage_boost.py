@@ -264,7 +264,7 @@ def test_main_with_exports_and_mocked_db(tmp_path, monkeypatch):
     monkeypatch.setattr(la.psycopg2.extras, "execute_batch", lambda *a, **k: None)
     monkeypatch.setattr(la, "init_schema", lambda conn: None)
     monkeypatch.setattr(la, "AI_SUMMARY_AVAILABLE", True)
-    monkeypatch.setattr(la, "_ai_summary", lambda incs, scores: "exec summary")
+    monkeypatch.setattr(la, "_ai_summary", lambda incs, scores, context="": "exec summary")
     monkeypatch.setattr(la.soc_push, "push_incidents", lambda *a, **k: (1, []))
     monkeypatch.setattr(sys, "argv", [
         "log-analyzer", str(log), "--report", str(report),
