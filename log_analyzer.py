@@ -2128,6 +2128,9 @@ def build_parser() -> argparse.ArgumentParser:
                    default=os.environ.get("SOC_ALERTS_API_KEY"),
                    help="X-API-Key for the SOC-Dashboard ingest endpoint "
                         "(default: $SOC_ALERTS_API_KEY). Required by a hardened dashboard.")
+    p.add_argument("--es-host", metavar="URL", default=None,
+                   help="Elasticsearch base URL to index incidents into "
+                        "(e.g. http://localhost:9200). Disabled when unset.")
 
     # ── privacy / data-protection controls ────────────────────────────────────
     privacy = p.add_argument_group("privacy controls")
@@ -2412,6 +2415,25 @@ def _export_siem(incidents: list[dict], args: argparse.Namespace) -> None:
     )
 
 
+def _ingest_to_es(incidents: list[dict], log_path: str, args: argparse.Namespace) -> None:
+    """Index detected incidents into Elasticsearch if ``--es-host`` is set."""
+    if not args.es_host:
+        return
+    try:
+        import es_ingest
+    except ImportError:
+        console.print("[yellow][!][/yellow] elasticsearch package not installed; skipping ES indexing.")
+        return
+    console.print(f"[cyan][*][/cyan] Indexing incidents into Elasticsearch -> [bold]{args.es_host}[/bold]...")
+    client = es_ingest.connect(args.es_host)
+    if client is None:
+        console.print(f"[yellow][!][/yellow] Could not connect to Elasticsearch at {args.es_host}; skipping.")
+        return
+    es_ingest.ensure_index(client)
+    count = es_ingest.index_incidents(client, incidents, log_file=log_path)
+    console.print(f"[green][+][/green] Indexed [bold]{count}/{len(incidents)}[/bold] incident(s) to Elasticsearch.")
+
+
 def _push_to_soc(incidents: list[dict], args: argparse.Namespace) -> None:
     """Push detected incidents to a SOC-Dashboard ingest endpoint if ``--push-soc``."""
     if not args.push_soc:
@@ -2549,6 +2571,7 @@ def main() -> None:
     _export_sigma(incidents, args)
     _export_siem(incidents, args)
     _push_to_soc(incidents, args)
+    _ingest_to_es(incidents, log_path, args)
     _print_ai_summary(incidents, anomaly_scores, args)
 
 
