@@ -1,0 +1,44 @@
+# Apply with: gcloud run jobs replace deploy/gcp/cloudrun-job.yaml --region us-central1
+# Trigger with: gcloud run jobs execute log-analyzer --region us-central1
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  name: log-analyzer
+  labels:
+    cloud.googleapis.com/location: us-central1
+spec:
+  template:
+    spec:
+      maxRetries: 1
+      timeoutSeconds: "3600"
+      containers:
+        - image: us-central1-docker.pkg.dev/PROJECT_ID/log-analyzer/app:latest
+          args:
+            - /logs/auth.log
+            - --push-soc
+            - https://SOC_DASHBOARD_URL/api/alerts
+          env:
+            - name: LOG_ANALYZER_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: log-analyzer-dsn
+                  key: latest
+            - name: SOC_ALERTS_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: log-analyzer-soc-api-key
+                  key: latest
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: anthropic-api-key
+                  key: latest
+            - name: DB_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: log-analyzer-db-encryption-key
+                  key: latest
+          resources:
+            limits:
+              cpu: "2"
+              memory: 1Gi
