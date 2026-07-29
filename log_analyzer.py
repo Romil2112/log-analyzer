@@ -2193,6 +2193,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Generate LLM-powered Sigma rules via the Claude API to DIR "
              "(requires ANTHROPIC_API_KEY; writes <type>_llm.yml per incident type).",
     )
+    p.add_argument(
+        "--kafka-broker", metavar="BROKER", default=None,
+        help="Kafka broker address to publish detected incidents to "
+             "(e.g. localhost:9092). Independent of --push-soc; both can fire on "
+             "the same run or either alone. Requires confluent-kafka.",
+    )
     return p
 
 
@@ -2472,6 +2478,31 @@ def _push_to_soc(incidents: list[dict], args: argparse.Namespace) -> None:
         console.print(f"[yellow][!][/yellow] {len(errors)} push error(s); first: {errors[0]}")
 
 
+def _publish_to_kafka(incidents: list[dict], args: argparse.Namespace) -> None:
+    """Publish detected incidents to the Kafka 'incidents' topic if --kafka-broker is set."""
+    if not getattr(args, "kafka_broker", None):
+        return
+    try:
+        from kafka.producer import publish_incidents
+    except ImportError:
+        console.print(
+            "[yellow][!][/yellow] confluent-kafka not installed; skipping Kafka publish "
+            "[dim](pip install confluent-kafka)[/dim]"
+        )
+        return
+    console.print(
+        f"[cyan][*][/cyan] Publishing incidents to Kafka -> [bold]{args.kafka_broker}[/bold]..."
+    )
+    ok, errors = publish_incidents(incidents, args.kafka_broker)
+    console.print(
+        f"[green][+][/green] Published [bold]{ok}/{len(incidents)}[/bold] incident(s) to Kafka."
+    )
+    if errors:
+        console.print(
+            f"[yellow][!][/yellow] {len(errors)} Kafka publish error(s); first: {errors[0]}"
+        )
+
+
 def _get_rag_context(incidents: list[dict], args: argparse.Namespace) -> str:
     """Load STIX TTPs, embed and store them, then retrieve context for incidents.
 
@@ -2693,6 +2724,7 @@ def main() -> None:
     _export_sigma(incidents, args)
     _export_siem(incidents, args)
     _push_to_soc(incidents, args)
+    _publish_to_kafka(incidents, args)
     _ingest_to_es(incidents, log_path, args)
     rag_context = _get_rag_context(incidents, args)
     _print_ai_summary(incidents, anomaly_scores, args, rag_context=rag_context)

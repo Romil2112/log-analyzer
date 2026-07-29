@@ -15,3 +15,4 @@ pysigma-backend-kusto==1.0.1
 elasticsearch==8.17.2
 fastembed==0.6.1
 stix2==3.0.1
+confluent-kafka==2.5.0
