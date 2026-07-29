@@ -1785,22 +1785,78 @@ def suppress_recent_incidents(
     return remaining, suppressed
 
 
+def _redis_suppress_repeats(
+    incidents: list[dict],
+    window_minutes: int,
+    redis_url: str,
+) -> tuple[list[dict], int]:
+    """Suppress duplicate incidents using Redis SETEX for distributed dedup.
+
+    Each unique (incident_type, source_ip) pair is stored as a Redis key with a
+    TTL equal to window_minutes. An incident is suppressed when its key already
+    exists from a prior run within the window.
+
+    Safe fallback: if Redis is unavailable or redis-py is not installed, all
+    incidents pass through with zero suppressed so the run never fails silently.
+
+    Returns (remaining_incidents, suppressed_count).
+    """
+    if not incidents or window_minutes <= 0:
+        return incidents, 0
+    try:
+        import redis as _redis
+        client = _redis.from_url(redis_url, socket_timeout=3)
+    except ImportError:
+        return incidents, 0
+
+    ttl = window_minutes * 60
+    remaining: list[dict] = []
+    suppressed = 0
+    try:
+        for inc in incidents:
+            key = (
+                f"log-analyzer:suppress:"
+                f"{inc.get('incident_type', '')}:{inc.get('source_ip', '')}"
+            )
+            if client.exists(key):
+                suppressed += 1
+            else:
+                client.setex(key, ttl, 1)
+                remaining.append(inc)
+    except Exception:
+        return incidents, 0
+    finally:
+        client.close()
+
+    return remaining, suppressed
+
+
 def _apply_suppress_repeats(
     incidents: list[dict],
     args: argparse.Namespace,
     fernet: object | None,
 ) -> tuple[list[dict], int]:
-    """Apply duplicate suppression against the DB if --suppress-repeats is set.
+    """Apply duplicate suppression if --suppress-repeats is set.
+
+    When REDIS_URL is configured, uses Redis SETEX for distributed cross-run dedup
+    (works with or without --no-db). Otherwise falls back to the DB-based check.
 
     Returns (remaining_incidents, suppressed_count).
-    No-op when suppress_repeats == 0 or when --no-db is used.
+    No-op when suppress_repeats == 0.
     """
-    if args.suppress_repeats <= 0 or args.no_db:
-        if args.suppress_repeats > 0 and args.no_db:
-            console.print(
-                "[yellow][!][/yellow] --suppress-repeats requires database access; "
-                "skipped because --no-db is set."
-            )
+    if args.suppress_repeats <= 0:
+        return incidents, 0
+
+    redis_url = os.environ.get("REDIS_URL")
+    if redis_url:
+        return _redis_suppress_repeats(incidents, args.suppress_repeats, redis_url)
+
+    # DB-based fallback (existing behaviour)
+    if args.no_db:
+        console.print(
+            "[yellow][!][/yellow] --suppress-repeats requires database access "
+            "(or REDIS_URL); skipped because --no-db is set."
+        )
         return incidents, 0
     try:
         conn = get_connection(args.dsn)
