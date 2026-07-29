@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: log-analyzer
+  namespace: security-tools
+spec:
+  schedule: "0 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 3600
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: log-analyzer
+              image: us-central1-docker.pkg.dev/PROJECT_ID/log-analyzer/app:latest
+              imagePullPolicy: IfNotPresent
+              args:
+                - /logs/auth.log
+                - --config
+                - /config/config.yaml
+                - --push-soc
+                - http://soc-dashboard.security-tools.svc.cluster.local:8000/api/alerts
+              envFrom:
+                - secretRef:
+                    name: log-analyzer-secrets
+              volumeMounts:
+                - name: config
+                  mountPath: /config
+                  readOnly: true
+                - name: logs
+                  mountPath: /logs
+                  readOnly: true
+              resources:
+                requests:
+                  cpu: 250m
+                  memory: 256Mi
+                limits:
+                  cpu: 1000m
+                  memory: 512Mi
+          volumes:
+            - name: config
+              configMap:
+                name: log-analyzer-config
+            - name: logs
+              persistentVolumeClaim:
+                claimName: log-analyzer-logs
+                readOnly: true

@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: log-analyzer-ondemand
+  namespace: security-tools
+spec:
+  ttlSecondsAfterFinished: 300
+  activeDeadlineSeconds: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: log-analyzer
+          image: us-central1-docker.pkg.dev/PROJECT_ID/log-analyzer/app:latest
+          imagePullPolicy: IfNotPresent
+          args:
+            - /logs/auth.log
+            - --config
+            - /config/config.yaml
+            - --push-soc
+            - http://soc-dashboard.security-tools.svc.cluster.local:8000/api/alerts
+          envFrom:
+            - secretRef:
+                name: log-analyzer-secrets
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: logs
+              mountPath: /logs
+              readOnly: true
+          resources:
+            requests:
+              cpu: 500m
+              memory: 256Mi
+            limits:
+              cpu: 2000m
+              memory: 512Mi
+      volumes:
+        - name: config
+          configMap:
+            name: log-analyzer-config
+        - name: logs
+          persistentVolumeClaim:
+            claimName: log-analyzer-logs
+            readOnly: true

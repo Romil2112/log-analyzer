@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "soc-stack.fullname" . }}-soc-dashboard
+  namespace: security-tools
+  labels:
+    {{- include "soc-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: soc-dashboard
+spec:
+  selector:
+    {{- include "soc-stack.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: soc-dashboard
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+  type: ClusterIP

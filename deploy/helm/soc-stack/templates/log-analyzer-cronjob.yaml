@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "soc-stack.fullname" . }}-log-analyzer
+  namespace: security-tools
+  labels:
+    {{- include "soc-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: log-analyzer
+spec:
+  schedule: {{ .Values.logAnalyzer.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 3600
+      template:
+        metadata:
+          labels:
+            {{- include "soc-stack.selectorLabels" . | nindent 12 }}
+            app.kubernetes.io/component: log-analyzer
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: log-analyzer
+              image: {{ .Values.logAnalyzer.image.repository }}:{{ .Values.logAnalyzer.image.tag }}
+              imagePullPolicy: {{ .Values.logAnalyzer.image.pullPolicy }}
+              args:
+                - /logs/auth.log
+                - --config
+                - /config/config.yaml
+                - --push-soc
+                - http://{{ include "soc-stack.fullname" . }}-soc-dashboard.security-tools.svc.cluster.local/api/alerts
+              envFrom:
+                - secretRef:
+                    name: {{ include "soc-stack.secretName" . }}
+              volumeMounts:
+                - name: config
+                  mountPath: /config
+                  readOnly: true
+                - name: logs
+                  mountPath: /logs
+                  readOnly: true
+              resources:
+                requests:
+                  cpu: 250m
+                  memory: 256Mi
+                limits:
+                  cpu: 1000m
+                  memory: 512Mi
+          volumes:
+            - name: config
+              configMap:
+                name: {{ include "soc-stack.fullname" . }}-log-analyzer-config
+            - name: logs
+              persistentVolumeClaim:
+                claimName: {{ .Values.logAnalyzer.logVolume.claimName }}
+                readOnly: true

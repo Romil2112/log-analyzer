@@ -1,0 +1,67 @@
+logAnalyzer:
+  image:
+    repository: us-central1-docker.pkg.dev/PROJECT_ID/soc-stack/log-analyzer
+    tag: latest
+    pullPolicy: IfNotPresent
+  schedule: "0 * * * *"
+  logVolume:
+    claimName: log-analyzer-logs
+  thresholds:
+    bruteForce:
+      count: 5
+      windowSeconds: 600
+    portScan:
+      count: 20
+      windowSeconds: 300
+    flood404:
+      count: 30
+      windowSeconds: 300
+
+socDashboard:
+  image:
+    repository: us-central1-docker.pkg.dev/PROJECT_ID/soc-stack/soc-dashboard
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 2
+  alertRetentionDays: 90
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+postgres:
+  enabled: true
+  image:
+    repository: pgvector/pgvector
+    tag: pg16
+  storage: 10Gi
+  database: soc_dashboard
+  user: soc
+  # Set to a full DSN when postgres.enabled is false.
+  externalDsn: ""
+
+ingress:
+  enabled: true
+  className: nginx
+  host: soc.example.com
+  tls:
+    enabled: false
+    secretName: soc-tls
+
+# Provide at install time: helm install ... -f secrets-override.yaml
+# (never commit a file with real values)
+# If existingSecret is set, the chart skips Secret creation and references
+# that secret directly in all env var projections.
+secrets:
+  existingSecret: ""
+  postgresPassword: ""
+  databaseUrl: ""
+  logAnalyzerDsn: ""
+  socAlertsApiKey: ""
+  anthropicApiKey: ""
+  dbEncryptionKey: ""
+  flaskSecretKey: ""
+  alertsApiKey: ""

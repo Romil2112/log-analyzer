@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "soc-stack.fullname" . }}-soc-dashboard
+  namespace: security-tools
+  labels:
+    {{- include "soc-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: soc-dashboard
+spec:
+  replicas: {{ .Values.socDashboard.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "soc-stack.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: soc-dashboard
+  template:
+    metadata:
+      labels:
+        {{- include "soc-stack.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: soc-dashboard
+    spec:
+      containers:
+        - name: soc-dashboard
+          image: {{ .Values.socDashboard.image.repository }}:{{ .Values.socDashboard.image.tag }}
+          imagePullPolicy: {{ .Values.socDashboard.image.pullPolicy }}
+          ports:
+            - containerPort: 8000
+              name: http
+          envFrom:
+            - secretRef:
+                name: {{ include "soc-stack.secretName" . }}
+          env:
+            - name: PORT
+              value: "8000"
+            - name: ALERT_RETENTION_DAYS
+              value: {{ .Values.socDashboard.alertRetentionDays | quote }}
+          readinessProbe:
+            httpGet:
+              path: /login
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /login
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.socDashboard.resources | nindent 12 }}

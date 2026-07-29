@@ -1,0 +1,13 @@
+apiVersion: v2
+name: soc-stack
+description: Integrated log-analyzer + SOC-Dashboard deployment
+type: application
+version: 1.0.0
+appVersion: "2.0.0"
+keywords:
+  - security
+  - siem
+  - soc
+maintainers:
+  - name: Romil Shah
+    url: https://github.com/Romil2112

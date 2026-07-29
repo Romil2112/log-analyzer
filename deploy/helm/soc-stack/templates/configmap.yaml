@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "soc-stack.fullname" . }}-log-analyzer-config
+  namespace: security-tools
+  labels:
+    {{- include "soc-stack.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    thresholds:
+      brute_force:
+        count: {{ .Values.logAnalyzer.thresholds.bruteForce.count }}
+        window_seconds: {{ .Values.logAnalyzer.thresholds.bruteForce.windowSeconds }}
+      port_scan:
+        count: {{ .Values.logAnalyzer.thresholds.portScan.count }}
+        window_seconds: {{ .Values.logAnalyzer.thresholds.portScan.windowSeconds }}
+      flood_404:
+        count: {{ .Values.logAnalyzer.thresholds.flood404.count }}
+        window_seconds: {{ .Values.logAnalyzer.thresholds.flood404.windowSeconds }}
