@@ -2179,6 +2179,20 @@ def build_parser() -> argparse.ArgumentParser:
         help="Run detection twice with two config files and diff the results. "
              "Dry-run: no DB writes, no SOC push.",
     )
+    p.add_argument(
+        "--ai-agent", action="store_true",
+        help="Run a multi-step agentic incident investigation via Claude tool use "
+             "(requires ANTHROPIC_API_KEY; hard cap of 5 tool-use rounds).",
+    )
+    p.add_argument(
+        "--export-navigator", metavar="DIR", default=None,
+        help="Write an ATT&CK Navigator 4.9 layer JSON to DIR/navigator_layer.json.",
+    )
+    p.add_argument(
+        "--llm-sigma", metavar="DIR", default=None,
+        help="Generate LLM-powered Sigma rules via the Claude API to DIR "
+             "(requires ANTHROPIC_API_KEY; writes <type>_llm.yml per incident type).",
+    )
     return p
 
 
@@ -2522,6 +2536,70 @@ def _print_ai_summary(
         console.print("[yellow][!][/yellow] AI summary skipped — set ANTHROPIC_API_KEY to enable.")
 
 
+def _write_navigator_layer(incidents: list[dict], args: argparse.Namespace) -> None:
+    """Export an ATT&CK Navigator layer if ``--export-navigator`` is set."""
+    if not args.export_navigator:
+        return
+    from navigator_export import export_navigator
+    path = export_navigator(incidents, args.export_navigator)
+    console.print(
+        f"[green][+][/green] ATT&CK Navigator layer written to [bold]{path}[/bold]"
+    )
+
+
+def _write_sigma_llm(incidents: list[dict], args: argparse.Namespace) -> None:
+    """Generate LLM-powered Sigma rules if ``--llm-sigma`` is set."""
+    if not args.llm_sigma:
+        return
+    if not SIGMA_AVAILABLE:
+        console.print("[yellow][!][/yellow] Sigma export unavailable — run: pip install pyyaml")
+        return
+    key = os.environ.get("ANTHROPIC_API_KEY")
+    if not key:
+        console.print("[yellow][!][/yellow] LLM Sigma skipped — set ANTHROPIC_API_KEY to enable.")
+        return
+    from anthropic import Anthropic
+    from sigma_export import export_sigma_llm
+    client = Anthropic(api_key=key)
+    paths = export_sigma_llm(incidents, args.llm_sigma, client)
+    console.print(
+        f"[green][+][/green] Wrote [bold]{len(paths)}[/bold] LLM Sigma rule(s) "
+        f"to [bold]{args.llm_sigma}[/bold]"
+    )
+
+
+def _run_ai_investigation(incidents: list[dict], args: argparse.Namespace) -> None:
+    """Run the multi-step Claude agent investigation if ``--ai-agent`` is set."""
+    if not args.ai_agent:
+        return
+    console.print(
+        "[cyan][*][/cyan] Running agentic incident investigation "
+        "[dim](max 5 tool-use rounds)...[/dim]"
+    )
+    conn = None
+    if not args.no_db:
+        try:
+            conn = get_connection(args.dsn)
+        except Exception:  # noqa: BLE001
+            pass
+    from ai_agent import run_investigation
+    report = run_investigation(incidents, conn=conn)
+    if conn:
+        conn.close()
+    if report:
+        console.print(Panel(
+            report,
+            title="[bold magenta]AI Agent Investigation[/bold magenta]",
+            border_style="magenta",
+            padding=(1, 2),
+        ))
+    else:
+        console.print(
+            "[yellow][!][/yellow] Agent investigation skipped — "
+            "set ANTHROPIC_API_KEY to enable."
+        )
+
+
 def main() -> None:
     """Run the CLI end to end: parse, detect, enrich, store, and report."""
     parser = build_parser()
@@ -2618,6 +2696,9 @@ def main() -> None:
     _ingest_to_es(incidents, log_path, args)
     rag_context = _get_rag_context(incidents, args)
     _print_ai_summary(incidents, anomaly_scores, args, rag_context=rag_context)
+    _write_navigator_layer(incidents, args)
+    _write_sigma_llm(incidents, args)
+    _run_ai_investigation(incidents, args)
 
 
 if __name__ == "__main__":

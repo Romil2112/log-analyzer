@@ -59,7 +59,10 @@ _SIGMA_RULES: dict[str, dict] = {
 }
 
 
-__all__ = ["incident_to_sigma", "export_sigma"]
+__all__ = [
+    "incident_to_sigma", "export_sigma",
+    "generate_sigma_rule_llm", "export_sigma_llm",
+]
 
 
 def incident_to_sigma(incident_type: str) -> dict | None:
@@ -82,6 +85,73 @@ def export_sigma(incidents: list[dict], out_dir: str) -> list[str]:
         if rule is None:
             continue
         path = out / f"{itype}.yml"
+        path.write_text(yaml.safe_dump(rule, sort_keys=False))
+        written.append(str(path))
+    return written
+
+
+def generate_sigma_rule_llm(incident: dict, client) -> dict | None:
+    """Generate a context-aware Sigma rule for an incident via the Claude API.
+
+    Returns a validated rule dict on success, or None if the API call fails,
+    the response is not parseable YAML, or required Sigma fields are missing.
+    """
+    mitre = incident.get("mitre", {})
+    prompt = (
+        f"Generate a Sigma detection rule for this security incident:\n"
+        f"- Type: {incident['incident_type']}\n"
+        f"- MITRE technique: {mitre.get('id', '?')} — {mitre.get('name', '')}\n"
+        f"- Tactic: {mitre.get('tactic', '')}\n"
+        f"- Observed event count: {incident['event_count']}\n"
+        f"- Severity: {incident.get('severity', '?')}\n\n"
+        "Return ONLY the Sigma rule as valid YAML. No explanations, no markdown "
+        "fences. Required fields: title, id (UUID v4), status, description, "
+        "author, date, tags (ATT&CK technique), logsource, detection, "
+        "falsepositives, level."
+    )
+    try:
+        msg = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=600,
+            messages=[{"role": "user", "content": prompt}],
+        )
+    except Exception:  # noqa: BLE001
+        return None
+    if not getattr(msg, "content", None):
+        return None
+    raw = msg.content[0].text.strip()
+    # Strip markdown code fences if the model wrapped the YAML anyway.
+    if raw.startswith("```"):
+        lines = raw.split("\n")
+        raw = "\n".join(lines[1:])
+        if raw.rstrip().endswith("```"):
+            raw = raw.rstrip()[:-3]
+    try:
+        rule = yaml.safe_load(raw)
+    except yaml.YAMLError:
+        return None
+    if not isinstance(rule, dict):
+        return None
+    if not all(k in rule for k in ("title", "detection", "logsource")):
+        return None
+    return rule
+
+
+def export_sigma_llm(incidents: list[dict], out_dir: str, client) -> list[str]:
+    """Generate LLM-powered Sigma rules for each observed incident type.
+
+    Writes <type>_llm.yml per distinct type. Skips types whose rule generation
+    fails. Returns the list of file paths written.
+    """
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    written: list[str] = []
+    for itype in unique_incident_types(incidents):
+        incident = next(i for i in incidents if i.get("incident_type") == itype)
+        rule = generate_sigma_rule_llm(incident, client)
+        if rule is None:
+            continue
+        path = out / f"{itype}_llm.yml"
         path.write_text(yaml.safe_dump(rule, sort_keys=False))
         written.append(str(path))
     return written
