@@ -18,6 +18,7 @@ import os
 
 try:
     from opentelemetry import trace
+    from opentelemetry.sdk.resources import Resource
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import BatchSpanProcessor
     from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter  # type: ignore[import]
@@ -37,7 +38,7 @@ def init_tracer(endpoint: str | None = None) -> None:
         return
     otlp = endpoint or os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "localhost:4317")
     exporter = OTLPSpanExporter(endpoint=otlp, insecure=True)  # type: ignore[call-arg]
-    provider = TracerProvider()
+    provider = TracerProvider(resource=Resource.create({"service.name": _SERVICE_NAME}))
     provider.add_span_processor(BatchSpanProcessor(exporter))
     trace.set_tracer_provider(provider)
     set_global_textmap(TraceContextTextMapPropagator())

@@ -17,7 +17,7 @@ Globals:
     Runtime: python3.12
     MemorySize: 512
     Timeout: 300
-    CodeUri: .
+    CodeUri: ..
 
 Resources:
   LogAnalyzerFunction:

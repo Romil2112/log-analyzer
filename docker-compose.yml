@@ -61,9 +61,9 @@ services:
   jaeger:
     image: jaegertracing/all-in-one:1.57
     ports:
-      - "16686:16686"  # Jaeger UI
-      - "4317:4317"    # OTLP gRPC receiver
-      - "4318:4318"    # OTLP HTTP receiver
+      - "16687:16686"  # Jaeger UI  (16687 avoids conflict with SOC-Dashboard's Jaeger on 16686)
+      - "4319:4317"    # OTLP gRPC  (4319 avoids conflict with SOC-Dashboard's Jaeger on 4317)
+      - "4320:4318"    # OTLP HTTP  (4320 avoids conflict with SOC-Dashboard's Jaeger on 4318)
     environment:
       COLLECTOR_OTLP_ENABLED: "true"
 
@@ -76,7 +76,7 @@ services:
         condition: service_healthy
     environment:
       LOG_ANALYZER_DSN: "postgresql://loganalyzer:loganalyzer@postgres:5432/log_analyzer"
-      OTEL_EXPORTER_OTLP_ENDPOINT: "jaeger:4317"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "jaeger:4317"  # internal port unchanged; host port is 4319
     volumes:
       - ./logs:/app/logs:ro
       - ./reports:/app/reports
