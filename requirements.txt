@@ -17,3 +17,5 @@ fastembed==0.6.1
 stix2==3.0.1
 confluent-kafka==2.5.0
 redis==5.0.8
+grpcio>=1.60
+protobuf>=4.25

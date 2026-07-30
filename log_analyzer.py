@@ -2184,6 +2184,10 @@ def build_parser() -> argparse.ArgumentParser:
                    default=os.environ.get("SOC_ALERTS_API_KEY"),
                    help="X-API-Key for the SOC-Dashboard ingest endpoint "
                         "(default: $SOC_ALERTS_API_KEY). Required by a hardened dashboard.")
+    p.add_argument("--soc-grpc-host", metavar="HOST:PORT", default=None,
+                   help="Send incidents to the Go ingest-service via gRPC instead of "
+                        "HTTP. Opt-in; does not change the --push-soc default. "
+                        "Example: localhost:9001. Requires grpcio to be installed.")
     p.add_argument("--es-host", metavar="URL", default=None,
                    help="Elasticsearch base URL to index incidents into "
                         "(e.g. http://localhost:9200). Disabled when unset.")
@@ -2515,7 +2519,26 @@ def _ingest_to_es(incidents: list[dict], log_path: str, args: argparse.Namespace
 
 
 def _push_to_soc(incidents: list[dict], args: argparse.Namespace) -> None:
-    """Push detected incidents to a SOC-Dashboard ingest endpoint if ``--push-soc``."""
+    """Push detected incidents to a SOC-Dashboard ingest endpoint if configured.
+
+    Uses gRPC (``--soc-grpc-host``) when provided, otherwise falls back to the
+    HTTP path (``--push-soc``). Both flags are independent and can fire together.
+    """
+    grpc_host = getattr(args, "soc_grpc_host", None)
+    if grpc_host:
+        import soc_push_grpc
+        console.print(f"[cyan][*][/cyan] Pushing incidents via gRPC -> [bold]{grpc_host}[/bold]...")
+        if not args.soc_api_key:
+            console.print("[yellow][!][/yellow] No --soc-api-key set; gRPC server will reject with UNAUTHENTICATED.")
+        ok, errors = soc_push_grpc.push_incidents_grpc(
+            incidents, grpc_host, api_key=args.soc_api_key,
+        )
+        console.print(
+            f"[green][+][/green] gRPC pushed [bold]{ok}/{len(incidents)}[/bold] incident(s)."
+        )
+        if errors:
+            console.print(f"[yellow][!][/yellow] {len(errors)} gRPC error(s); first: {errors[0]}")
+
     if not args.push_soc:
         return
     console.print(f"[cyan][*][/cyan] Pushing incidents to SOC dashboard -> [bold]{args.push_soc}[/bold]...")
