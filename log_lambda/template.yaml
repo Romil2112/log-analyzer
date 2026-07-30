@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  log-analyzer — S3-triggered serverless analysis.
+  On each ObjectCreated event the handler downloads the log file, runs it
+  through the parse → detect → score pipeline, and pushes incidents to the
+  SOC-Dashboard REST endpoint.
+
+  Local validation:
+    sam build
+    sam local invoke LogAnalyzerFunction \
+        --event log_lambda/events/s3_trigger.json \
+        --env-vars log_lambda/events/env.json
+
+Globals:
+  Function:
+    Runtime: python3.12
+    MemorySize: 512
+    Timeout: 300
+    CodeUri: .
+
+Resources:
+  LogAnalyzerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: log_lambda.handler.lambda_handler
+      Environment:
+        Variables:
+          SOC_ALERTS_URL:    !Ref SocAlertsUrl
+          SOC_ALERTS_API_KEY: !Ref SocAlertsApiKey
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref LogsBucket
+      Events:
+        S3LogUpload:
+          Type: S3
+          Properties:
+            Bucket: !Ref LogsBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .log
+
+Parameters:
+  LogsBucket:
+    Type: String
+    Description: S3 bucket that triggers analysis on log file upload
+  SocAlertsUrl:
+    Type: String
+    Default: ""
+    Description: SOC-Dashboard POST /api/alerts URL (leave empty to skip push)
+  SocAlertsApiKey:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: X-API-Key for the SOC-Dashboard ingest endpoint
+
+Outputs:
+  FunctionArn:
+    Description: ARN of the deployed Lambda function
+    Value: !GetAtt LogAnalyzerFunction.Arn

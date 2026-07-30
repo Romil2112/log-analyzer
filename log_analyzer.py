@@ -62,6 +62,7 @@ import yaml
 import contracts
 import enrichment
 import soc_push
+import tracing as _tracing
 from crypto import decrypt_field, encrypt_field, get_fernet
 
 try:
@@ -2782,72 +2783,92 @@ def main() -> None:
     fernet = get_fernet()
     _print_encryption_status(fernet)
 
-    events = _parse_events(log_path, fmt, n_lines)
-    console.print(
-        f"[green][+][/green] Parsed [bold]{len(events):,}[/bold] events  "
-        f"[dim]({n_lines:,} lines)[/dim]"
-    )
-    events = _apply_allowlist(events, args)
+    _tracing.init_tracer()
+    _tracer = _tracing.get_tracer()
 
-    # YAML-based allowlist (--allowlist-file): supports IPs, usernames, hostnames.
-    _allowlist_yaml_suppressed = 0
-    if args.allowlist_file:
-        _allowlist_cfg = load_allowlist_yaml(args.allowlist_file)
-        events, _allowlist_yaml_suppressed = filter_events_allowlist_yaml(events, _allowlist_cfg)
+    with _tracer.start_as_current_span("log_analyzer.run") as _span:
+        _span.set_attribute("log.file", log_path)
+        _span.set_attribute("log.format", fmt)
+
+        with _tracer.start_as_current_span("log_analyzer.parse") as _pspan:
+            _pspan.set_attribute("log.lines", n_lines)
+            events = _parse_events(log_path, fmt, n_lines)
         console.print(
-            f"[dim][*] Allowlist file: {args.allowlist_file} — "
-            f"{_allowlist_yaml_suppressed} event(s) suppressed.[/dim]"
+            f"[green][+][/green] Parsed [bold]{len(events):,}[/bold] events  "
+            f"[dim]({n_lines:,} lines)[/dim]"
         )
+        events = _apply_allowlist(events, args)
 
-    # --replay-compare: dry-run A/B diff, no DB/SOC write.
-    if args.replay_compare:
-        run_replay_compare(events, args.replay_compare[0], args.replay_compare[1])
-        return
+        # YAML-based allowlist (--allowlist-file): supports IPs, usernames, hostnames.
+        _allowlist_yaml_suppressed = 0
+        if args.allowlist_file:
+            _allowlist_cfg = load_allowlist_yaml(args.allowlist_file)
+            events, _allowlist_yaml_suppressed = filter_events_allowlist_yaml(events, _allowlist_cfg)
+            console.print(
+                f"[dim][*] Allowlist file: {args.allowlist_file} — "
+                f"{_allowlist_yaml_suppressed} event(s) suppressed.[/dim]"
+            )
 
-    incidents = _run_rule_detection(events)
-    incidents, _suppressed_duplicate_count = _apply_suppress_repeats(incidents, args, fernet)
-    if _suppressed_duplicate_count > 0:
-        console.print(
-            f"[dim][*] Suppress-repeats: [bold]{_suppressed_duplicate_count}[/bold] "
-            f"duplicate incident(s) skipped (window: {args.suppress_repeats} min).[/dim]"
-        )
-    _maybe_enrich(incidents, args)
+        # --replay-compare: dry-run A/B diff, no DB/SOC write.
+        if args.replay_compare:
+            run_replay_compare(events, args.replay_compare[0], args.replay_compare[1])
+            return
 
-    # Privacy transforms run after detection + enrichment (which need the real
-    # values) but before anything is displayed, reported, or stored.
-    for banner in apply_privacy_transforms(events, incidents, args):
-        console.print(f"[yellow][*][/yellow] {banner}")
+        with _tracer.start_as_current_span("log_analyzer.rule_detection") as _dspan:
+            incidents = _run_rule_detection(events)
+            incidents, _suppressed_duplicate_count = _apply_suppress_repeats(incidents, args, fernet)
+            _dspan.set_attribute("incident.count", len(incidents))
+        if _suppressed_duplicate_count > 0:
+            console.print(
+                f"[dim][*] Suppress-repeats: [bold]{_suppressed_duplicate_count}[/bold] "
+                f"duplicate incident(s) skipped (window: {args.suppress_repeats} min).[/dim]"
+            )
+        _maybe_enrich(incidents, args)
 
-    _print_detection_tables(incidents, args)
-    anomaly_scores, feat_rows = _run_ml_detection(events, incidents, args)
-    _store_to_db(events, incidents, log_path, args, fernet)
+        # Privacy transforms run after detection + enrichment (which need the real
+        # values) but before anything is displayed, reported, or stored.
+        for banner in apply_privacy_transforms(events, incidents, args):
+            console.print(f"[yellow][*][/yellow] {banner}")
 
-    console.print(f"[cyan][*][/cyan] Generating HTML report -> [bold]{args.report}[/bold]...")
-    generate_report(events, incidents, log_path, args.report, anomaly_scores, feat_rows)
-    console.print(f"[green][+][/green] Report written: [bold]{args.report}[/bold]")
+        _print_detection_tables(incidents, args)
 
-    if args.evaluate:
-        console.print(
-            f"[cyan][*][/cyan] Evaluating detection against ground truth: {args.evaluate}"
-        )
-        _gt = load_ground_truth(args.evaluate)
-        _eval_metrics = evaluate_detection(incidents, _gt, args.eval_tolerance)
-        _print_eval_results(_eval_metrics)
-        _eval_out = "evaluation_report.json"
-        with open(_eval_out, "w", encoding="utf-8") as _ef:
-            json.dump(_eval_metrics, _ef, indent=2, default=str)
-        console.print(f"[green][+][/green] Evaluation report written: [bold]{_eval_out}[/bold]")
+        with _tracer.start_as_current_span("log_analyzer.ml_detection") as _mlspan:
+            _mlspan.set_attribute("ml.detector", getattr(args, "detector", "isolation-forest"))
+            anomaly_scores, feat_rows = _run_ml_detection(events, incidents, args)
 
-    _export_sigma(incidents, args)
-    _export_siem(incidents, args)
-    _push_to_soc(incidents, args)
-    _publish_to_kafka(incidents, args)
-    _ingest_to_es(incidents, log_path, args)
-    rag_context = _get_rag_context(incidents, args)
-    _print_ai_summary(incidents, anomaly_scores, args, rag_context=rag_context)
-    _write_navigator_layer(incidents, args)
-    _write_sigma_llm(incidents, args)
-    _run_ai_investigation(incidents, args)
+        _store_to_db(events, incidents, log_path, args, fernet)
+
+        console.print(f"[cyan][*][/cyan] Generating HTML report -> [bold]{args.report}[/bold]...")
+        generate_report(events, incidents, log_path, args.report, anomaly_scores, feat_rows)
+        console.print(f"[green][+][/green] Report written: [bold]{args.report}[/bold]")
+
+        if args.evaluate:
+            console.print(
+                f"[cyan][*][/cyan] Evaluating detection against ground truth: {args.evaluate}"
+            )
+            _gt = load_ground_truth(args.evaluate)
+            _eval_metrics = evaluate_detection(incidents, _gt, args.eval_tolerance)
+            _print_eval_results(_eval_metrics)
+            _eval_out = "evaluation_report.json"
+            with open(_eval_out, "w", encoding="utf-8") as _ef:
+                json.dump(_eval_metrics, _ef, indent=2, default=str)
+            console.print(f"[green][+][/green] Evaluation report written: [bold]{_eval_out}[/bold]")
+
+        _export_sigma(incidents, args)
+        _export_siem(incidents, args)
+
+        with _tracer.start_as_current_span("log_analyzer.soc_push"):
+            _push_to_soc(incidents, args)
+
+        with _tracer.start_as_current_span("log_analyzer.kafka_publish"):
+            _publish_to_kafka(incidents, args)
+
+        _ingest_to_es(incidents, log_path, args)
+        rag_context = _get_rag_context(incidents, args)
+        _print_ai_summary(incidents, anomaly_scores, args, rag_context=rag_context)
+        _write_navigator_layer(incidents, args)
+        _write_sigma_llm(incidents, args)
+        _run_ai_investigation(incidents, args)
 
 
 if __name__ == "__main__":

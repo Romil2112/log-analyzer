@@ -3,7 +3,6 @@ Push detected incidents to a SOC-Dashboard ingestion endpoint.
 
 This is the bridge that turns log-analyzer (detection) and SOC-Dashboard
 (triage) into one pipeline: Ingest -> Detect -> Triage -> Respond.
-Uses only the standard library (no extra dependency).
 """
 from __future__ import annotations
 
@@ -12,6 +11,8 @@ import sys
 import urllib.error
 import urllib.parse
 import urllib.request
+
+from tracing import inject_http_headers
 
 _ALLOWED_SCHEMES = ("http", "https")
 
@@ -106,6 +107,7 @@ def push_incidents(
     headers = {"Content-Type": "application/json"}
     if api_key:
         headers["X-API-Key"] = api_key
+    inject_http_headers(headers)
     meta_json = json.dumps(run_metadata) if run_metadata else None
     ok, errors = 0, []
     for inc in incidents:

@@ -58,6 +58,15 @@ services:
       retries: 12
       start_period: 15s
 
+  jaeger:
+    image: jaegertracing/all-in-one:1.57
+    ports:
+      - "16686:16686"  # Jaeger UI
+      - "4317:4317"    # OTLP gRPC receiver
+      - "4318:4318"    # OTLP HTTP receiver
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+
   analyzer:
     build: .
     depends_on:
@@ -67,6 +76,7 @@ services:
         condition: service_healthy
     environment:
       LOG_ANALYZER_DSN: "postgresql://loganalyzer:loganalyzer@postgres:5432/log_analyzer"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "jaeger:4317"
     volumes:
       - ./logs:/app/logs:ro
       - ./reports:/app/reports

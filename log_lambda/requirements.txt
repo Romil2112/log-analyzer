@@ -1,0 +1,4 @@
+# Runtime dependencies for the Lambda handler.
+# boto3 is the only additional requirement — the rest of the log-analyzer
+# stack (psycopg2, scikit-learn, etc.) is bundled via CodeUri: . in template.yaml.
+boto3>=1.34

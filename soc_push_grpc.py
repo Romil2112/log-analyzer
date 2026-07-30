@@ -14,6 +14,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     pass
 
+from tracing import inject_grpc_metadata
+
 __all__ = ["push_incidents_grpc"]
 
 # log-analyzer incident_type -> SOC-Dashboard alert category (mirrors soc_push.py)
@@ -80,7 +82,7 @@ def push_incidents_grpc(
     meta_json = json.dumps(run_metadata) if run_metadata else None
 
     ok, errors = 0, []
-    metadata = [("x-api-key", api_key)] if api_key else []
+    metadata = inject_grpc_metadata([("x-api-key", api_key)] if api_key else [])
 
     try:
         channel = grpc.insecure_channel(host)
