@@ -46,6 +46,12 @@ except ImportError:
     ML_AVAILABLE = False
 
 try:
+    from pytorch_detector import PYTORCH_AVAILABLE, PyTorchAnomalyDetector
+except ImportError:
+    PYTORCH_AVAILABLE = False
+    PyTorchAnomalyDetector = None  # type: ignore[assignment,misc]
+
+try:
     from ai_summary import ai_summary as _ai_summary
     AI_SUMMARY_AVAILABLE = True
 except ImportError:
@@ -2146,6 +2152,18 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Log format (default: auto-detect)")
     p.add_argument("--no-db",    action="store_true", help="Skip PostgreSQL storage")
     p.add_argument("--no-ml",    action="store_true", help="Skip Isolation Forest")
+    p.add_argument(
+        "--detector",
+        choices=["isolation-forest", "pytorch"],
+        default="isolation-forest",
+        metavar="NAME",
+        help=(
+            "Anomaly detection algorithm: 'isolation-forest' (default, scikit-learn) "
+            "or 'pytorch' (autoencoder; requires pip install -r requirements-ml.txt). "
+            "Both train unsupervised on the current log file. "
+            "Ignored when --no-ml is set."
+        ),
+    )
     p.add_argument("--ml-threshold", type=float, default=ML_ANOMALY_THRESHOLD,
                    metavar="FLOAT",
                    help=f"Min anomaly score to display (default: {ML_ANOMALY_THRESHOLD})")
@@ -2378,8 +2396,14 @@ def _fit_and_report_ml(
     events: list[dict],
     incidents: list[dict],
     unique_src: int,
+    detector=None,
+    label: str = "Isolation Forest",
 ) -> tuple[dict[str, float], list[dict]]:
-    """Fit Isolation Forest, print the results table, and return (scores, features)."""
+    """Fit the anomaly detector, print results, and return (scores, feature_rows).
+
+    Pass a detector instance and label to use an alternative detector; defaults
+    to the Isolation Forest (AnomalyDetector).
+    """
     with Progress(
         SpinnerColumn(),
         TextColumn("[bold cyan]{task.description}"),
@@ -2387,15 +2411,15 @@ def _fit_and_report_ml(
         console=console,
         transient=True,
     ) as progress:
-        progress.add_task(f"Isolation Forest on {unique_src} source IPs...", total=None)
-        det            = AnomalyDetector()
+        progress.add_task(f"{label} on {unique_src} source IPs...", total=None)
+        det            = detector if detector is not None else AnomalyDetector()
         anomaly_scores = det.fit_score(events)
         feat_rows      = det.feature_rows(events)
 
     rule_ips = {i["source_ip"] for i in incidents}
     flagged  = sum(1 for s in anomaly_scores.values() if s >= ML_ANOMALY_THRESHOLD)
     console.print(
-        f"[green][+][/green] Isolation Forest complete — "
+        f"[green][+][/green] {label} complete — "
         f"[bold]{flagged}[/bold] IP(s) above threshold "
         f"[dim]{ML_ANOMALY_THRESHOLD}[/dim]"
     )
@@ -2409,7 +2433,7 @@ def _run_ml_detection(
     incidents: list[dict],
     args: argparse.Namespace,
 ) -> tuple[dict[str, float] | None, list[dict] | None]:
-    """Run Isolation Forest anomaly detection, returning (scores, feature_rows).
+    """Run anomaly detection, returning (scores, feature_rows).
 
     Returns ``(None, None)`` when ML is disabled, unavailable, or there are too
     few unique source IPs to fit a meaningful model.
@@ -2429,6 +2453,20 @@ def _run_ml_detection(
             f"unique source IP(s) (need >= {AnomalyDetector.MIN_IPS})."
         )
         return None, None
+
+    use_pytorch = getattr(args, "detector", "isolation-forest") == "pytorch"
+    if use_pytorch:
+        if not PYTORCH_AVAILABLE:
+            console.print(
+                "[yellow][!][/yellow] torch not installed — falling back to "
+                "Isolation Forest [dim](pip install -r requirements-ml.txt)[/dim]"
+            )
+            return _fit_and_report_ml(events, incidents, unique_src)
+        return _fit_and_report_ml(
+            events, incidents, unique_src,
+            detector=PyTorchAnomalyDetector(),
+            label="PyTorch Autoencoder",
+        )
     return _fit_and_report_ml(events, incidents, unique_src)
 
 

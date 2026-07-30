@@ -1,0 +1,4 @@
+# Optional ML dependencies for the PyTorch anomaly detector (--detector pytorch).
+# Install with: pip install -r requirements-ml.txt
+# scikit-learn is already in requirements.txt so StandardScaler is available.
+torch>=2.0.0
