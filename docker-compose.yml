@@ -74,5 +74,19 @@ services:
     command: ["/app/logs/auth.log", "--report", "/app/reports/report.html",
               "--es-host", "http://elasticsearch:9200"]
 
+  log-shipper:
+    build:
+      context: .
+      dockerfile: Dockerfile.log-shipper
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ./logs:/logs:ro
+      - shipper_state:/var/lib/log-shipper
+    # Pass additional log file paths as extra positional arguments.
+    command: ["--broker", "kafka:9092", "--topic", "raw-logs", "/logs/auth.log"]
+
 volumes:
   pgdata:
+  shipper_state:

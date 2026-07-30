@@ -23,3 +23,6 @@ htmlcov/
 *.tfstate
 *.tfstate.backup
 *.tfvars
+
+# Go build artifacts
+/log-shipper
