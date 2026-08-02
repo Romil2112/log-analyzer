@@ -294,7 +294,7 @@ Prevent the same source IP from flooding the incident queue across repeated runs
 python log_analyzer.py auth.log --suppress-repeats 60  # suppress for 60 minutes
 ```
 
-If an identical (incident_type, source_ip) pair was already stored in the database within the window, the duplicate is skipped. Requires database access (incompatible with `--no-db`). Default is 0 (disabled).
+If an identical (incident_type, source_ip) pair was seen within the window, the duplicate is skipped. When `REDIS_URL` is set, dedup state is stored in Redis (works with `--no-db`); otherwise it requires PostgreSQL (incompatible with `--no-db`). Default is 0 (disabled).
 
 ## Evaluation Mode
 
