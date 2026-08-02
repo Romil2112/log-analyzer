@@ -157,7 +157,7 @@ All optional. Unset any of them and the tool falls back to a sensible default: p
 | `ANTHROPIC_API_KEY` | `--ai-summary`, `ai_scale.py` | unset | Anthropic API key for Claude executive summaries |
 | `GEOIP_DB_PATH` | GeoIP enrichment | unset (country = `Unknown`) | Path to a MaxMind GeoLite2-Country `.mmdb` file |
 | `SOC_ALERTS_API_KEY` | `--push-soc` | unset (warns) | `X-API-Key` sent to the SOC-Dashboard ingest endpoint (override with `--soc-api-key`) |
-| `REDIS_URL` | Kafka + OTel coordination | unset | Redis connection string used by the Kafka consumer and OTel span batching |
+| `REDIS_URL` | `--suppress-repeats` | unset | Redis connection string; when set, `--suppress-repeats` uses Redis SETEX for distributed cross-run dedup instead of PostgreSQL |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | OTel tracing | unset (no export) | OTLP endpoint (e.g. Jaeger) for distributed trace export across parse, detect, and push spans |
 | `KAFKA_BROKER` | Kafka publish | unset | Bootstrap servers; enables incident publish to the `incidents` Kafka topic |
 
@@ -193,7 +193,7 @@ flowchart LR
 
 ## Tests
 
-361 pytest tests cover parsing, both detectors (Isolation Forest + PyTorch autoencoder), enrichment, MITRE mapping, the privacy transforms, Sigma and SIEM export, the SOC push (REST and gRPC), the concurrent Claude AI agent loop, Elasticsearch ingest, Kafka publish, MITRE ATT&CK STIX-based RAG retrieval, OTel span emission, K8s/Helm manifests, and GCP/Terraform configuration, at 90% line and 88% branch coverage. Twelve adversarial fixture logs exercise slow brute force, coordinated multi-IP attacks, IPv6, unicode, malformed lines, and high volume. Run the suite with:
+361 pytest tests cover parsing, both detectors (Isolation Forest + PyTorch autoencoder), enrichment, MITRE mapping, the privacy transforms, Sigma and SIEM export, the SOC push (REST and gRPC), the concurrent Claude AI agent loop, Elasticsearch ingest, Kafka publish, MITRE ATT&CK STIX-based RAG retrieval, OTel span emission, and repeat-incident Redis dedup, at 90% line and 88% branch coverage. Twelve adversarial fixture logs exercise slow brute force, coordinated multi-IP attacks, IPv6, unicode, malformed lines, and high volume. Run the suite with:
 
 ```bash
 python -m pytest tests/ -v
