@@ -1,4 +1,4 @@
-![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Open Source](https://img.shields.io/badge/Open%20Source-Free%20to%20Use-success) ![Tests](https://img.shields.io/badge/pytest-248%20passing-brightgreen?logo=pytest&logoColor=white)
+![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Open Source](https://img.shields.io/badge/Open%20Source-Free%20to%20Use-success) ![Tests](https://img.shields.io/badge/pytest-361%20passing-brightgreen?logo=pytest&logoColor=white)
 
 # log-analyzer
 
@@ -31,18 +31,29 @@ The rule engine's burst detector was the one hot spot. The burst detector starte
 - Multi-format parsing: SSH `auth.log`, Windows Event Log CSV, and Apache/Nginx access logs, auto-detected
 - Rule detection: sliding-window brute force, port scan, and 404-flood / web-scan
 - ML anomaly detection: Isolation Forest on 8 behavioral features per source IP
+- PyTorch autoencoder detector (`--detector pytorch`): an 8→4→8 autoencoder trained on the same behavioral features; swap ML backends without changing any other flag
 - MITRE ATT&CK mapping: T1110.001, T1046, and T1595.002, each with tactic label and documentation link
 - IP enrichment: known-bad CIDR threat-intel feed plus optional MaxMind GeoLite2 country lookup
 - Sigma export (`--export-sigma`): vendor-neutral detection-as-code
 - Native SIEM compilation (`--export-siem`): Splunk SPL, Elastic ES|QL, and Sentinel KQL via pySigma backends with per-SIEM field-mapping pipelines
 - SOC-Dashboard handoff (`--push-soc`): POSTs each incident to the triage queue with `X-API-Key` auth
+- gRPC push (`--soc-grpc-host`): opt-in transport to the Go SOC ingest-service with W3C TraceContext propagated end to end
+- Elasticsearch ingest (`--es-host`): bulk-indexes incidents into `log_analyzer_incidents`
+- Kafka: Go log-shipper (`cmd/log-shipper/`) tails log files and publishes raw lines to the `raw-logs` topic; Python producer in `kafka/producer.py` publishes finished incidents to `incidents`
+- Threat-intel RAG (`--threat-intel-stix`): embeds a MITRE ATT&CK STIX bundle with fastembed (BAAI/bge-small-en-v1.5, 384d) into pgvector; retrieved TTPs augment Claude summary prompts with matched adversary context
+- AI agent: multi-step tool-use loop (up to 5 rounds) with tools for incidents by severity, top threat sources, MITRE coverage, and vector-similarity TTP lookup — runs automatically when `--ai-summary` and pgvector are available
+- OpenTelemetry distributed tracing: spans over parse, rule detection, ML detection, SOC push, and Kafka publish; export to any OTLP collector (Jaeger) via `OTEL_EXPORTER_OTLP_ENDPOINT`
+- AWS Lambda adapter: S3-triggered serverless handler in `log_lambda/` auto-detects log format and runs the full pipeline on each PUT event
+- MITRE ATT&CK Navigator export (`navigator_export.py`): live layer JSON (Navigator 4.9) with severity-weighted scores (CRITICAL 100 / HIGH 75 / MEDIUM 50 / LOW 25)
 - Optional orchestration (Orkes Conductor): run the detect, summarize, and push stages as durable, retryable, observable tasks — see [CONDUCTOR.md](CONDUCTOR.md)
 - Claude API summaries (`--ai-summary`): concurrent batched calls with token-cost and p50/p95 latency instrumentation
 - Encryption at rest: Fernet field-level encryption of PII columns
 - Privacy controls: IP pseudonymization, username scrubbing, raw-line redaction, and retention purge
 - Fail-loud event contract: a startup check that every detector's required event types are produced by some parser
 - Measured detection quality: a labeled-corpus [evaluation harness](eval/) reports precision / recall / F1 on synthetic and real Loghub data
-- 248 pytest tests at 90% line / 88% branch coverage, run on GitHub Actions
+- Kubernetes + Helm: `deploy/k8s/` manifests and a Helm chart (`soc-stack`) covering the full log-analyzer + SOC-Dashboard stack with HPA
+- GCP + Terraform: Cloud infra in `terraform/gcp/` — Artifact Registry, GCS bucket, GKE cluster
+- 361 pytest tests at 90% line / 88% branch coverage, run on GitHub Actions
 
 ## Running the Project
 
@@ -125,6 +136,10 @@ Configuration is read from environment variables (see the table below); all of t
 | `--export-siem DIR` | — | Compile native Splunk SPL / Elastic ES&#124;QL / Sentinel KQL queries |
 | `--push-soc URL` | — | POST detected incidents to a SOC-Dashboard ingest endpoint |
 | `--soc-api-key KEY` | — | `X-API-Key` for `--push-soc` (or set `SOC_ALERTS_API_KEY`) |
+| `--soc-grpc-host HOST:PORT` | — | Push via gRPC to the Go SOC ingest-service instead of REST; propagates W3C TraceContext end to end |
+| `--detector {isolation_forest,pytorch}` | `isolation_forest` | ML backend: Isolation Forest (default) or PyTorch 8→4→8 autoencoder |
+| `--es-host URL` | — | Bulk-index incidents into Elasticsearch `log_analyzer_incidents` index |
+| `--threat-intel-stix PATH` | — | MITRE ATT&CK STIX bundle to embed into pgvector; retrieved TTPs augment AI summary prompts |
 | `--scrub-usernames` | — | Replace usernames with SHA-256 pseudonyms before storage/reporting |
 | `--no-raw-lines` | — | Do not store or report original raw log lines (may contain PII) |
 | `--pseudonymize` | — | Replace source IPs with stable per-run HMAC pseudonyms (in-memory only) |
@@ -142,6 +157,9 @@ All optional. Unset any of them and the tool falls back to a sensible default: p
 | `ANTHROPIC_API_KEY` | `--ai-summary`, `ai_scale.py` | unset | Anthropic API key for Claude executive summaries |
 | `GEOIP_DB_PATH` | GeoIP enrichment | unset (country = `Unknown`) | Path to a MaxMind GeoLite2-Country `.mmdb` file |
 | `SOC_ALERTS_API_KEY` | `--push-soc` | unset (warns) | `X-API-Key` sent to the SOC-Dashboard ingest endpoint (override with `--soc-api-key`) |
+| `REDIS_URL` | Kafka + OTel coordination | unset | Redis connection string used by the Kafka consumer and OTel span batching |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | OTel tracing | unset (no export) | OTLP endpoint (e.g. Jaeger) for distributed trace export across parse, detect, and push spans |
+| `KAFKA_BROKER` | Kafka publish | unset | Bootstrap servers; enables incident publish to the `incidents` Kafka topic |
 
 ## Architecture diagram
 
@@ -164,15 +182,18 @@ flowchart LR
     MI --> PR[Privacy transforms<br/>scrub · redact · pseudonymize]
     PR --> OUT{Outputs}
     OUT --> H[HTML report]
-    OUT --> DB[(PostgreSQL)]
+    OUT --> DB[(PostgreSQL<br/>+ pgvector)]
     OUT --> SG[Sigma / SIEM export]
-    OUT --> SOC[SOC-Dashboard push]
-    OUT --> AI[Claude AI summary]
+    OUT --> SOC[SOC-Dashboard<br/>REST / gRPC push]
+    OUT --> ES[Elasticsearch<br/>bulk index]
+    OUT --> KAF[Kafka incidents topic]
+    OUT --> AI[Claude AI agent<br/>+ STIX RAG]
+    OUT --> OTL[OTel OTLP traces]
 ```
 
 ## Tests
 
-248 pytest tests cover parsing, both detectors, enrichment, MITRE mapping, the privacy transforms, Sigma and SIEM export, the SOC push, the concurrent Claude layer, Elasticsearch ingest, and MITRE ATT&CK STIX-based RAG retrieval, at 90% line and 88% branch coverage. Twelve adversarial fixture logs exercise slow brute force, coordinated multi-IP attacks, IPv6, unicode, malformed lines, and high volume. Run the suite with:
+361 pytest tests cover parsing, both detectors (Isolation Forest + PyTorch autoencoder), enrichment, MITRE mapping, the privacy transforms, Sigma and SIEM export, the SOC push (REST and gRPC), the concurrent Claude AI agent loop, Elasticsearch ingest, Kafka publish, MITRE ATT&CK STIX-based RAG retrieval, OTel span emission, K8s/Helm manifests, and GCP/Terraform configuration, at 90% line and 88% branch coverage. Twelve adversarial fixture logs exercise slow brute force, coordinated multi-IP attacks, IPv6, unicode, malformed lines, and high volume. Run the suite with:
 
 ```bash
 python -m pytest tests/ -v
