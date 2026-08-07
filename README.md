@@ -139,6 +139,7 @@ Configuration is read from environment variables (see the table below); all of t
 | `--soc-grpc-host HOST:PORT` | — | Push via gRPC to the Go SOC ingest-service instead of REST; propagates W3C TraceContext end to end |
 | `--detector {isolation_forest,pytorch}` | `isolation_forest` | ML backend: Isolation Forest (default) or PyTorch 8→4→8 autoencoder |
 | `--es-host URL` | — | Bulk-index incidents into Elasticsearch `log_analyzer_incidents` index |
+| `--gcs-bucket BUCKET` | — | Upload the HTML report to this GCS bucket after writing it locally (requires `google-cloud-storage`; uses Application Default Credentials) |
 | `--threat-intel-stix PATH` | — | MITRE ATT&CK STIX bundle to embed into pgvector; retrieved TTPs augment AI summary prompts |
 | `--scrub-usernames` | — | Replace usernames with SHA-256 pseudonyms before storage/reporting |
 | `--no-raw-lines` | — | Do not store or report original raw log lines (may contain PII) |

@@ -2278,6 +2278,13 @@ def build_parser() -> argparse.ArgumentParser:
              "(e.g. localhost:9092). Independent of --push-soc; both can fire on "
              "the same run or either alone. Requires confluent-kafka.",
     )
+    p.add_argument(
+        "--gcs-bucket", metavar="BUCKET", default=None,
+        help="GCS bucket name to upload the HTML report to after writing it locally. "
+             "Uses Application Default Credentials (GOOGLE_APPLICATION_CREDENTIALS). "
+             "Requires google-cloud-storage. The local report is always written first; "
+             "a failed upload does not block the rest of the pipeline.",
+    )
     return p
 
 
@@ -2621,6 +2628,43 @@ def _publish_to_kafka(incidents: list[dict], args: argparse.Namespace) -> None:
         )
 
 
+def _upload_to_gcs(report_path: str, args: argparse.Namespace) -> None:
+    """Upload the HTML incident report to GCS if ``--gcs-bucket`` is set.
+
+    A failed upload prints a warning to stderr but does not raise or block the
+    rest of the pipeline — the report is always written locally first.
+    """
+    bucket_name = getattr(args, "gcs_bucket", None)
+    if not bucket_name:
+        return
+    try:
+        from google.cloud import storage as _gcs
+    except ImportError:
+        console.print(
+            "[yellow][!][/yellow] google-cloud-storage not installed; skipping GCS upload "
+            "[dim](pip install google-cloud-storage)[/dim]"
+        )
+        return
+    blob_name = Path(report_path).name
+    console.print(
+        f"[cyan][*][/cyan] Uploading report to GCS -> "
+        f"[bold]gs://{bucket_name}/{blob_name}[/bold]..."
+    )
+    try:
+        client = _gcs.Client()
+        blob = client.bucket(bucket_name).blob(blob_name)
+        blob.upload_from_filename(report_path)
+    except Exception as exc:
+        console.print(
+            f"[yellow][!][/yellow] GCS upload failed ({type(exc).__name__}: {exc}); "
+            f"report is still available locally at {report_path}"
+        )
+        return
+    console.print(
+        f"[green][+][/green] Report uploaded: [bold]gs://{bucket_name}/{blob_name}[/bold]"
+    )
+
+
 def _get_rag_context(incidents: list[dict], args: argparse.Namespace) -> str:
     """Load STIX TTPs, embed and store them, then retrieve context for incidents.
 
@@ -2841,6 +2885,7 @@ def main() -> None:
         console.print(f"[cyan][*][/cyan] Generating HTML report -> [bold]{args.report}[/bold]...")
         generate_report(events, incidents, log_path, args.report, anomaly_scores, feat_rows)
         console.print(f"[green][+][/green] Report written: [bold]{args.report}[/bold]")
+        _upload_to_gcs(args.report, args)
 
         if args.evaluate:
             console.print(
