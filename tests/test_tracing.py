@@ -6,6 +6,9 @@ OTEL_AVAILABLE is False.
 """
 from __future__ import annotations
 
+import unittest.mock as mock
+
+import pytest
 import tracing
 from tracing import (
     OTEL_AVAILABLE,
@@ -72,3 +75,24 @@ def test_inject_grpc_metadata_noop_when_unavailable(monkeypatch):
     metadata = [("x-api-key", "test")]
     result = inject_grpc_metadata(metadata)
     assert result == metadata
+
+
+def test_init_tracer_skips_exporter_when_sdk_disabled(monkeypatch):
+    """init_tracer() must return before constructing any OTel objects when OTEL_SDK_DISABLED=true."""
+    if not tracing.OTEL_AVAILABLE:
+        pytest.skip("OTel not installed — early-return guard not exercisable")
+    monkeypatch.setenv("OTEL_SDK_DISABLED", "true")
+    with mock.patch.object(tracing, "OTLPSpanExporter") as mock_exporter:
+        init_tracer()
+        mock_exporter.assert_not_called()
+
+
+def test_init_tracer_skips_exporter_case_insensitive(monkeypatch):
+    """The OTEL_SDK_DISABLED guard must match regardless of case or surrounding whitespace."""
+    if not tracing.OTEL_AVAILABLE:
+        pytest.skip("OTel not installed")
+    for value in ("TRUE", "True", " true ", "TRUE "):
+        monkeypatch.setenv("OTEL_SDK_DISABLED", value)
+        with mock.patch.object(tracing, "OTLPSpanExporter") as mock_exporter:
+            init_tracer()
+            mock_exporter.assert_not_called(), f"exporter constructed for OTEL_SDK_DISABLED={value!r}"

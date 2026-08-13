@@ -34,6 +34,8 @@ _SERVICE_NAME = "log-analyzer"
 
 def init_tracer(endpoint: str | None = None) -> None:
     """Configure the global OTel TracerProvider.  No-op when OTel is not installed."""
+    if os.getenv("OTEL_SDK_DISABLED", "").lower().strip() == "true":
+        return
     if not OTEL_AVAILABLE:
         return
     otlp = endpoint or os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "localhost:4317")

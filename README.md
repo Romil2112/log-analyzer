@@ -161,6 +161,7 @@ All optional. Unset any of them and the tool falls back to a sensible default: p
 | `SOC_ALERTS_API_KEY` | `--push-soc` | unset (warns) | `X-API-Key` sent to the SOC-Dashboard ingest endpoint (override with `--soc-api-key`) |
 | `REDIS_URL` | `--suppress-repeats` | unset | Redis connection string; when set, `--suppress-repeats` uses Redis SETEX for distributed cross-run dedup instead of PostgreSQL |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | OTel tracing | unset (no export) | OTLP endpoint (e.g. Jaeger) for distributed trace export across parse, detect, and push spans |
+| `OTEL_SDK_DISABLED` | OTel tracing | unset | Set to `true` to skip tracer initialisation entirely. Without a reachable OTLP collector (e.g. no Jaeger running), leaving this unset adds ~13 s per run from `BatchSpanProcessor` flush retries on process exit. |
 | `KAFKA_BROKER` | Kafka publish | unset | Bootstrap servers; enables incident publish to the `incidents` Kafka topic |
 
 ## Architecture diagram
