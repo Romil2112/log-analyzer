@@ -143,7 +143,7 @@ Configuration is read from environment variables (see the table below); all of t
 | `--detector {isolation_forest,pytorch}` | `isolation_forest` | ML backend: Isolation Forest (default) or PyTorch 8→4→8 autoencoder |
 | `--es-host URL` | — | Bulk-index incidents into Elasticsearch `log_analyzer_incidents` index |
 | `--gcs-bucket BUCKET` | — | Upload the HTML report to this GCS bucket after writing it locally (requires `google-cloud-storage`; uses Application Default Credentials) |
-| `--threat-intel-stix PATH` | — | MITRE ATT&CK STIX bundle to embed into pgvector; retrieved TTPs augment AI summary prompts |
+| `--threat-intel-stix PATH` | — | MITRE ATT&CK STIX bundle to embed into pgvector; retrieved TTPs augment AI summary prompts. **First use** downloads the `BAAI/bge-small-en-v1.5` model (~130 MB, cached to `~/.cache/fastembed/` afterward); if the download fails the run raises rather than silently degrading. |
 | `--scrub-usernames` | — | Replace usernames with SHA-256 pseudonyms before storage/reporting |
 | `--no-raw-lines` | — | Do not store or report original raw log lines (may contain PII) |
 | `--pseudonymize` | — | Replace source IPs with stable per-run HMAC pseudonyms (in-memory only) |
