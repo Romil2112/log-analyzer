@@ -1,4 +1,4 @@
-![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Open Source](https://img.shields.io/badge/Open%20Source-Free%20to%20Use-success) ![Tests](https://img.shields.io/badge/pytest-372%20passing-brightgreen?logo=pytest&logoColor=white)
+![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Open Source](https://img.shields.io/badge/Open%20Source-Free%20to%20Use-success) ![Tests](https://img.shields.io/badge/pytest-376%20passing-brightgreen?logo=pytest&logoColor=white)
 
 # log-analyzer
 
@@ -54,7 +54,7 @@ The rule engine's burst detector was the one hot spot. The burst detector starte
 - Kubernetes + Helm: `deploy/k8s/` manifests and a Helm chart (`soc-stack`) covering the full log-analyzer + SOC-Dashboard stack with HPA
 - GCP + Terraform: Cloud infra in `terraform/gcp/` — Artifact Registry, GCS bucket, GKE cluster
 - GCS report upload (`--gcs-bucket BUCKET`): upload the HTML report to a GCS bucket after writing it locally; uses Application Default Credentials and degrades gracefully if the upload fails
-- 372 pytest tests at 90% line / 88% branch coverage, run on GitHub Actions
+- 376 pytest tests at 90% line / 88% branch coverage, run on GitHub Actions
 
 ## Running the Project
 
@@ -198,7 +198,7 @@ flowchart LR
 
 ## Tests
 
-372 pytest tests cover parsing, both detectors (Isolation Forest + PyTorch autoencoder), enrichment, MITRE mapping, the privacy transforms, Sigma and SIEM export, the SOC push (REST and gRPC), the concurrent Claude AI agent loop, Elasticsearch ingest, Kafka publish, MITRE ATT&CK STIX-based RAG retrieval, OTel span emission, repeat-incident Redis dedup, and GCS report upload, at 90% line and 88% branch coverage. Twelve adversarial fixture logs exercise slow brute force, coordinated multi-IP attacks, IPv6, unicode, malformed lines, and high volume. Run the suite with:
+376 pytest tests cover parsing, both detectors (Isolation Forest + PyTorch autoencoder), enrichment, MITRE mapping, the privacy transforms, Sigma and SIEM export, the SOC push (REST and gRPC), the concurrent Claude AI agent loop, Elasticsearch ingest, Kafka publish, MITRE ATT&CK STIX-based RAG retrieval, OTel span emission, OTel SDK-disabled guard (case-insensitive variants), explicit API timeout regression for the AI summary and agent calls, repeat-incident Redis dedup, and GCS report upload, at 90% line and 88% branch coverage. Twelve adversarial fixture logs exercise slow brute force, coordinated multi-IP attacks, IPv6, unicode, malformed lines, and high volume. Run the suite with:
 
 ```bash
 python -m pytest tests/ -v
