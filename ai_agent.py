@@ -191,6 +191,7 @@ def run_investigation(
             system=system_prompt,
             tools=_TOOLS,
             messages=messages,
+            timeout=60,
         )
         messages.append({"role": "assistant", "content": response.content})
 

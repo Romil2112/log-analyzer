@@ -28,6 +28,7 @@ def ai_summary(incidents, anomaly_scores, context: str = ""):
         model="claude-haiku-4-5-20251001",
         max_tokens=200,
         messages=[{"role": "user", "content": prompt}],
+        timeout=30,
     )
     if not msg.content:
         return None

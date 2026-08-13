@@ -100,6 +100,8 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 python log_analyzer.py test_auth_10k.log --no-db --ai-summary
 ```
 
+`--ai-summary` makes a single Claude API call (30-second timeout). `--ai-agent` runs a multi-step tool-use loop (up to 5 rounds, 60-second timeout per round). Both require `ANTHROPIC_API_KEY` and return gracefully when the key is unset or the API is unreachable.
+
 **With PostgreSQL**
 
 ```bash

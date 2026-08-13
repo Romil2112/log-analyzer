@@ -288,3 +288,19 @@ def test_run_investigation_tool_result_contains_valid_json():
     content_str = tool_result_msg["content"][0]["content"]
     parsed = json.loads(content_str)   # must not raise
     assert isinstance(parsed, list)    # get_mitre_coverage returns a list
+
+
+
+def test_run_investigation_passes_explicit_timeout():
+    """messages.create must be called with an explicit timeout= not the SDK default."""
+    from unittest.mock import MagicMock
+
+    fake_response = _Response("end_turn", [_TextBlock("summary")])
+    fake_client = MagicMock()
+    fake_client.messages.create.return_value = fake_response
+
+    run_investigation(INCIDENTS, client=fake_client)
+
+    _, kwargs = fake_client.messages.create.call_args
+    assert "timeout" in kwargs, "messages.create must include an explicit timeout="
+    assert isinstance(kwargs["timeout"], (int, float)) and kwargs["timeout"] <= 120

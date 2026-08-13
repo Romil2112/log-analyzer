@@ -225,6 +225,21 @@ def test_ai_summary(monkeypatch):
     assert out == "3-sentence summary"
 
 
+def test_ai_summary_passes_explicit_timeout(monkeypatch):
+    """messages.create must be called with an explicit timeout= not the SDK default."""
+    fake_msg = SimpleNamespace(content=[SimpleNamespace(text="summary")])
+    fake_client = mock.MagicMock()
+    fake_client.messages.create.return_value = fake_msg
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test")
+    monkeypatch.setattr(ai_summary, "Anthropic", lambda api_key: fake_client)
+
+    ai_summary.ai_summary([_brute_incident()], {})
+
+    _, kwargs = fake_client.messages.create.call_args
+    assert "timeout" in kwargs, "messages.create must include an explicit timeout="
+    assert isinstance(kwargs["timeout"], (int, float)) and kwargs["timeout"] <= 60
+
+
 def test_ai_scale_metrics():
     results, metrics = ai_scale.summarize_batch(
         ["p1", "p2"], client=benchmark_ai.LatencyStub(0.001), max_concurrency=2)
