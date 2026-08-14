@@ -29,8 +29,9 @@ from conductor.client.automator.task_handler import get_registered_workers
 from conductor.client.automator.task_runner import TaskRunner
 from conductor.client.configuration.configuration import Configuration
 
-# Importing this module registers the @worker_task functions with the SDK.
-import conductor_workers  # noqa: F401
+# Importing these modules registers all @worker_task functions with the SDK.
+import conductor_workers              # noqa: F401
+import conductor_orchestrated_workers  # noqa: F401
 
 
 def main() -> None:

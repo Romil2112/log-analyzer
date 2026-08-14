@@ -1,6 +1,6 @@
 {
   "name": "log_analyzer_soc_pipeline_orchestrated",
-  "description": "v1 orchestrated: same detection fork/join as log_analyzer_soc_pipeline v5, then a SWITCH+TERMINATE that short-circuits the rest of the pipeline when no incidents are detected, followed by GeoIP enrichment, Claude summary, and SOC-Dashboard push. Phase 2 will add a second fork/join running ai_agent, sigma rules, ES ingest, and GCS upload in parallel after enrichment.",
+  "description": "Orchestrated SOC pipeline: detection FORK_JOIN -> SWITCH/TERMINATE (short-circuit on zero incidents) -> GeoIP enrichment -> output FORK_JOIN (Claude summary + AI agent + Sigma rules + ES ingest + GCS upload in parallel) -> SOC-Dashboard push. Uses SWITCH, TERMINATE, and two FORK_JOIN task types.",
   "version": 1,
   "schemaVersion": 2,
   "ownerEmail": "shahromil71321@gmail.com",
@@ -8,7 +8,9 @@
   "inputParameters": [
     "log_path",
     "soc_url",
-    "soc_api_key"
+    "soc_api_key",
+    "es_host",
+    "gcs_bucket"
   ],
   "tasks": [
     {
@@ -119,13 +121,79 @@
       }
     },
     {
-      "name": "generate_claude_summary",
-      "taskReferenceName": "summary_ref",
-      "type": "SIMPLE",
-      "inputParameters": {
-        "incidents": "${enrich_ref.output.incidents}",
-        "anomaly_scores": "${join_ref.output.anomaly_scores}"
-      }
+      "name": "output_fork",
+      "taskReferenceName": "output_fork_ref",
+      "type": "FORK_JOIN",
+      "forkTasks": [
+        [
+          {
+            "name": "generate_claude_summary",
+            "taskReferenceName": "summary_ref",
+            "type": "SIMPLE",
+            "inputParameters": {
+              "incidents": "${enrich_ref.output.incidents}",
+              "anomaly_scores": "${join_ref.output.anomaly_scores}"
+            }
+          }
+        ],
+        [
+          {
+            "name": "run_ai_agent",
+            "taskReferenceName": "agent_ref",
+            "type": "SIMPLE",
+            "inputParameters": {
+              "incidents": "${enrich_ref.output.incidents}",
+              "anomaly_scores": "${join_ref.output.anomaly_scores}"
+            }
+          }
+        ],
+        [
+          {
+            "name": "generate_sigma_rules",
+            "taskReferenceName": "sigma_ref",
+            "type": "SIMPLE",
+            "inputParameters": {
+              "incidents": "${enrich_ref.output.incidents}"
+            }
+          }
+        ],
+        [
+          {
+            "name": "elasticsearch_ingest",
+            "taskReferenceName": "es_ref",
+            "type": "SIMPLE",
+            "inputParameters": {
+              "incidents": "${enrich_ref.output.incidents}",
+              "es_host": "${workflow.input.es_host}",
+              "log_path": "${workflow.input.log_path}"
+            }
+          }
+        ],
+        [
+          {
+            "name": "gcs_upload_report",
+            "taskReferenceName": "gcs_ref",
+            "type": "SIMPLE",
+            "inputParameters": {
+              "incidents": "${enrich_ref.output.incidents}",
+              "gcs_bucket": "${workflow.input.gcs_bucket}",
+              "log_path": "${workflow.input.log_path}"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "output_join",
+      "taskReferenceName": "output_join_ref",
+      "type": "JOIN",
+      "joinOn": [
+        "summary_ref",
+        "agent_ref",
+        "sigma_ref",
+        "es_ref",
+        "gcs_ref"
+      ]
     },
     {
       "name": "push_to_dashboard",
@@ -142,6 +210,11 @@
   "outputParameters": {
     "counts": "${join_ref.output.counts}",
     "summary": "${summary_ref.output.summary}",
+    "agent_report": "${agent_ref.output.report}",
+    "sigma_files": "${sigma_ref.output.files}",
+    "sigma_count": "${sigma_ref.output.count}",
+    "es_indexed": "${es_ref.output.indexed}",
+    "gcs_uploaded": "${gcs_ref.output.uploaded}",
     "pushed": "${push_ref.output.pushed}",
     "push_errors": "${push_ref.output.errors}"
   }

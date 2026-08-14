@@ -48,6 +48,12 @@ TASK_DEFS = [
     {"name": "enrich_geoip", "response_timeout_seconds": 60, "timeout_seconds": 120},
     {"name": "generate_claude_summary", "response_timeout_seconds": 120, "timeout_seconds": 180},
     {"name": "push_to_dashboard", "response_timeout_seconds": 60, "timeout_seconds": 120},
+    # Phase 2 output-fork workers
+    # run_ai_agent: 5 tool-use rounds × 60 s each + synthesis = ~360 s worst-case; 420 gives margin
+    {"name": "run_ai_agent",          "response_timeout_seconds": 420, "timeout_seconds": 480},
+    {"name": "generate_sigma_rules",  "response_timeout_seconds": 180, "timeout_seconds": 240},
+    {"name": "elasticsearch_ingest",  "response_timeout_seconds": 60,  "timeout_seconds": 120},
+    {"name": "gcs_upload_report",     "response_timeout_seconds": 60,  "timeout_seconds": 120},
 ]
 
 

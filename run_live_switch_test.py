@@ -31,15 +31,6 @@ import os
 import sys
 import time
 
-# ---------------------------------------------------------------------------
-# Env guard — must be sourced before running
-# ---------------------------------------------------------------------------
-if not os.environ.get("CONDUCTOR_SERVER_URL"):
-    sys.exit(
-        "CONDUCTOR_SERVER_URL not set.\n"
-        "Run:  source ~/.orkes_env && python3 run_live_switch_test.py"
-    )
-
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from conductor.client.configuration.configuration import Configuration
@@ -99,6 +90,12 @@ def _complete_by_ref(task_client: OrkesTaskClient, run_id: str, ref_name: str) -
 
 
 def main() -> None:
+    if not os.environ.get("CONDUCTOR_SERVER_URL"):
+        sys.exit(
+            "CONDUCTOR_SERVER_URL not set.\n"
+            "Run:  source ~/.orkes_env && python3 run_live_switch_test.py"
+        )
+
     config      = Configuration()
     wf_client   = OrkesWorkflowClient(config)
     task_client = OrkesTaskClient(config)
