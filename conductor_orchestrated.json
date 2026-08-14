@@ -1,6 +1,6 @@
 {
   "name": "log_analyzer_soc_pipeline_orchestrated",
-  "description": "Orchestrated SOC pipeline: detection FORK_JOIN -> SWITCH/TERMINATE (short-circuit on zero incidents) -> GeoIP enrichment -> output FORK_JOIN (Claude summary + AI agent + Sigma rules + ES ingest + GCS upload in parallel) -> SOC-Dashboard push. Uses SWITCH, TERMINATE, and two FORK_JOIN task types.",
+  "description": "Orchestrated SOC pipeline: detection FORK_JOIN -> SWITCH/TERMINATE (short-circuit on zero incidents) -> GeoIP enrichment -> output FORK_JOIN (Claude summary + AI agent + Sigma rules + ES ingest + GCS upload in parallel) -> severity SWITCH -> optional WAIT human-approval gate for CRITICAL incidents -> SOC-Dashboard push. Uses SWITCH, TERMINATE, WAIT, and two FORK_JOIN task types.",
   "version": 1,
   "schemaVersion": 2,
   "ownerEmail": "shahromil71321@gmail.com",
@@ -196,6 +196,36 @@
       ]
     },
     {
+      "name": "severity_route_switch",
+      "taskReferenceName": "severity_switch_ref",
+      "type": "SWITCH",
+      "evaluatorType": "javascript",
+      "expression": "$.incidents.some(function(i) { return i.severity === 'CRITICAL'; }) ? 'critical' : 'non_critical'",
+      "inputParameters": {
+        "incidents": "${enrich_ref.output.incidents}"
+      },
+      "decisionCases": {
+        "critical": [
+          {
+            "name": "human_approval_wait",
+            "taskReferenceName": "approval_wait_ref",
+            "type": "WAIT",
+            "inputParameters": {
+              "workflow_id": "${workflow.workflowId}"
+            },
+            "taskDefinition": {
+              "name": "human_approval_wait",
+              "timeoutSeconds": 14400,
+              "timeoutPolicy": "ALERT_ONLY",
+              "retryCount": 0
+            }
+          }
+        ],
+        "non_critical": []
+      },
+      "defaultCase": []
+    },
+    {
       "name": "push_to_dashboard",
       "taskReferenceName": "push_ref",
       "type": "SIMPLE",
@@ -215,6 +245,7 @@
     "sigma_count": "${sigma_ref.output.count}",
     "es_indexed": "${es_ref.output.indexed}",
     "gcs_uploaded": "${gcs_ref.output.uploaded}",
+    "approval_note": "${approval_wait_ref.output.note}",
     "pushed": "${push_ref.output.pushed}",
     "push_errors": "${push_ref.output.errors}"
   }

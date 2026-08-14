@@ -95,6 +95,24 @@ def _simulate_orchestrated_pipeline(
 
 
 # ---------------------------------------------------------------------------
+# Phase 3 — severity-based SWITCH routing helper
+# ---------------------------------------------------------------------------
+
+def _switch_severity_route(incidents: List[dict]) -> str:
+    """Return the Conductor SWITCH case key for a given set of enriched incidents.
+
+    Mirrors the JavaScript expression in conductor_orchestrated.json:
+        $.incidents.some(function(i) { return i.severity === 'CRITICAL'; })
+            ? 'critical' : 'non_critical'
+
+    A CRITICAL route puts the workflow into a WAIT task until an analyst approves
+    via the SOC-Dashboard POST /api/alerts/<run_id>/approve endpoint.
+    """
+    has_critical = any(inc.get("severity") == "CRITICAL" for inc in incidents)
+    return "critical" if has_critical else "non_critical"
+
+
+# ---------------------------------------------------------------------------
 # Phase 2 — post-enrichment FORK_JOIN workers
 # ---------------------------------------------------------------------------
 

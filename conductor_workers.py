@@ -34,7 +34,16 @@ import sys
 # Make the sibling log-analyzer modules importable no matter the working directory.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from conductor.client.worker.worker_task import worker_task
+try:
+    from conductor.client.worker.worker_task import worker_task
+except ImportError:
+    # conductor-python is an optional dependency (requirements-conductor.txt).
+    # When absent, @worker_task becomes a transparent pass-through so the module
+    # can be imported in plain pytest runs without the full SDK installed.
+    def worker_task(task_definition_name=None, **_kw):  # type: ignore[misc]
+        def _wrap(fn):
+            return fn
+        return _wrap
 
 import enrichment
 import log_analyzer as la

@@ -78,6 +78,16 @@ def _workflow_task(t: dict) -> WorkflowTask:
     if t.get("subWorkflowParam"):
         swp = t["subWorkflowParam"]
         wt.sub_workflow_param = SubWorkflowParams(name=swp["name"], version=swp.get("version"))
+    # Inline task-definition override (used by WAIT to set timeoutSeconds / timeoutPolicy
+    # without touching the registered global task def).
+    if t.get("taskDefinition"):
+        td = t["taskDefinition"]
+        wt.task_definition = TaskDef(
+            name=td["name"],
+            timeout_seconds=td.get("timeoutSeconds", 0),
+            timeout_policy=td.get("timeoutPolicy", "TIME_OUT_WF"),
+            retry_count=td.get("retryCount", 0),
+        )
     # SWITCH task fields
     if t.get("evaluatorType"):
         wt.evaluator_type = t["evaluatorType"]

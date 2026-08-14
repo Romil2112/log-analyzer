@@ -28,6 +28,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from conductor_orchestrated_workers import (
     _simulate_orchestrated_pipeline,
     _switch_incident_route,
+    _switch_severity_route,
     elasticsearch_ingest,
     gcs_upload_report,
     generate_sigma_rules,
@@ -566,3 +567,145 @@ def test_orchestrated_workflow_json_output_params_include_new_workers():
     assert "sigma_files" in out
     assert "es_indexed" in out
     assert "gcs_uploaded" in out
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 — _switch_severity_route: mirrors the Conductor JS expression
+# ---------------------------------------------------------------------------
+
+_CRITICAL_INCIDENT = {**_SAMPLE_INCIDENT, "severity": "CRITICAL"}
+_HIGH_INCIDENT     = {**_SAMPLE_INCIDENT, "severity": "HIGH"}
+_LOW_INCIDENT      = {**_SAMPLE_INCIDENT, "severity": "LOW"}
+
+
+def test_severity_route_critical_incident_returns_critical():
+    assert _switch_severity_route([_CRITICAL_INCIDENT]) == "critical"
+
+
+def test_severity_route_no_critical_incidents_returns_non_critical():
+    assert _switch_severity_route([_HIGH_INCIDENT, _LOW_INCIDENT]) == "non_critical"
+
+
+def test_severity_route_empty_list_returns_non_critical():
+    assert _switch_severity_route([]) == "non_critical"
+
+
+def test_severity_route_any_critical_among_many_wins():
+    mixed = [_HIGH_INCIDENT, _LOW_INCIDENT, _CRITICAL_INCIDENT, _HIGH_INCIDENT]
+    assert _switch_severity_route(mixed) == "critical"
+
+
+def test_severity_route_only_returns_known_cases():
+    for incidents in ([], [_CRITICAL_INCIDENT], [_HIGH_INCIDENT], [_LOW_INCIDENT]):
+        assert _switch_severity_route(incidents) in ("critical", "non_critical")
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 — Workflow JSON structural validation: WAIT gate
+# ---------------------------------------------------------------------------
+
+def _all_tasks_recursive(tasks: list) -> list:
+    """Flatten all tasks including those nested in SWITCH decisionCases."""
+    result = []
+    for t in tasks:
+        result.append(t)
+        for branch in t.get("decisionCases", {}).values():
+            result.extend(_all_tasks_recursive(branch))
+        result.extend(_all_tasks_recursive(t.get("defaultCase", [])))
+        for branch in t.get("forkTasks", []):
+            result.extend(_all_tasks_recursive(branch))
+    return result
+
+
+def test_orchestrated_workflow_json_has_severity_switch():
+    spec = json.loads((_REPO / "conductor_orchestrated.json").read_text())
+    switch_tasks = [t for t in spec["tasks"] if t["type"] == "SWITCH"]
+    assert len(switch_tasks) == 2, f"Expected 2 SWITCH tasks, found {len(switch_tasks)}"
+
+
+def test_orchestrated_workflow_json_severity_switch_has_javascript_evaluator():
+    spec = json.loads((_REPO / "conductor_orchestrated.json").read_text())
+    severity_switch = next(
+        t for t in spec["tasks"]
+        if t["type"] == "SWITCH" and t.get("taskReferenceName") == "severity_switch_ref"
+    )
+    assert severity_switch.get("evaluatorType") == "javascript"
+    assert "expression" in severity_switch
+    expr = severity_switch["expression"]
+    # Must reference the severity field and return 'critical' / 'non_critical'
+    assert "severity" in expr
+    assert "critical" in expr
+
+
+def test_orchestrated_workflow_json_severity_switch_has_critical_decision_case():
+    spec = json.loads((_REPO / "conductor_orchestrated.json").read_text())
+    severity_switch = next(
+        t for t in spec["tasks"] if t.get("taskReferenceName") == "severity_switch_ref"
+    )
+    assert "critical" in severity_switch.get("decisionCases", {}), (
+        "severity_route_switch must have a 'critical' decision case"
+    )
+
+
+def test_orchestrated_workflow_json_wait_task_in_critical_case():
+    spec = json.loads((_REPO / "conductor_orchestrated.json").read_text())
+    severity_switch = next(
+        t for t in spec["tasks"] if t.get("taskReferenceName") == "severity_switch_ref"
+    )
+    critical_branch = severity_switch["decisionCases"]["critical"]
+    wait_tasks = [t for t in critical_branch if t["type"] == "WAIT"]
+    assert wait_tasks, "critical decision case must contain a WAIT task"
+
+
+def test_orchestrated_workflow_json_wait_task_has_correct_ref_name():
+    spec = json.loads((_REPO / "conductor_orchestrated.json").read_text())
+    severity_switch = next(
+        t for t in spec["tasks"] if t.get("taskReferenceName") == "severity_switch_ref"
+    )
+    wait_task = next(
+        t for t in severity_switch["decisionCases"]["critical"] if t["type"] == "WAIT"
+    )
+    assert wait_task["taskReferenceName"] == "approval_wait_ref"
+
+
+def test_orchestrated_workflow_json_wait_task_has_14400_timeout():
+    spec = json.loads((_REPO / "conductor_orchestrated.json").read_text())
+    severity_switch = next(
+        t for t in spec["tasks"] if t.get("taskReferenceName") == "severity_switch_ref"
+    )
+    wait_task = next(
+        t for t in severity_switch["decisionCases"]["critical"] if t["type"] == "WAIT"
+    )
+    td = wait_task.get("taskDefinition", {})
+    assert td.get("timeoutSeconds") == 14400, (
+        f"WAIT task must have timeoutSeconds=14400, got {td.get('timeoutSeconds')}"
+    )
+
+
+def test_orchestrated_workflow_json_wait_task_has_alert_only_policy():
+    spec = json.loads((_REPO / "conductor_orchestrated.json").read_text())
+    severity_switch = next(
+        t for t in spec["tasks"] if t.get("taskReferenceName") == "severity_switch_ref"
+    )
+    wait_task = next(
+        t for t in severity_switch["decisionCases"]["critical"] if t["type"] == "WAIT"
+    )
+    td = wait_task.get("taskDefinition", {})
+    assert td.get("timeoutPolicy") == "ALERT_ONLY", (
+        f"WAIT task must have timeoutPolicy=ALERT_ONLY, got {td.get('timeoutPolicy')}"
+    )
+
+
+def test_orchestrated_workflow_json_push_to_dashboard_after_severity_switch():
+    spec = json.loads((_REPO / "conductor_orchestrated.json").read_text())
+    task_refs = [t.get("taskReferenceName") for t in spec["tasks"]]
+    switch_pos = task_refs.index("severity_switch_ref")
+    push_pos   = task_refs.index("push_ref")
+    assert push_pos > switch_pos, (
+        "push_to_dashboard must appear after severity_route_switch in the task list"
+    )
+
+
+def test_orchestrated_workflow_json_approval_note_in_output_params():
+    spec = json.loads((_REPO / "conductor_orchestrated.json").read_text())
+    assert "approval_note" in spec.get("outputParameters", {})
