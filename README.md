@@ -1,4 +1,4 @@
-![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Open Source](https://img.shields.io/badge/Open%20Source-Free%20to%20Use-success) ![Tests](https://img.shields.io/badge/pytest-376%20passing-brightgreen?logo=pytest&logoColor=white)
+![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Open Source](https://img.shields.io/badge/Open%20Source-Free%20to%20Use-success) ![Tests](https://img.shields.io/badge/pytest-434%20passing-brightgreen?logo=pytest&logoColor=white)
 
 # log-analyzer
 
@@ -45,7 +45,7 @@ The rule engine's burst detector was the one hot spot. The burst detector starte
 - OpenTelemetry distributed tracing: spans over parse, rule detection, ML detection, SOC push, and Kafka publish; export to any OTLP collector (Jaeger) via `OTEL_EXPORTER_OTLP_ENDPOINT`
 - AWS Lambda adapter: S3-triggered serverless handler in `log_lambda/` auto-detects log format and runs the full pipeline on each PUT event
 - MITRE ATT&CK Navigator export (`navigator_export.py`): live layer JSON (Navigator 4.9) with severity-weighted scores (CRITICAL 100 / HIGH 75 / MEDIUM 50 / LOW 25)
-- Optional orchestration (Orkes Conductor): run the detect, summarize, and push stages as durable, retryable, observable tasks — see [CONDUCTOR.md](CONDUCTOR.md)
+- Optional orchestration (Orkes Conductor): two registered workflows — `log_analyzer_soc_pipeline` (v1–v5, multi-source fan-out) and `log_analyzer_soc_pipeline_orchestrated` (double FORK_JOIN + incident-count SWITCH/TERMINATE + 5-branch parallel AI/export output + severity SWITCH with a WAIT human-approval gate for CRITICAL findings) — see [CONDUCTOR.md](CONDUCTOR.md)
 - Claude API summaries (`--ai-summary`): concurrent batched calls with token-cost and p50/p95 latency instrumentation
 - Encryption at rest: Fernet field-level encryption of PII columns
 - Privacy controls: IP pseudonymization, username scrubbing, raw-line redaction, and retention purge
@@ -54,7 +54,7 @@ The rule engine's burst detector was the one hot spot. The burst detector starte
 - Kubernetes + Helm: `deploy/k8s/` manifests and a Helm chart (`soc-stack`) covering the full log-analyzer + SOC-Dashboard stack with HPA
 - GCP + Terraform: Cloud infra in `terraform/gcp/` — Artifact Registry, GCS bucket, GKE cluster
 - GCS report upload (`--gcs-bucket BUCKET`): upload the HTML report to a GCS bucket after writing it locally; uses Application Default Credentials and degrades gracefully if the upload fails
-- 376 pytest tests at 90% line / 88% branch coverage, run on GitHub Actions
+- 434 pytest tests at 90% line / 88% branch coverage, run on GitHub Actions
 
 ## Running the Project
 
@@ -198,7 +198,7 @@ flowchart LR
 
 ## Tests
 
-376 pytest tests cover parsing, both detectors (Isolation Forest + PyTorch autoencoder), enrichment, MITRE mapping, the privacy transforms, Sigma and SIEM export, the SOC push (REST and gRPC), the concurrent Claude AI agent loop, Elasticsearch ingest, Kafka publish, MITRE ATT&CK STIX-based RAG retrieval, OTel span emission, OTel SDK-disabled guard (case-insensitive variants), explicit API timeout regression for the AI summary and agent calls, repeat-incident Redis dedup, and GCS report upload, at 90% line and 88% branch coverage. Twelve adversarial fixture logs exercise slow brute force, coordinated multi-IP attacks, IPv6, unicode, malformed lines, and high volume. Run the suite with:
+434 pytest tests cover parsing, both detectors (Isolation Forest + PyTorch autoencoder), enrichment, MITRE mapping, the privacy transforms, Sigma and SIEM export, the SOC push (REST and gRPC), the concurrent Claude AI agent loop, Elasticsearch ingest, Kafka publish, MITRE ATT&CK STIX-based RAG retrieval, OTel span emission, OTel SDK-disabled guard (case-insensitive variants), explicit API timeout regression for the AI summary and agent calls, repeat-incident Redis dedup, GCS report upload, and the full Orkes Conductor orchestrated pipeline (incident-count SWITCH routing, graceful degradation of all 5 output-fork workers, severity SWITCH with Python mirror of the Orkes JS expression, WAIT task structure and inline taskDefinition, and the second FORK_JOIN JSON schema), at 90% line and 88% branch coverage. Twelve adversarial fixture logs exercise slow brute force, coordinated multi-IP attacks, IPv6, unicode, malformed lines, and high volume. Run the suite with:
 
 ```bash
 python -m pytest tests/ -v

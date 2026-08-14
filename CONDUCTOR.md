@@ -117,16 +117,120 @@ cost with little value for a one-shot live demo. If it were added, it would use 
 `log_analyzer_multi_source`) and be torn down with `delete_schedule(name)` (or paused) so
 nothing runs unattended. The manual fan-out above is the substantive, on-demand half.
 
+## `log_analyzer_soc_pipeline_orchestrated`
+
+`log_analyzer_soc_pipeline_orchestrated` is a second workflow registered on the same Conductor
+server. It extends the detection + push pipeline with three enhancements — a short-circuit
+SWITCH, a parallel AI/export output stage, and a human-approval gate for critical findings —
+built incrementally across three phases.
+
+```
+        ┌──────────────────── Orkes Conductor ───────────────────────────────────────────┐
+        │  log_analyzer_soc_pipeline_orchestrated (v1)                                    │
+        │                                                                                 │
+        │           ┌─ detect_brute_force ─┐                                              │
+        │  (FORK) ──┼─ detect_port_scan  ──┼── (JOIN) ─► join_incidents                   │
+        │           ├─ detect_404_flood  ──┤                   │                          │
+        │           └─ ml_score          ──┘                   ▼                          │
+        │                                        SWITCH: any incidents?                   │
+        │                                          YES ──► enrich_geoip                   │
+        │                                          NO  ──► TERMINATE                      │
+        │                                                       │                         │
+        │                    ┌─ generate_claude_summary ──┐     │                         │
+        │         (FORK) ────┼─ run_ai_agent             ─┼── (JOIN)                      │
+        │                    ├─ generate_sigma_rules     ─┤      │                        │
+        │                    ├─ elasticsearch_ingest     ─┤      ▼                        │
+        │                    └─ gcs_upload_report        ─┘  SWITCH: any CRITICAL?        │
+        │                                                    CRITICAL ──► WAIT (4 hr)     │
+        │                                                                    │            │
+        │                                               non-critical / approved ▼         │
+        │                                                   push_to_dashboard             │
+        └─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Phase 1 — Incident count SWITCH + TERMINATE
+
+After `join_incidents`, a JavaScript SWITCH checks whether the incident list is non-empty. An
+empty result short-circuits the workflow (TERMINATED — no API calls, no SOC push); a non-empty
+result routes to `enrich_geoip`. The expression runs on the Orkes server:
+
+```javascript
+$.incidents.length > 0 ? 'has_incidents' : 'no_incidents'
+```
+
+This avoids unnecessary Claude API calls and SOC pushes when a log produces zero detections —
+a normal outcome for well-behaved hosts.
+
+### Phase 2 — Parallel AI / export output FORK_JOIN
+
+After `enrich_geoip`, the workflow fans out into five concurrent branches instead of calling
+`generate_claude_summary` alone:
+
+| Branch ref | Worker | Wraps | Degrades when |
+|---|---|---|---|
+| `summary_ref` | `generate_claude_summary` | `ai_summary.ai_summary` | `ANTHROPIC_API_KEY` unset |
+| `agent_ref` | `run_ai_agent` | `ai_agent.run_investigation` | `ANTHROPIC_API_KEY` unset |
+| `sigma_ref` | `generate_sigma_rules` | `sigma_export.export_sigma_llm` | `ANTHROPIC_API_KEY` unset |
+| `es_ref` | `elasticsearch_ingest` | `es_ingest` bulk helpers | `es_host` input empty |
+| `gcs_ref` | `gcs_upload_report` | `log_analyzer._upload_to_gcs` | `gcs_bucket` input empty |
+
+All five run concurrently and return a `note` field (not an error) when their external dependency is
+absent, so the JOIN always fires and `push_to_dashboard` always runs. No missing API key blocks
+the pipeline — every branch degrades gracefully to a no-op.
+
+### Phase 3 — Severity SWITCH + human-approval WAIT gate
+
+After the output JOIN, a second SWITCH checks whether any enriched incident has
+`severity == "CRITICAL"` using a JS `Array.prototype.some` expression validated live on the
+Orkes server before being trusted:
+
+```javascript
+$.incidents.some(function(i) { return i.severity === 'CRITICAL'; }) ? 'critical' : 'non_critical'
+```
+
+- **`critical` path:** routes to `approval_wait_ref`, a WAIT task with `timeoutSeconds=14400`
+  (4 hours) and `timeoutPolicy=ALERT_ONLY`. The workflow pauses here — `push_to_dashboard`
+  does not run — until an analyst releases the gate.
+- **`non_critical` path:** empty `decisionCase`; the workflow falls through directly to
+  `push_to_dashboard` with no gate.
+
+`ALERT_ONLY` means the server logs an alert if the wait exceeds 4 hours but does not fail or
+terminate the workflow — it keeps waiting until explicitly approved or the run is cancelled.
+
+#### Releasing the WAIT gate
+
+`POST /api/alerts/<workflow_run_id>/approve` in SOC-Dashboard (behind `@login_required`,
+requires `CONDUCTOR_SERVER_URL` set) calls `OrkesTaskClient.update_task_sync` to mark
+`approval_wait_ref` COMPLETED:
+
+```bash
+curl -X POST http://localhost:8000/api/alerts/<run-id>/approve \
+  -H "Content-Type: application/json" \
+  -b "session=..." \
+  -d '{"note": "elevated false-positive rate from scanning tool — confirmed not an intrusion"}'
+# → {"workflow_run_id": "...", "approved_by": "alice", "status": "released"}
+```
+
+After the call returns, `push_to_dashboard` runs and the workflow reaches COMPLETED.
+
+Live execution — Scenario A (CRITICAL → paused at WAIT → approved → COMPLETED):
+`https://developer.orkescloud.com/execution/t9ore82eff02-9822-11f1-ae0f-324491a4c010`
+
+Live execution — Scenario B (HIGH → `non_critical` path → no WAIT → COMPLETED):
+`https://developer.orkescloud.com/execution/t9oreaa78ce3-9822-11f1-a633-f2fc4b0e8ae3`
+
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `conductor_workers.py` | `@worker_task` adapters wrapping existing pipeline functions (no detection logic changed): `analyze_log` (v1), plus `detect_brute_force` / `detect_port_scan` / `detect_404_flood` / `ml_score` / `join_incidents` (v2 fork/join), plus `generate_claude_summary` and `push_to_dashboard` (shared). |
-| `start_workers.py` | Launches the workers (thread-per-worker; see the macOS note below). |
-| `register_conductor.py` | One-time registration of the task defs + workflow on the server. |
-| `conductor_workflow.json` | The core pipeline workflow definition (v4; also importable via the Orkes UI). |
+| `conductor_workers.py` | `@worker_task` adapters for the base pipeline: `analyze_log` (v1), plus `detect_brute_force` / `detect_port_scan` / `detect_404_flood` / `ml_score` / `join_incidents` (v2 fork/join), `enrich_geoip` (v3/v4), `generate_claude_summary`, and `push_to_dashboard`. |
+| `conductor_orchestrated_workers.py` | `@worker_task` adapters for `log_analyzer_soc_pipeline_orchestrated`: `run_ai_agent`, `generate_sigma_rules`, `elasticsearch_ingest`, `gcs_upload_report` (Phase 2), plus `_switch_severity_route()` (Phase 3 Python mirror of the JS SWITCH expression for unit testing). |
+| `start_workers.py` | Launches all workers (thread-per-worker; see the macOS note below). |
+| `register_conductor.py` | One-time registration of task defs + both workflows on the server. Handles inline `taskDefinition` blocks in workflow JSON (used by the WAIT task to set `timeoutSeconds=14400` and `timeoutPolicy=ALERT_ONLY`). |
+| `conductor_workflow.json` | The `log_analyzer_soc_pipeline` pipeline definition (v4; also importable via the Orkes UI). |
+| `conductor_orchestrated.json` | The `log_analyzer_soc_pipeline_orchestrated` workflow definition — two FORK_JOINs, two SWITCHes, and an inline WAIT task definition. |
 | `conductor_multi_source.json` | The `log_analyzer_multi_source` parent fan-out workflow (SUB_WORKFLOW per log source). |
-| `requirements-conductor.txt` | The `conductor-python` SDK dependency. |
+| `requirements-conductor.txt` | The `conductor-python` SDK dependency (optional; not installed in CI). |
 
 ## Worker stages
 
