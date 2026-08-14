@@ -1,0 +1,148 @@
+{
+  "name": "log_analyzer_soc_pipeline_orchestrated",
+  "description": "v1 orchestrated: same detection fork/join as log_analyzer_soc_pipeline v5, then a SWITCH+TERMINATE that short-circuits the rest of the pipeline when no incidents are detected, followed by GeoIP enrichment, Claude summary, and SOC-Dashboard push. Phase 2 will add a second fork/join running ai_agent, sigma rules, ES ingest, and GCS upload in parallel after enrichment.",
+  "version": 1,
+  "schemaVersion": 2,
+  "ownerEmail": "shahromil71321@gmail.com",
+  "timeoutSeconds": 0,
+  "inputParameters": [
+    "log_path",
+    "soc_url",
+    "soc_api_key"
+  ],
+  "tasks": [
+    {
+      "name": "detect_fork",
+      "taskReferenceName": "detect_fork_ref",
+      "type": "FORK_JOIN",
+      "forkTasks": [
+        [
+          {
+            "name": "detect_brute_force",
+            "taskReferenceName": "bf_ref",
+            "type": "SIMPLE",
+            "inputParameters": {
+              "log_path": "${workflow.input.log_path}",
+              "log_format": "auto"
+            }
+          }
+        ],
+        [
+          {
+            "name": "detect_port_scan",
+            "taskReferenceName": "ps_ref",
+            "type": "SIMPLE",
+            "inputParameters": {
+              "log_path": "${workflow.input.log_path}",
+              "log_format": "auto"
+            }
+          }
+        ],
+        [
+          {
+            "name": "detect_404_flood",
+            "taskReferenceName": "flood_ref",
+            "type": "SIMPLE",
+            "inputParameters": {
+              "log_path": "${workflow.input.log_path}",
+              "log_format": "auto"
+            }
+          }
+        ],
+        [
+          {
+            "name": "ml_score",
+            "taskReferenceName": "ml_ref",
+            "type": "SIMPLE",
+            "inputParameters": {
+              "log_path": "${workflow.input.log_path}",
+              "log_format": "auto"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "detect_join",
+      "taskReferenceName": "detect_join_ref",
+      "type": "JOIN",
+      "joinOn": [
+        "bf_ref",
+        "ps_ref",
+        "flood_ref",
+        "ml_ref"
+      ]
+    },
+    {
+      "name": "join_incidents",
+      "taskReferenceName": "join_ref",
+      "type": "SIMPLE",
+      "inputParameters": {
+        "brute": "${bf_ref.output.incidents}",
+        "port": "${ps_ref.output.incidents}",
+        "flood": "${flood_ref.output.incidents}",
+        "anomaly_scores": "${ml_ref.output.anomaly_scores}",
+        "events": "${ml_ref.output.events}"
+      }
+    },
+    {
+      "name": "incident_count_switch",
+      "taskReferenceName": "count_switch_ref",
+      "type": "SWITCH",
+      "evaluatorType": "javascript",
+      "expression": "$.inputData.incident_count === 0 ? 'no_incidents' : 'has_incidents'",
+      "inputParameters": {
+        "incident_count": "${join_ref.output.counts.incidents}"
+      },
+      "decisionCases": {
+        "no_incidents": [
+          {
+            "name": "terminate_no_threats",
+            "taskReferenceName": "terminate_no_threats_ref",
+            "type": "TERMINATE",
+            "inputParameters": {
+              "terminationStatus": "COMPLETED",
+              "terminationReason": "no_threats_detected"
+            }
+          }
+        ]
+      },
+      "defaultCase": []
+    },
+    {
+      "name": "enrich_geoip",
+      "taskReferenceName": "enrich_ref",
+      "type": "SIMPLE",
+      "inputParameters": {
+        "incidents": "${join_ref.output.incidents}",
+        "anomaly_scores": "${join_ref.output.anomaly_scores}"
+      }
+    },
+    {
+      "name": "generate_claude_summary",
+      "taskReferenceName": "summary_ref",
+      "type": "SIMPLE",
+      "inputParameters": {
+        "incidents": "${enrich_ref.output.incidents}",
+        "anomaly_scores": "${join_ref.output.anomaly_scores}"
+      }
+    },
+    {
+      "name": "push_to_dashboard",
+      "taskReferenceName": "push_ref",
+      "type": "SIMPLE",
+      "inputParameters": {
+        "incidents": "${enrich_ref.output.incidents}",
+        "soc_url": "${workflow.input.soc_url}",
+        "soc_api_key": "${workflow.input.soc_api_key}",
+        "workflow_id": "${workflow.workflowId}"
+      }
+    }
+  ],
+  "outputParameters": {
+    "counts": "${join_ref.output.counts}",
+    "summary": "${summary_ref.output.summary}",
+    "pushed": "${push_ref.output.pushed}",
+    "push_errors": "${push_ref.output.errors}"
+  }
+}

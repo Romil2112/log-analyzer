@@ -27,6 +27,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 WORKFLOW_JSONS = [
     os.path.join(HERE, "conductor_workflow.json"),
     os.path.join(HERE, "conductor_multi_source.json"),
+    os.path.join(HERE, "conductor_orchestrated.json"),
 ]
 
 OWNER_EMAIL = "shahromil71321@gmail.com"
@@ -51,12 +52,13 @@ TASK_DEFS = [
 
 
 def _workflow_task(t: dict) -> WorkflowTask:
-    """Build a WorkflowTask from the JSON spec, handling FORK_JOIN/JOIN structure.
+    """Build a WorkflowTask from the JSON spec, handling all supported task types.
 
-    FORK_JOIN tasks carry ``forkTasks`` (a list of parallel branches, each a list of
-    tasks) and JOIN tasks carry ``joinOn`` (the branch reference names to wait on). The
-    SDK's WorkflowTask constructor signature varies across versions, so set those two
-    fields as attributes after construction rather than as kwargs."""
+    FORK_JOIN tasks carry ``forkTasks`` (parallel branches) and JOIN tasks carry
+    ``joinOn`` (branch reference names to wait on). SWITCH tasks carry
+    ``evaluatorType``, ``expression``, ``decisionCases``, and ``defaultCase``.
+    The SDK's WorkflowTask constructor signature varies across versions, so
+    structured fields are set as attributes after construction rather than kwargs."""
     wt = WorkflowTask(
         name=t["name"],
         task_reference_name=t["taskReferenceName"],
@@ -70,6 +72,18 @@ def _workflow_task(t: dict) -> WorkflowTask:
     if t.get("subWorkflowParam"):
         swp = t["subWorkflowParam"]
         wt.sub_workflow_param = SubWorkflowParams(name=swp["name"], version=swp.get("version"))
+    # SWITCH task fields
+    if t.get("evaluatorType"):
+        wt.evaluator_type = t["evaluatorType"]
+    if t.get("expression"):
+        wt.expression = t["expression"]
+    if t.get("decisionCases"):
+        wt.decision_cases = {
+            case: [_workflow_task(x) for x in tasks]
+            for case, tasks in t["decisionCases"].items()
+        }
+    if "defaultCase" in t:
+        wt.default_case = [_workflow_task(x) for x in t["defaultCase"]]
     return wt
 
 
