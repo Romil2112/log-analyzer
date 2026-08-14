@@ -27,7 +27,7 @@ def _switch_incident_route(incident_count: int) -> str:
     """Return the Conductor SWITCH case key for a given incident count.
 
     Mirrors the JavaScript expression in conductor_orchestrated.json:
-        $.inputData.incident_count === 0 ? 'no_incidents' : 'has_incidents'
+        $.incident_count === 0 ? 'no_incidents' : 'has_incidents'
 
     Exists as a standalone Python function so the routing logic can be unit-tested
     without a live Conductor server.

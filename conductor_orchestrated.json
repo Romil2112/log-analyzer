@@ -90,7 +90,7 @@
       "taskReferenceName": "count_switch_ref",
       "type": "SWITCH",
       "evaluatorType": "javascript",
-      "expression": "$.inputData.incident_count === 0 ? 'no_incidents' : 'has_incidents'",
+      "expression": "$.incident_count === 0 ? 'no_incidents' : 'has_incidents'",
       "inputParameters": {
         "incident_count": "${join_ref.output.counts.incidents}"
       },
