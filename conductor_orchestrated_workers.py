@@ -19,7 +19,16 @@ from typing import Callable, List, Optional
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from conductor.client.worker.worker_task import worker_task
+try:
+    from conductor.client.worker.worker_task import worker_task
+except ImportError:
+    # conductor-python is an optional dependency (requirements-conductor.txt).
+    # When it is absent (CI, plain pytest runs) @worker_task becomes a no-op
+    # pass-through so the decorated functions remain directly callable.
+    def worker_task(task_definition_name=None, **_kw):  # type: ignore[misc]
+        def _wrap(fn):
+            return fn
+        return _wrap
 
 from ai_agent import run_investigation
 from es_ingest import connect as es_connect
