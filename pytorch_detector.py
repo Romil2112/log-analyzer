@@ -144,12 +144,12 @@ class PyTorchAnomalyDetector:
 
         lo, hi = per_ip_error.min(), per_ip_error.max()
         norm = (per_ip_error - lo) / (hi - lo) if hi > lo else np.zeros(len(per_ip_error))
-        return {ip: float(round(s, 4)) for ip, s in zip(ips, norm, strict=False)}
+        return {ip: float(round(s, 4)) for ip, s in zip(ips, norm, strict=True)}
 
     def feature_rows(self, events: list[dict]) -> list[dict]:
         """Return per-IP feature vectors as dicts (same schema as AnomalyDetector)."""
         ips, rows = _build_feature_matrix(events)
         return [
-            {"source_ip": ip, **dict(zip(FEATURES, row, strict=False))}
-            for ip, row in zip(ips, rows, strict=False)
+            {"source_ip": ip, **dict(zip(FEATURES, row, strict=True))}
+            for ip, row in zip(ips, rows, strict=True)
         ]
