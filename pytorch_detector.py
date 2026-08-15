@@ -115,7 +115,7 @@ class PyTorchAnomalyDetector:
         scaler = StandardScaler()
         features_scaled = scaler.fit_transform(features)
 
-        X = torch.tensor(features_scaled, dtype=torch.float32)
+        features_tensor = torch.tensor(features_scaled, dtype=torch.float32)
 
         class _LogAutoencoder(nn.Module):
             def __init__(self, input_dim: int, bottleneck: int):
@@ -126,30 +126,30 @@ class PyTorchAnomalyDetector:
             def forward(self, x):
                 return self.decoder(self.encoder(x))
 
-        model = _LogAutoencoder(input_dim=X.shape[1], bottleneck=_BOTTLENECK)
+        model = _LogAutoencoder(input_dim=features_tensor.shape[1], bottleneck=_BOTTLENECK)
         optimiser = torch.optim.Adam(model.parameters(), lr=_LR)
         criterion = nn.MSELoss()
 
         model.train()
         for _ in range(_EPOCHS):
             optimiser.zero_grad()
-            loss = criterion(model(X), X)
+            loss = criterion(model(features_tensor), features_tensor)
             loss.backward()
             optimiser.step()
 
         model.eval()
         with torch.no_grad():
-            recon = model(X)
-            per_ip_error = ((recon - X) ** 2).mean(dim=1).numpy()
+            recon = model(features_tensor)
+            per_ip_error = ((recon - features_tensor) ** 2).mean(dim=1).numpy()
 
         lo, hi = per_ip_error.min(), per_ip_error.max()
         norm = (per_ip_error - lo) / (hi - lo) if hi > lo else np.zeros(len(per_ip_error))
-        return {ip: float(round(s, 4)) for ip, s in zip(ips, norm)}
+        return {ip: float(round(s, 4)) for ip, s in zip(ips, norm, strict=False)}
 
     def feature_rows(self, events: list[dict]) -> list[dict]:
         """Return per-IP feature vectors as dicts (same schema as AnomalyDetector)."""
         ips, rows = _build_feature_matrix(events)
         return [
-            {"source_ip": ip, **dict(zip(FEATURES, row))}
-            for ip, row in zip(ips, rows)
+            {"source_ip": ip, **dict(zip(FEATURES, row, strict=False))}
+            for ip, row in zip(ips, rows, strict=False)
         ]

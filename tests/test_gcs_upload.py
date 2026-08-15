@@ -4,14 +4,11 @@ import os
 import sys
 import tempfile
 import types
-from unittest.mock import MagicMock, call
-
-import pytest
+from unittest.mock import MagicMock
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from log_analyzer import _upload_to_gcs
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -60,8 +57,6 @@ def test_empty_bucket_string_is_noop(capsys):
 
 def test_missing_package_prints_warning_and_does_not_raise(monkeypatch, capsys):
     _remove_mock_gcs()
-    real_import = __builtins__.__import__ if hasattr(__builtins__, "__import__") else __import__
-
     import builtins
     real_bi = builtins.__import__
 

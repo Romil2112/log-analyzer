@@ -43,7 +43,7 @@ def connect(host: str):
     gracefully when Elasticsearch is not configured.
     """
     try:
-        from elasticsearch import Elasticsearch, ConnectionError as ESConnectionError
+        from elasticsearch import Elasticsearch
     except ImportError:
         logger.warning("elasticsearch package not installed; skipping ES indexing")
         return None
@@ -83,7 +83,7 @@ def index_incidents(
     if client is None or not incidents:
         return 0
 
-    from elasticsearch.helpers import bulk, BulkIndexError
+    from elasticsearch.helpers import BulkIndexError, bulk
 
     now = datetime.now(timezone.utc).isoformat()
 

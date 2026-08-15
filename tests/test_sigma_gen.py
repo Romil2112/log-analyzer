@@ -6,13 +6,11 @@ import os
 import sys
 from pathlib import Path
 
-import pytest
 import yaml
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from sigma_export import export_sigma_llm, generate_sigma_rule_llm
-
 
 # ---------------------------------------------------------------------------
 # Stub Anthropic client
@@ -208,7 +206,7 @@ def test_export_skips_failed_generation(tmp_path):
 
 def test_export_creates_output_dir(tmp_path):
     out_dir = str(tmp_path / "new_dir")
-    paths   = export_sigma_llm([INCIDENT], out_dir, StubClient(VALID_SIGMA_YAML))
+    export_sigma_llm([INCIDENT], out_dir, StubClient(VALID_SIGMA_YAML))
     assert Path(out_dir).is_dir()
 
 

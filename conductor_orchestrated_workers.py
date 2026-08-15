@@ -15,7 +15,9 @@ SDK annotation rules (same as conductor_workers.py):
 """
 import os
 import sys
-from typing import Callable, List, Optional
+from typing import (  # noqa: UP035,UP006 — conductor-python 1.4.0 requires real type objects; `from __future__ import annotations` breaks worker registration
+    Callable,
+)
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -37,7 +39,6 @@ from es_ingest import index_incidents as es_index_incidents
 from log_analyzer import _upload_to_gcs
 from sigma_export import export_sigma_llm
 
-
 # ---------------------------------------------------------------------------
 # Phase 1 — SWITCH routing helper
 # ---------------------------------------------------------------------------
@@ -55,12 +56,12 @@ def _switch_incident_route(incident_count: int) -> str:
 
 
 def _simulate_orchestrated_pipeline(
-    incidents: List[dict],
+    incidents: list[dict],
     anomaly_scores: dict,
     *,
-    enrich_fn: Optional[Callable] = None,
-    summary_fn: Optional[Callable] = None,
-    push_fn: Optional[Callable] = None,
+    enrich_fn: Callable | None = None,
+    summary_fn: Callable | None = None,
+    push_fn: Callable | None = None,
 ) -> dict:
     """Python-level simulation of log_analyzer_soc_pipeline_orchestrated.
 
@@ -98,7 +99,7 @@ def _simulate_orchestrated_pipeline(
 # Phase 3 — severity-based SWITCH routing helper
 # ---------------------------------------------------------------------------
 
-def _switch_severity_route(incidents: List[dict]) -> str:
+def _switch_severity_route(incidents: list[dict]) -> str:
     """Return the Conductor SWITCH case key for a given set of enriched incidents.
 
     Mirrors the JavaScript expression in conductor_orchestrated.json:
@@ -117,7 +118,7 @@ def _switch_severity_route(incidents: List[dict]) -> str:
 # ---------------------------------------------------------------------------
 
 @worker_task(task_definition_name="run_ai_agent")
-def run_ai_agent(incidents: List[dict], anomaly_scores: dict = None) -> dict:
+def run_ai_agent(incidents: list[dict], anomaly_scores: dict = None) -> dict:
     """Post-enrichment FORK branch: multi-step Claude tool-use investigation.
 
     Wraps ai_agent.run_investigation(). Each tool-use round has a 60 s timeout
@@ -136,7 +137,7 @@ def run_ai_agent(incidents: List[dict], anomaly_scores: dict = None) -> dict:
 
 
 @worker_task(task_definition_name="generate_sigma_rules")
-def generate_sigma_rules(incidents: List[dict], out_dir: str = "/tmp/conductor_sigma") -> dict:
+def generate_sigma_rules(incidents: list[dict], out_dir: str = "/tmp/conductor_sigma") -> dict:
     """Post-enrichment FORK branch: LLM-powered Sigma rule generation.
 
     Wraps sigma_export.export_sigma_llm(). Writes one <type>_llm.yml per distinct
@@ -158,7 +159,7 @@ def generate_sigma_rules(incidents: List[dict], out_dir: str = "/tmp/conductor_s
 
 
 @worker_task(task_definition_name="elasticsearch_ingest")
-def elasticsearch_ingest(incidents: List[dict], es_host: str = "", log_path: str = "") -> dict:
+def elasticsearch_ingest(incidents: list[dict], es_host: str = "", log_path: str = "") -> dict:
     """Post-enrichment FORK branch: bulk-index incidents into Elasticsearch.
 
     Wraps es_ingest.connect/ensure_index/index_incidents. Returns indexed=0 when
@@ -177,7 +178,7 @@ def elasticsearch_ingest(incidents: List[dict], es_host: str = "", log_path: str
 
 
 @worker_task(task_definition_name="gcs_upload_report")
-def gcs_upload_report(incidents: List[dict], gcs_bucket: str = "", log_path: str = "") -> dict:
+def gcs_upload_report(incidents: list[dict], gcs_bucket: str = "", log_path: str = "") -> dict:
     """Post-enrichment FORK branch: upload a JSON incident summary to GCS.
 
     Wraps log_analyzer._upload_to_gcs(). Creates a temporary JSON file from the

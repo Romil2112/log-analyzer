@@ -71,7 +71,7 @@ def embed_and_store(conn, ttps: list[dict]) -> int:
     texts = [f"{t['name']}: {t['description'][:500]}" for t in ttps]
     embeddings = list(_model().embed(texts))
     with conn.cursor() as cur:
-        for ttp, vec in zip(ttps, embeddings):
+        for ttp, vec in zip(ttps, embeddings, strict=False):
             vec_str = "[" + ",".join(f"{x:.6f}" for x in vec) + "]"
             cur.execute(
                 """

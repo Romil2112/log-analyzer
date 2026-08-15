@@ -21,8 +21,6 @@ import types
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from conductor_orchestrated_workers import (
@@ -545,7 +543,6 @@ def test_orchestrated_workflow_json_output_join_waits_for_all_five():
 
 def test_orchestrated_workflow_json_push_to_dashboard_is_after_output_join():
     spec = json.loads((_REPO / "conductor_orchestrated.json").read_text())
-    task_names = [t.get("name", t.get("taskReferenceName")) for t in spec["tasks"]]
     join_pos = next(
         i for i, t in enumerate(spec["tasks"])
         if t["type"] == "JOIN" and len(t.get("joinOn", [])) == 5
