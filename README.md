@@ -1,4 +1,4 @@
-![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Open Source](https://img.shields.io/badge/Open%20Source-Free%20to%20Use-success) ![Tests](https://img.shields.io/badge/pytest-434%20passing-brightgreen?logo=pytest&logoColor=white)
+![CI](https://github.com/Romil2112/log-analyzer/actions/workflows/ci.yml/badge.svg) ![Python](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green?logo=opensourceinitiative&logoColor=white) ![Open Source](https://img.shields.io/badge/Open%20Source-Free%20to%20Use-success) ![Tests](https://img.shields.io/badge/pytest-435%20passing-brightgreen?logo=pytest&logoColor=white)
 
 # log-analyzer
 
@@ -54,7 +54,7 @@ The rule engine's burst detector was the one hot spot. The burst detector starte
 - Kubernetes + Helm: `deploy/k8s/` manifests and a Helm chart (`soc-stack`) covering the full log-analyzer + SOC-Dashboard stack with HPA
 - GCP + Terraform: Cloud infra in `terraform/gcp/` — Artifact Registry, GCS bucket, GKE cluster
 - GCS report upload (`--gcs-bucket BUCKET`): upload the HTML report to a GCS bucket after writing it locally; uses Application Default Credentials and degrades gracefully if the upload fails
-- 434 pytest tests at 90% line / 88% branch coverage, run on GitHub Actions
+- 435 pytest tests at 90% line / 88% branch coverage, run on GitHub Actions
 
 ## Running the Project
 
