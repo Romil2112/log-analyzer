@@ -125,6 +125,7 @@ def _summarize_one(client, prompt, *, model, max_tokens, max_retries, backoff_ba
             msg = client.messages.create(
                 model=model, max_tokens=max_tokens,
                 messages=[{"role": "user", "content": prompt}],
+                timeout=30,
             )
             dt = (time.perf_counter() - t0) * 1000
             return _parse_ai_response(msg, dt, retries)

@@ -100,7 +100,7 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 python log_analyzer.py test_auth_10k.log --no-db --ai-summary
 ```
 
-`--ai-summary` makes a single Claude API call (30-second timeout). `--ai-agent` runs a multi-step tool-use loop (up to 5 rounds, 60-second timeout per round). Both require `ANTHROPIC_API_KEY` and return gracefully when the key is unset or the API is unreachable.
+`--ai-summary` makes a single Claude API call (30-second timeout). `--ai-agent` runs a multi-step tool-use loop (up to 5 rounds, 60-second timeout per round). `--ai-scale` runs concurrent summaries via `ai_scale.py`; each individual call uses a 30-second timeout. All three require `ANTHROPIC_API_KEY` and return gracefully when the key is unset or the API is unreachable.
 
 **With PostgreSQL**
 
@@ -198,7 +198,7 @@ flowchart LR
 
 ## Tests
 
-434 pytest tests cover parsing, both detectors (Isolation Forest + PyTorch autoencoder), enrichment, MITRE mapping, the privacy transforms, Sigma and SIEM export, the SOC push (REST and gRPC), the concurrent Claude AI agent loop, Elasticsearch ingest, Kafka publish, MITRE ATT&CK STIX-based RAG retrieval, OTel span emission, OTel SDK-disabled guard (case-insensitive variants), explicit API timeout regression for the AI summary and agent calls, repeat-incident Redis dedup, GCS report upload, and the full Orkes Conductor orchestrated pipeline (incident-count SWITCH routing, graceful degradation of all 5 output-fork workers, severity SWITCH with Python mirror of the Orkes JS expression, WAIT task structure and inline taskDefinition, and the second FORK_JOIN JSON schema), at 90% line and 88% branch coverage. Twelve adversarial fixture logs exercise slow brute force, coordinated multi-IP attacks, IPv6, unicode, malformed lines, and high volume. Run the suite with:
+435 pytest tests cover parsing, both detectors (Isolation Forest + PyTorch autoencoder), enrichment, MITRE mapping, the privacy transforms, Sigma and SIEM export, the SOC push (REST and gRPC), the concurrent Claude AI agent loop, Elasticsearch ingest, Kafka publish, MITRE ATT&CK STIX-based RAG retrieval, OTel span emission, OTel SDK-disabled guard (case-insensitive variants), explicit API timeout regression for the AI summary, agent, and concurrent-scale calls, repeat-incident Redis dedup, GCS report upload, and the full Orkes Conductor orchestrated pipeline (incident-count SWITCH routing, graceful degradation of all 5 output-fork workers, severity SWITCH with Python mirror of the Orkes JS expression, WAIT task structure and inline taskDefinition, and the second FORK_JOIN JSON schema), at 90% line and 88% branch coverage. Twelve adversarial fixture logs exercise slow brute force, coordinated multi-IP attacks, IPv6, unicode, malformed lines, and high volume. Run the suite with:
 
 ```bash
 python -m pytest tests/ -v

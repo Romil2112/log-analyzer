@@ -8,7 +8,7 @@ import time
 
 import pytest
 
-from ai_scale import build_incident_prompt, estimate_cost, looks_valid, summarize_batch
+from ai_scale import MODEL, build_incident_prompt, estimate_cost, looks_valid, summarize_batch
 
 
 # --- stub Anthropic client --------------------------------------------------
@@ -43,7 +43,7 @@ class StubClient:
         self._lock = threading.Lock()
         self.messages = self  # so client.messages.create(...) resolves here
 
-    def create(self, *, model, max_tokens, messages):
+    def create(self, *, model, max_tokens, messages, **kwargs):
         with self._lock:
             self.calls += 1
             n = self.calls
@@ -112,6 +112,22 @@ def test_percentiles_and_eval_gate():
 def test_empty_batch():
     results, m = summarize_batch([], client=StubClient(), sleep=NOSLEEP)
     assert results == [] and m.total == 0 and m.cost_usd == 0
+
+
+def test_summarize_one_passes_explicit_timeout():
+    """_summarize_one must pass an explicit timeout= to messages.create, not rely on the SDK default."""
+    from unittest.mock import MagicMock
+    from ai_scale import _summarize_one
+
+    mock_client = MagicMock()
+    mock_client.messages.create.return_value = _Msg("summary text for SOC analysts", 100, 50)
+
+    _summarize_one(mock_client, "test prompt", model=MODEL, max_tokens=200,
+                   max_retries=0, backoff_base=0.5, sleep=NOSLEEP)
+
+    _, kwargs = mock_client.messages.create.call_args
+    assert "timeout" in kwargs, "messages.create must include an explicit timeout="
+    assert isinstance(kwargs["timeout"], (int, float)) and kwargs["timeout"] <= 120
 
 
 def test_build_incident_prompt():

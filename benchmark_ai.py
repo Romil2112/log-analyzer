@@ -34,7 +34,7 @@ class LatencyStub:
         self.latency = latency
         self.messages = self
 
-    def create(self, *, model, max_tokens, messages):
+    def create(self, *, model, max_tokens, messages, **kwargs):
         """Sleep for the configured latency, then return a canned stub message. The
         model/max_tokens/messages args are ignored — they only exist to match the
         Anthropic client's create() signature."""
